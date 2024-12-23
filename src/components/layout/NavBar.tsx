@@ -11,13 +11,28 @@ export const NavBar = () => {
   return (
     <nav className='w-full sm:w-52 sm:h-screen bg-h-tone/5 relative'>
       <div className='sm:hidden flex flex-row px-3 py-2'>
-        <button onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}>
-          ☰
+        <button onClick={() => setIsMobileNavOpen(!isMobileNavOpen)} className='mr-4'>
+          =
         </button>
+
+        <div className='flex-1'>
+          yuno
+        </div>
+
         <ThemeSwitch />
 
         {isMobileNavOpen && (
-          <div className='fixed inset-0 bg-h'>
+          <div className='fixed inset-0 bg-h-background flex flex-col'>
+            <button onClick={() => setIsMobileNavOpen(false)}>
+              X
+            </button>
+            {
+              pages.map(({ title, header }) => (
+                <Link key={title} className='text-sm text-h-text/80' href={`/${header}`} >
+                  {'/'}{title}
+                </Link>
+              ))
+            }
           </div>
         )}
       </div>
