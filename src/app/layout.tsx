@@ -23,7 +23,7 @@ export default function RootLayout({
         <div className='w-full'>
           <Header />
 
-          <main className='max-h-full h-[calc(100vh - 44px)] overflow-y-auto px-3'>
+          <main className='max-h-full h-[calc(100vh - 44px)] overflow-y-auto px-3 text-h-text/80'>
             {children}
           </main>
         </div>

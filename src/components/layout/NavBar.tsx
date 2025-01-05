@@ -1,12 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import classNames from 'classnames';
 import { ThemeSwitch } from './ThemeSwitch';
 import { pages } from '@/app/pages';
-import Link from 'next/link';
 
 export const NavBar = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const curPath = usePathname();
+
+  const curPage = pages.find(({ path }) => curPath === path)
+    ?? pages.find(({ path }) => curPath.startsWith(`/${path}`));
+
+  const subMenus = curPage?.subMenusFn() ?? [];
+
+  const divider = (
+    <div>
+
+    </div>
+  )
 
   return (
     <nav className='w-full sm:w-52 sm:h-screen bg-h-tone/5 relative'>
@@ -27,8 +41,8 @@ export const NavBar = () => {
               X
             </button>
             {
-              pages.map(({ title, header }) => (
-                <Link key={title} className='text-sm text-h-text/80' href={`/${header}`} >
+              pages.map(({ title, path }) => (
+                <Link key={title} className='text-sm text-h-text/80' href={path} >
                   {'/'}{title}
                 </Link>
               ))
@@ -37,18 +51,33 @@ export const NavBar = () => {
         )}
       </div>
 
-      <div className='hidden sm:flex flex-col h-full px-4 py-3'>
+      <div className='hidden sm:flex flex-col h-full px-1 py-3'>
         <div className='h-11'>
-          <div className=''>
+          <div className='px-2'>
             yuno
           </div>
         </div>
 
-        <div>
+        <div className='flex flex-col'>
           {
-            pages.map(({ title, header }) => (
-              <Link key={title} className='text-sm text-h-text/80' href={`/${header}`} >
-                {'/'}{title}
+            pages.map(({ title, path }) => (
+              <Link key={title} className={classNames('px-2 py-1 align-baseline text-sm hover:bg-h-text/20', {
+                'font-bold text-h-text/100': title === curPage?.title,
+                'text-h-text/60': title !== curPage?.title,
+              })} href={path}>
+                {title}
+              </Link>
+            ))
+          }
+        </div>
+
+        <hr className='text-yellow-50 my-3 border-h-text/20 mx-1.5' />
+
+        <div className='flex flex-col'>
+          {
+            subMenus.map(({ title }) => (
+              <Link key={title} className='px-2 py-1 align-baseline text-sm text-h-text/60 hover:bg-h-text/20' href={`/${curPage?.path}/${title}`}>
+                {title}
               </Link>
             ))
           }

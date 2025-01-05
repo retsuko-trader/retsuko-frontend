@@ -4,9 +4,10 @@ import { pages } from '@/app/pages';
 import { usePathname } from 'next/navigation';
 
 export const Header = () => {
-  const path = usePathname();
+  const curPath = usePathname();
 
-  const page = pages.find(({ header }) => path.startsWith(`/${header}`));
+  const page = pages.find(({ path }) => curPath === path)
+    ?? pages.find(({ path }) => curPath.startsWith(`/${path}`));
 
   return (
     <header className='h-11'>
