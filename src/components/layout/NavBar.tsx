@@ -17,10 +17,8 @@ export const NavBar = () => {
   const subMenus = curPage?.subMenusFn() ?? [];
 
   const divider = (
-    <div>
-
-    </div>
-  )
+    <hr className='text-yellow-50 my-3 border-h-text/20 mx-1.5' />
+  );
 
   return (
     <nav className='w-full sm:w-52 sm:h-screen bg-h-tone/5 relative'>
@@ -54,7 +52,7 @@ export const NavBar = () => {
       <div className='hidden sm:flex flex-col h-full px-1 py-3'>
         <div className='h-11'>
           <div className='px-2'>
-            yuno
+            yuno<span className='text-h-blue'>@chan</span>
           </div>
         </div>
 
@@ -71,7 +69,7 @@ export const NavBar = () => {
           }
         </div>
 
-        <hr className='text-yellow-50 my-3 border-h-text/20 mx-1.5' />
+        {divider}
 
         <div className='flex flex-col'>
           {
