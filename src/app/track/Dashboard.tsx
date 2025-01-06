@@ -32,17 +32,20 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
   const tasksTabs = [
     {
       title: '진행중',
+      state: 'ing',
       tasks: tasksIng,
     },
     {
       title: '할 일',
+      state: 'todo',
       tasks: tasksTodo,
     },
     {
       title: '완료',
+      state: 'complete',
       tasks: tasksComplete,
     },
-  ];
+  ] as const;
 
   const updateTask = (id: number, task: Partial<Task>) => {
     setTasks(allTasks.map(t => t.id === id ? { ...t, ...task } : t));
@@ -51,9 +54,9 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
   return (
     <div className='flex flex-col md:flex-row gap-4 items-start'>
       {
-        tasksTabs.map(({ title, tasks }) => (
+        tasksTabs.map(({ title, state, tasks }) => (
           <div key={title} className='w-[24rem] max-w-full'>
-            <div className='text-center bg-h-tone/5 pt-2 pb-1'>
+            <div className='text-center bg-h-tone/5 pt-2 pb-1 select-none'>
               {title}
             </div>
 
@@ -61,52 +64,71 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
               {tasks.map(task => (
                 <div key={task.id} className={classNames('relative py-1 cursor-pointer hover:bg-h-tone/10', {
                 })}>
-                  <div className={classNames('pl-2 border-l-4', {
-                    'border-l-h-red/80': task.priority === 1,
-                    'border-l-h-yellow/80': task.priority === 2,
-                    'border-l-h-green/80': task.priority === 3,
-                    'border-l-h-blue/80': task.priority === 4,
-                  })}>
+                  <div className='flex flex-row items-stretch'>
+                    <div className={classNames('w-1 pr-1 mr-1', {
+                      'bg-h-red/80 hover:bg-h-red/100': task.priority === 1,
+                      'bg-h-yellow/80 hover:bg-h-yellow/100': task.priority === 2,
+                      'bg-h-green/80 hover:bg-h-green/100': task.priority === 3,
+                      'bg-h-blue/80 hover:bg-h-blue/100': task.priority === 4,
+                    })}>
+                    </div>
+                    <div className='w-full'>
 
-                    <EditableText text={task.title} setText={(title) => {
-                      updateTask(task.id, { title });
-                    }} className={classNames('w-fit text-h-text min-w-full', {
-                    })} />
+                      <EditableText text={task.title} setText={(title) => {
+                        updateTask(task.id, { title });
+                      }} className={classNames('w-fit text-h-text min-h-6')}
+                        placeHolder={<span className='text-h-text/40'>TITLE</span>}
+                      />
 
-                    <EditableText text={task.description} setText={(description) => {
-                      updateTask(task.id, { description });
-                    }} className='text-h-text/60 leading-5 min-w-full' />
+                      <EditableText text={task.description} setText={(description) => {
+                        updateTask(task.id, { description });
+                      }} className='text-h-text/60 w-fit leading-5 min-h-5'
+                        placeHolder={<span className='text-h-text/40'>DESCRIPTION</span>} />
 
-                    <div className='flex flex-col'>
+                      <div className='flex flex-col'>
+                        {
+                          task.subTasks.map(subTask => (
+                            <div key={subTask.id} className={classNames('pl-1 cursor-pointer first:mt-1', {
+                            })}>
+                              <label className='text-h-text/60'>
+                                <input type='checkbox' className='mr-1' />
+
+                                <span className={classNames('select-none', {
+                                  'text-h-text/40 line-through': subTask.state === 'complete',
+                                })}>
+                                  {subTask.title}
+                                </span>
+                              </label>
+                            </div>
+                          ))
+                        }
+                      </div>
+
                       {
-                        task.subTasks.map(subTask => (
-                          <div key={subTask.id} className={classNames('pl-1 cursor-pointer first:mt-1', {
-                          })}>
-                            <label className='text-h-text/60'>
-                              <input type='checkbox' className='mr-1' />
-
-                              <span className={classNames({
-                                'text-h-text/40 line-through': subTask.state === 'complete',
-                              })}>
-                                {subTask.title}
-                              </span>
-                            </label>
+                        task.due && (
+                          <div className='text-h-text/60 mt-2 text-xs'>
+                            📅 {task.due}
                           </div>
-                        ))
+                        )
                       }
                     </div>
-
-                    {
-                      task.due && (
-                        <div className='text-h-text/60 mt-2 text-xs'>
-                          📅 {task.due}
-                        </div>
-                      )
-                    }
                   </div>
                 </div>
               ))}
             </div>
+
+            <button className='block w-full py-1 text-center hover:bg-h-tone/5' onClick={() => {
+              setTasks([...allTasks, {
+                id: allTasks.length + 1,
+                priority: 1,
+                title: '',
+                description: '',
+                state,
+                subTasks: [],
+              }]);
+            }}>
+              +
+            </button>
           </div>
         ))
       }
