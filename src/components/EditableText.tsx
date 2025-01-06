@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import React from 'react';
 
 export function EditableText(props: {
@@ -7,6 +8,7 @@ export function EditableText(props: {
   setText: (text: string) => void;
   placeHolder?: React.ReactNode;
   className?: string;
+  editClassName?: string;
 }) {
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -27,7 +29,7 @@ export function EditableText(props: {
   }
 
   return (
-    <input type='text' spellCheck={false} autoFocus className={props.className} onBlur={doneEditing} onKeyDown={e => {
+    <input type='text' spellCheck={false} autoFocus className={classNames(props.className, props.editClassName)} onBlur={doneEditing} onKeyDown={e => {
       if (e.key === 'Enter' || e.key === 'Escape') {
         doneEditing(e);
       }

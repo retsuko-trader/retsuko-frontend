@@ -31,4 +31,7 @@ export default {
     },
   },
   plugins: [],
+  safelist: [
+    'h-5',
+  ],
 } satisfies Config;

@@ -76,13 +76,17 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
 
                       <EditableText text={task.title} setText={(title) => {
                         updateTask(task.id, { title });
-                      }} className={classNames('w-fit text-h-text min-h-6')}
+                      }}
+                        className={classNames('w-fit text-h-text min-h-6')}
+                        editClassName='min-w-full'
                         placeHolder={<span className='text-h-text/40'>TITLE</span>}
                       />
 
                       <EditableText text={task.description} setText={(description) => {
                         updateTask(task.id, { description });
-                      }} className='text-h-text/60 w-fit leading-5 min-h-5'
+                      }}
+                        className='text-h-text/60 w-fit leading-5 min-h-5'
+                        editClassName='min-w-full h-5'
                         placeHolder={<span className='text-h-text/40'>DESCRIPTION</span>} />
 
                       <div className='flex flex-col'>
@@ -90,8 +94,8 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
                           task.subTasks.map(subTask => (
                             <div key={subTask.id} className={classNames('pl-1 cursor-pointer first:mt-1', {
                             })}>
-                              <label className='text-h-text/60'>
-                                <input type='checkbox' className='mr-1' />
+                              <label className='text-h-text/60 cursor-pointer'>
+                                <input type='checkbox' className='mr-1' defaultChecked={subTask.state === 'complete'} />
 
                                 <span className={classNames('select-none', {
                                   'text-h-text/40 line-through': subTask.state === 'complete',
