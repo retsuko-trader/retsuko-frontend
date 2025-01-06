@@ -28,7 +28,7 @@ export const ThemeSwitch = () => {
 
   return (
     <button onClick={() => setTheme(!isDark, true)}>
-      {isDark ? '🌞' : '🌚'}
+      {isDark ? '🌑' : '☀️'}
     </button>
   );
 };

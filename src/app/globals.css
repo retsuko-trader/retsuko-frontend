@@ -56,6 +56,14 @@
   background-color: rgb(var(--color-white) / 0.2);
 }
 
+input[type="text"] {
+  appearance: none;
+  -moz-appearance:initial;
+  -webkit-appearance: none;
+  background-color: inherit;
+  outline: none;
+}
+
 input[type="checkbox"] {
   appearance: none;
   -moz-appearance:initial;
