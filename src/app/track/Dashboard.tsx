@@ -16,6 +16,7 @@ export interface Task {
     state: 'todo' | 'ing' | 'complete';
   }>;
   due?: string;
+  comments: string[];
 }
 
 interface TrackDashboardProps {
@@ -108,13 +109,25 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
                         }
                       </div>
 
+                      <div className='flex flex-row'>
                       {
                         task.due && (
-                          <div className='text-h-text/60 mt-2 text-xs'>
-                            📅 {task.due}
-                          </div>
+                            <div className='text-h-text/60 mt-2 text-xs'>
+                              📅 {task.due}
+                            </div>
                         )
                       }
+
+                        <div className='flex-1' />
+
+                        {
+                          task.comments.length > 0 && (
+                            <div className='text-h-text/60 mt-2 text-xs'>
+                              💬 {task.comments.length}
+                            </div>
+                          )
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -129,6 +142,7 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
                 description: '',
                 state,
                 subTasks: [],
+                comments: [],
               }]);
             }}>
               +

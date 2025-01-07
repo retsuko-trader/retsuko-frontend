@@ -35,6 +35,10 @@ export default function TaskHome() {
         },
       ],
       due: '3 PM',
+      comments: [
+        '우효',
+        '커멘트라고',
+      ],
     },
     {
       id: 2,
@@ -45,6 +49,8 @@ export default function TaskHome() {
       subTasks: [
       ],
       due: '12 AM',
+      comments: [
+      ],
     },
     {
       id: 3,
@@ -55,6 +61,8 @@ export default function TaskHome() {
       subTasks: [
       ],
       due: 'TOMORROW',
+      comments: [
+      ],
     },
     {
       id: 4,
@@ -65,6 +73,12 @@ export default function TaskHome() {
       subTasks: [
       ],
       due: '12/25',
+      comments: [
+        '우효',
+        '커멘트라고',
+        '커멘트라고',
+        '커멘트라고',
+      ],
     },
     {
       id: 5,
@@ -73,6 +87,12 @@ export default function TaskHome() {
       description: '숨숴 숨',
       state: 'ing',
       subTasks: [
+      ],
+      comments: [
+        '우효',
+        '커멘트라고',
+        '커멘트라고',
+        '커멘트라고',
       ],
     }
   ];
