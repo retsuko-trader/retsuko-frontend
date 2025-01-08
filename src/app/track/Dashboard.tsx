@@ -110,13 +110,9 @@ export function TrackDashboard({ tasks: tasksPreload }: TrackDashboardProps) {
                       </div>
 
                       <div className='flex flex-row'>
-                      {
-                        task.due && (
-                            <div className='text-h-text/60 mt-2 text-xs'>
-                              📅 {task.due}
-                            </div>
-                        )
-                      }
+                        <div className='text-h-text/60 mt-2 text-xs'>
+                          📅 {task.due ?? '---'}
+                        </div>
 
                         <div className='flex-1' />
 
