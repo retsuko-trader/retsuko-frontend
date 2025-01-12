@@ -61,7 +61,16 @@ export function TaskView(props: Props) {
                 <div key={subTask.id} className={classNames('pl-1 cursor-pointer first:mt-1', {
                 })}>
                   <label className='text-h-text/60 cursor-pointer'>
-                    <input type='checkbox' className='mr-1' defaultChecked={subTask.state === 'complete'} />
+                    <input type='checkbox' className='mr-1' defaultChecked={subTask.state === 'complete'}
+                      onChange={e => {
+                        updateTask(task.id, {
+                          subTasks: task.subTasks.map(st => st.id === subTask.id ? {
+                            ...st,
+                            state: e.currentTarget.checked ? 'complete' : 'todo',
+                          } : st)
+                        });
+                      }}
+                    />
 
                     <span className={classNames('select-none', {
                       'text-h-text/40 line-through': subTask.state === 'complete',
@@ -75,7 +84,7 @@ export function TaskView(props: Props) {
           </div>
 
           <div className='flex flex-row'>
-            <div className='text-h-text/60 mt-2 text-xs'>
+            <div className='text-h-text/60 mt-2 text-xs hover:text-h-text'>
               📅 {task.due ?? '---'}
             </div>
 
