@@ -2,6 +2,8 @@
 
 import { GetSubMenu } from '@/lib/menu';
 import { Task, TrackDashboard } from './Dashboard';
+import React, { useCallback } from 'react';
+import { TaskSideView } from './TaskSideView';
 
 export const getSubMenus: GetSubMenu = () => {
   return [
@@ -15,6 +17,15 @@ export const getSubMenus: GetSubMenu = () => {
 };
 
 export default function TaskHome() {
+  const [showSideView, setShowSideView] = React.useState(false);
+  const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+  const [taskUpdatedCallback, setTaskUpdatedCallback] = React.useState<(task: Task) => void>(() => () => { });
+
+  const selectTaskAndShowSideView = useCallback((task: Task) => {
+    setSelectedTask(task);
+    setShowSideView(true);
+  }, [setSelectedTask, setShowSideView]);
+
   const tasksMock: Task[] = [
     {
       id: 1,
@@ -98,14 +109,28 @@ export default function TaskHome() {
   ];
 
   return (
-    <div>
-      <div>
-        <div className='mb-5'>
+    <div className='w-full h-full relative'>
+      <div className='pt-5'>
 
-        </div>
-
-        <TrackDashboard tasks={tasksMock} />
+        <TrackDashboard
+          tasks={tasksMock}
+          setSelectedTask={selectTaskAndShowSideView}
+          taskUpdated={setTaskUpdatedCallback}
+        />
       </div>
+
+      {
+        showSideView && (
+          <div className='fixed top-0 bottom-0 right-0 w-[40rem] bg-h-background'>
+            <div className='w-full h-full bg-h-red'>
+              <TaskSideView
+                task={selectedTask!}
+                taskUpdatedCallback={taskUpdatedCallback}
+              />
+            </div>
+          </div>
+        )
+      }
 
     </div>
   );

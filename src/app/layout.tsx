@@ -20,10 +20,10 @@ export default function RootLayout({
       >
         <NavBar />
 
-        <div className='w-full'>
+        <div className='w-full max-h-full h-full flex flex-col'>
           <Header />
 
-          <main className='max-h-full sm:h-[calc(100vh-44px)] overflow-y-auto px-3 text-h-text/80'>
+          <main className='max-h-full sm:h-full overflow-y-auto pl-3 text-h-text/80'>
             {children}
           </main>
         </div>
