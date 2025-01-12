@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TaskView } from './TaskView';
-import { closestCorners, DndContext, DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { closestCorners, DndContext, DragEndEvent, DragOverEvent } from '@dnd-kit/core';
 import { useDnd } from './useDnd';
 import { TaskColumn } from './TaskColumn';
 
@@ -31,7 +30,6 @@ export function TrackDashboard({
   tasks: tasksPreload,
 }: TrackDashboardProps) {
   const [allTasks, setTasks] = React.useState(tasksPreload);
-  const [dragState, setDragState] = React.useState<Task['state'] | null>(null);
 
   const dnd = useDnd();
 
