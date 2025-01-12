@@ -46,10 +46,7 @@ export default function TaskHome() {
         },
       ],
       due: '3 PM',
-      comments: [
-        '우효',
-        '커멘트라고',
-      ],
+      comments: [],
     },
     {
       id: 2,
@@ -109,9 +106,8 @@ export default function TaskHome() {
   ];
 
   return (
-    <div className='w-full h-full relative'>
-      <div className='pt-5'>
-
+    <div className='w-full h-full relative flex flex-row'>
+      <div className='pt-5 max-h-full w-full overflow-y-auto'>
         <TrackDashboard
           tasks={tasksMock}
           setSelectedTask={selectTaskAndShowSideView}
@@ -121,8 +117,8 @@ export default function TaskHome() {
 
       {
         showSideView && (
-          <div className='fixed top-0 bottom-0 right-0 w-[40rem] bg-h-background'>
-            <div className='w-full h-full bg-h-red'>
+          <div className='h-full top-0 bottom-0 right-0 w-[52rem] bg-h-background drop-shadow-lg'>
+            <div className='w-full h-full bg-h-tone/5 p-3'>
               <TaskSideView
                 task={selectedTask!}
                 taskUpdatedCallback={taskUpdatedCallback}

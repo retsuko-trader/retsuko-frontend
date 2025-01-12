@@ -28,6 +28,7 @@ interface TrackDashboardProps {
 
 export function TrackDashboard({
   tasks: tasksPreload,
+  setSelectedTask,
 }: TrackDashboardProps) {
   const [allTasks, setTasks] = React.useState(tasksPreload);
 
@@ -80,6 +81,8 @@ export function TrackDashboard({
     if (!task || !over) {
       return;
     }
+
+    setSelectedTask(task);
 
     updateTask(task.id, {
       state: findState(over.id)

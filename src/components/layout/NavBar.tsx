@@ -21,7 +21,7 @@ export const NavBar = () => {
   );
 
   return (
-    <nav className='w-full sm:w-52 sm:h-screen bg-h-tone/5 relative'>
+    <nav className='w-full sm:w-48 sm:h-screen bg-h-tone/5 relative flex-shrink-0'>
       <div className='sm:hidden flex flex-row px-3 py-2'>
         <button onClick={() => setIsMobileNavOpen(!isMobileNavOpen)} className='mr-4'>
           =

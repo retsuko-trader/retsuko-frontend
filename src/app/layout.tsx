@@ -23,7 +23,7 @@ export default function RootLayout({
         <div className='w-full max-h-full h-full flex flex-col'>
           <Header />
 
-          <main className='max-h-full sm:h-full overflow-y-auto pl-3 text-h-text/80'>
+          <main className='max-h-full sm:h-full overflow-y-auto pl-3 text-h-text/80 flex-1'>
             {children}
           </main>
         </div>
