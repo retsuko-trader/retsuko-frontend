@@ -14,6 +14,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@duckdb/node-api": "^1.1.3-alpha.8",
     "classnames": "^2.5.1",
+    "duckdb": "^1.1.3",
     "duckdb-async": "^1.1.3",
     "kysely": "^0.27.5",
     "kysely-duckdb": "^0.1.0",
