@@ -18,6 +18,8 @@ export const NavBar = () => {
 
   const subMenus = curPage?.subMenusFn() ?? [];
 
+  const currentSubMenu = subMenus.find(({ title }) => curPath.endsWith(title));
+
   const divider = (
     <hr className='text-yellow-50 my-3 border-h-text/20 mx-1.5' />
   );
@@ -75,11 +77,17 @@ export const NavBar = () => {
 
         <div className='flex flex-col'>
           {
-            subMenus.map(({ title }) => (
-              <Link key={title} className='px-2 py-1 align-baseline text-sm text-h-text/60 hover:bg-h-text/20' href={{ pathname: `${curPage?.path}/${title}` }}>
-                {title}
-              </Link>
-            ))
+            subMenus.map(({ title }) => {
+              const href = `${curPage?.path}/${title}`;
+              return (
+                <Link key={title} className={classNames('px-2 py-1 align-baseline text-sm hover:bg-h-text/20', {
+                  'font-bold text-h-text/100': title === currentSubMenu?.title,
+                  'text-h-text/60': title !== currentSubMenu?.title,
+                })} href={href}>
+                  {title}
+                </Link>
+              )
+            })
           }
         </div>
 
