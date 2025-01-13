@@ -1,3 +1,4 @@
+import { formatDateShort } from '@/lib/helper/date';
 import { GetDatasetList } from '@/lib/retsuko/dataset';
 
 export default async function RetsukoDatasetPage() {
@@ -5,15 +6,46 @@ export default async function RetsukoDatasetPage() {
 
   return (
     <div>
-      {datasets.map((dataset) => {
-        const key = `${dataset.source}_${dataset.symbol}_${dataset.interval}`;
+      <table className='font-mono px-5'>
+        <thead>
+          <tr className='text-left bg-h-tone/5'>
+            <th>source</th>
+            <th>symbol</th>
+            <th>int</th>
+            <th className='text-center'>start</th>
+            <th className='text-center'>end</th>
+            <th className='text-right'>count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {datasets.map((dataset) => {
+            const key = `${dataset.source}_${dataset.symbol}_${dataset.interval}`;
 
-        return (
-          <div key={key}>
-            {key}
-          </div>
-        )
-      })}
+            return (
+              <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer'>
+                <td className='w-20'>
+                  {dataset.source}
+                </td>
+                <td className='w-20'>
+                  {dataset.symbol}
+                </td>
+                <td className='w-10'>
+                  {dataset.interval}
+                </td>
+                <td className='w-36'>
+                  {formatDateShort(dataset.start)}
+                </td>
+                <td className='w-36'>
+                  {formatDateShort(dataset.end)}
+                </td>
+                <td className='w-20 text-right'>
+                  {dataset.count}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
