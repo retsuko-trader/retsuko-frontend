@@ -23,3 +23,15 @@ export const pages: Menu[] = [
     subMenusFn: getRetsukoSubMenus,
   },
 ];
+
+export function getPage(curPath: string) {
+  const pagesWithoutIndex = pages.filter(({ path }) => path !== '/');
+
+  const page = pages.find(({ path }) => curPath === path)
+    ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
+
+  const subMenus = page?.subMenusFn() ?? [];
+  const subMenu = subMenus.find(({ title }) => curPath.endsWith(title));
+
+  return { page, subMenus, subMenu };
+}

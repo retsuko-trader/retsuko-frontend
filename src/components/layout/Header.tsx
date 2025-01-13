@@ -1,20 +1,24 @@
 'use client';
 
-import { pages } from '@/app/pages';
+import { getPage } from '@/app/pages';
 import { usePathname } from 'next/navigation';
 
 export const Header = () => {
   const curPath = usePathname();
 
-  const pagesWithoutIndex = pages.filter(({ path }) => path !== '/');
-
-  const page = pages.find(({ path }) => curPath === path)
-    ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
+  const { page, subMenu } = getPage(curPath);
 
   return (
     <header className='h-11'>
       <div className='p-3'>
         {page?.header ?? '404'}
+        {
+          subMenu && (
+            <span>
+              /{subMenu.title}
+            </span>
+          )
+        }
       </div>
     </header>
   );

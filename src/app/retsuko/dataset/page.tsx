@@ -8,7 +8,7 @@ export default async function RetsukoDatasetPage() {
     <div>
       <table className='font-mono px-5'>
         <thead>
-          <tr className='text-left bg-h-tone/5'>
+          <tr className='text-h-text/80 text-left bg-h-tone/10'>
             <th>source</th>
             <th>symbol</th>
             <th>int</th>
@@ -22,7 +22,7 @@ export default async function RetsukoDatasetPage() {
             const key = `${dataset.source}_${dataset.symbol}_${dataset.interval}`;
 
             return (
-              <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer'>
+              <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer even:bg-h-tone/5'>
                 <td className='w-20'>
                   {dataset.source}
                 </td>

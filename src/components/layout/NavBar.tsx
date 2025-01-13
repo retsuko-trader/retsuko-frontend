@@ -5,20 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import classNames from 'classnames';
 import { ThemeSwitch } from './ThemeSwitch';
-import { pages } from '@/app/pages';
+import { getPage, pages } from '@/app/pages';
 
 export const NavBar = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const curPath = usePathname();
 
-  const pagesWithoutIndex = pages.filter(({ path }) => path !== '/');
-
-  const curPage = pages.find(({ path }) => curPath === path)
-    ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
-
-  const subMenus = curPage?.subMenusFn() ?? [];
-
-  const currentSubMenu = subMenus.find(({ title }) => curPath.endsWith(title));
+  const { page, subMenus, subMenu } = getPage(curPath);
 
   const divider = (
     <hr className='text-yellow-50 my-3 border-h-text/20 mx-1.5' />
@@ -64,8 +57,8 @@ export const NavBar = () => {
           {
             pages.map(({ title, path }) => (
               <Link key={title} className={classNames('px-2 py-1 align-baseline text-sm hover:bg-h-text/20', {
-                'font-bold text-h-text/100': title === curPage?.title,
-                'text-h-text/60': title !== curPage?.title,
+                'font-bold text-h-text/100': title === page?.title,
+                'text-h-text/60': title !== page?.title,
               })} href={path}>
                 {title}
               </Link>
@@ -78,11 +71,11 @@ export const NavBar = () => {
         <div className='flex flex-col'>
           {
             subMenus.map(({ title }) => {
-              const href = `${curPage?.path}/${title}`;
+              const href = `${page?.path}/${title}`;
               return (
                 <Link key={title} className={classNames('px-2 py-1 align-baseline text-sm hover:bg-h-text/20', {
-                  'font-bold text-h-text/100': title === currentSubMenu?.title,
-                  'text-h-text/60': title !== currentSubMenu?.title,
+                  'font-bold text-h-text/100': title === subMenu?.title,
+                  'text-h-text/60': title !== subMenu?.title,
                 })} href={href}>
                   {title}
                 </Link>
