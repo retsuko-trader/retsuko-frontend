@@ -11,8 +11,10 @@ export const NavBar = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const curPath = usePathname();
 
+  const pagesWithoutIndex = pages.filter(({ path }) => path !== '/');
+
   const curPage = pages.find(({ path }) => curPath === path)
-    ?? pages.find(({ path }) => curPath.startsWith(`/${path}`));
+    ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
 
   const subMenus = curPage?.subMenusFn() ?? [];
 
@@ -74,7 +76,7 @@ export const NavBar = () => {
         <div className='flex flex-col'>
           {
             subMenus.map(({ title }) => (
-              <Link key={title} className='px-2 py-1 align-baseline text-sm text-h-text/60 hover:bg-h-text/20' href={`/${curPage?.path}/${title}`}>
+              <Link key={title} className='px-2 py-1 align-baseline text-sm text-h-text/60 hover:bg-h-text/20' href={{ pathname: `${curPage?.path}/${title}` }}>
                 {title}
               </Link>
             ))

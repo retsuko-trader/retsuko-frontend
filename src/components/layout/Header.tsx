@@ -6,8 +6,10 @@ import { usePathname } from 'next/navigation';
 export const Header = () => {
   const curPath = usePathname();
 
+  const pagesWithoutIndex = pages.filter(({ path }) => path !== '/');
+
   const page = pages.find(({ path }) => curPath === path)
-    ?? pages.find(({ path }) => curPath.startsWith(`/${path}`));
+    ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
 
   return (
     <header className='h-11'>
