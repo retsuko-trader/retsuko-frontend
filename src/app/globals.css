@@ -64,6 +64,22 @@ input[type="text"] {
   outline: none;
 }
 
+input[type="number"] {
+  appearance: none;
+  -moz-appearance:initial;
+  -webkit-appearance: none;
+  background-color: inherit;
+  outline: none;
+}
+
+input[type="date"] {
+  appearance: none;
+  -moz-appearance:initial;
+  -webkit-appearance: none;
+  background-color: inherit;
+  outline: none;
+}
+
 input[type="checkbox"] {
   appearance: none;
   -moz-appearance:initial;
@@ -98,4 +114,24 @@ input[type="checkbox"]::before {
 
 input[type="checkbox"]:checked::before {
   transform: scale(1);
+}
+
+select {
+  appearance: none;
+  -moz-appearance:initial;
+  -webkit-appearance: none;
+  background-color: inherit;
+  outline: none;
+  cursor: pointer;
+
+  box-shadow: 0 -1px currentColor inset;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+select option {
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-text));
 }

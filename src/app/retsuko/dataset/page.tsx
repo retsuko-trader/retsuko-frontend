@@ -1,12 +1,12 @@
 import { formatDateShort } from '@/lib/helper/date';
-import { GetDatasetList } from '@/lib/retsuko/dataset';
+import { getDatasetList } from '@/lib/retsuko/dataset';
 
 export default async function RetsukoDatasetPage() {
-  const datasets = await GetDatasetList();
+  const datasets = await getDatasetList();
 
   return (
     <div>
-      <table className='font-mono px-5'>
+      <table className='font-mono'>
         <thead>
           <tr className='text-h-text/80 text-left bg-h-tone/10'>
             <th>source</th>

@@ -1,7 +1,16 @@
 import { CompiledQuery } from 'kysely';
 import { db } from '../db/duckdb';
 
-export async function GetDatasetList() {
+export type Dataset = {
+  symbol: string;
+  source: string;
+  interval: string;
+  start: Date;
+  end: Date;
+  count: number;
+};
+
+export async function getDatasetList(): Promise<Dataset[]> {
   const resp = await db.selectFrom('candle')
     .select(({ fn }) => [
       'source',
@@ -13,9 +22,37 @@ export async function GetDatasetList() {
     ])
     .groupBy(['source', 'interval', 'symbol'])
     .orderBy(['source', 'symbol', 'interval'])
+    .$castTo<Dataset>()
     .execute();
 
   return resp;
+}
+
+export async function* getCandles(options: {
+  source: string;
+  symbol: string;
+  interval: string;
+  start?: Date;
+  end?: Date;
+}) {
+  const { source, symbol, interval, start, end } = options;
+
+  // TODO: chunk optimize
+  const query = db.selectFrom('candle')
+    .selectAll()
+    .where('source', '=', source)
+    .where('symbol', '=', symbol)
+    .where('interval', '=', interval)
+    .orderBy('ts');
+
+  if (start) {
+    query.where('ts', '>=', start);
+  }
+  if (end) {
+    query.where('ts', '<=', end);
+  }
+  const resp = await query.execute();
+  yield* resp;
 }
 
 export async function importFromCandleDb() {

@@ -1,18 +1,4 @@
-import { GetSubMenu } from '@/lib/menu';
-
-export const getSubMenus: GetSubMenu = () => {
-  return [
-    {
-      title: 'dataset',
-    },
-    {
-      title: 'strategy',
-    },
-    {
-      title: 'transaction',
-    },
-  ];
-};
+export { getSubMenus } from './subMenus';
 
 export default function RetsukoHome() {
   return (
