@@ -1,7 +1,5 @@
 import { Database } from 'duckdb';
-import { Database as DatabaseAsync } from 'duckdb-async';
 import { Kysely } from 'kysely';
-import { DuckDbAsyncDialect } from 'kysely-duckdb-async';
 import { DatabaseTables } from './tables';
 import { DuckDbDialect } from 'kysely-duckdb';
 
@@ -14,15 +12,3 @@ export const db: Kysely<DatabaseTables> = new Kysely<DatabaseTables>({
     tableMappings: {},
   }),
 });
-
-export async function initAsync() {
-  const duckdb = await DatabaseAsync.create(DB_URL);
-
-  const db = new Kysely<DatabaseTables>({
-    dialect: new DuckDbAsyncDialect({
-      database: duckdb,
-    }),
-  });
-
-  return { duckdb, db };
-}

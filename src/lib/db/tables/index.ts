@@ -1,5 +1,6 @@
-import { Candle } from './candle';
 
-export interface DatabaseTables {
-  candle: Candle;
-}
+import { Tables as RetsukoTables } from '@/lib/retsuko/tables';
+
+export type DatabaseTables = (
+  & RetsukoTables
+);
