@@ -44,10 +44,10 @@ export class Backtester {
   $lastCandle: Candle | null = null;
 
   public async init() {
-    const { source, symbol, interval } = getDatasetCandidate(this.config.dataset.alias);
+    const { market, symbol, interval } = getDatasetCandidate(this.config.dataset.alias);
 
     this.$candles = getCandles({
-      source,
+      market,
       symbol,
       interval,
       start: this.config.dataset.start,

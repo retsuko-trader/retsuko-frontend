@@ -5,7 +5,7 @@ import { Market } from './tables/candle';
 export type Dataset = {
   market: Market;
   symbol: string;
-  interval: string;
+  interval: BinanceInterval;
   start: Date;
   end: Date;
   count: number;
