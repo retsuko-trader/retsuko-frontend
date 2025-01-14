@@ -19,7 +19,7 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
     strategyVariants: [],
     trader: {
       balanceInitial: 1000,
-      fee: 0.05,
+      fee: 0.0005,
     },
   });
 

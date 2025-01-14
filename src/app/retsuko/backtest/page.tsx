@@ -4,7 +4,7 @@ import { BacktestConfigEditor } from './BacktestConfigEditor';
 import { BacktestConfig, Backtester } from '@/lib/retsuko/core/backtester';
 import { redirect } from 'next/navigation';
 import { StrategyEntries } from '@/lib/retsuko/core/strategies';
-import { formatDateShort } from '@/lib/helper/date';
+import { formatDateShort, formatPercent } from '@/lib/helper';
 
 export default async function RetsukoBacktestPage() {
   const backtestRuns = await getBacktests();
@@ -23,7 +23,8 @@ export default async function RetsukoBacktestPage() {
     backtester.run().then(() => {
       console.log('backtest done');
     });
-    redirect(`/retsuko/backtest/${backtester.$runId}`);
+
+    redirect('/retsuko/backtest');
   };
 
   return (
@@ -40,12 +41,12 @@ export default async function RetsukoBacktestPage() {
               status
             </div>
 
-            <div className='w-14 text-right'>
-              data
+            <div className='w-24 text-right'>
+              datasets
             </div>
 
-            <div className='w-14 text-right'>
-              str
+            <div className='w-24 text-right'>
+              strategy
             </div>
           </div>
           {
@@ -60,12 +61,16 @@ export default async function RetsukoBacktestPage() {
                     {x.endedAt ? 'ended' : 'running'}
                   </div>
 
-                  <div className='w-14 text-right'>
+                  <div className='w-24 text-right'>
                     {x.datasets.length}
                   </div>
 
-                  <div className='w-14 text-right'>
+                  <div className='w-24 text-right'>
                     {x.strategyVariants.length}
+                  </div>
+
+                  <div className='w-16 text-right'>
+                    {formatPercent(x.tradeOptions.fee)}
                   </div>
                 </div>
               </Link>

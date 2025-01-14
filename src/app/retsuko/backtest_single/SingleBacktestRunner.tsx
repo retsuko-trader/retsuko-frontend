@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import * as R from 'remeda';
 import type { SingleBacktestConfig, BacktestReport } from '@/lib/retsuko/core/singleBacktester';
 import type { Dataset } from '@/lib/retsuko/repository/dataset';
-import { formatDateShort } from '@/lib/helper/date';
+import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
 
@@ -27,14 +27,6 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
     setReport(resp);
     setLoading(false);
   };
-
-  const formatBalance = (balance: number) => {
-    return balance.toFixed(2);
-  }
-
-  const formatPercent = (percent: number) => {
-    return (percent * 100).toFixed(2) + '%';
-  }
 
   const wins = report?.trades.filter(x => x.profit > 0).length;
   const loses = report?.trades.filter(x => x.profit < 0).length;

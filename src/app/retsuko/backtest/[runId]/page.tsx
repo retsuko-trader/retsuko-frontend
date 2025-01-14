@@ -1,4 +1,4 @@
-import { formatDateShort } from '@/lib/helper/date';
+import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { getBacktestRunGroup } from '@/lib/retsuko/repository';
 import { notFound } from 'next/navigation';
 
@@ -21,14 +21,6 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
     return run.strategyVariants.findIndex(x => (
       x.name === strategy.name && JSON.stringify(x.config) === JSON.stringify(strategy.config)
     ));
-  };
-
-  const formatBalance = (balance: number) => {
-    return balance.toFixed(2);
-  };
-
-  const formatPercent = (percent: number) => {
-    return (percent * 100).toFixed(2) + '%';
   };
 
   return (
