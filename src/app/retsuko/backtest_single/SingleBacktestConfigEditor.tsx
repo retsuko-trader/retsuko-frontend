@@ -1,8 +1,10 @@
-import { SingleBacktestConfig } from '@/lib/retsuko/core/singleBacktester';
-import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
-import { Dataset } from '@/lib/retsuko/repository/dataset';
+'use client';
+
 import moment from 'moment';
 import React from 'react';
+import type { SingleBacktestConfig } from '@/lib/retsuko/core/singleBacktester';
+import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
+import type { Dataset } from '@/lib/retsuko/repository/dataset';
 
 interface Props {
   datasets: Dataset[];
@@ -13,7 +15,7 @@ interface Props {
   runBacktest: (config: SingleBacktestConfig) => void;
 }
 
-export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) {
+export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: Props) {
   const [config, setConfig] = React.useState<SingleBacktestConfig>({
     dataset: {
       alias: getDatasetAlias(datasets[0]),
@@ -27,7 +29,7 @@ export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) 
     trader: {
       balanceInitial: 1000,
       fee: 0.05,
-    }
+    },
   });
 
   const updateConfig = (option: Partial<SingleBacktestConfig>) => {

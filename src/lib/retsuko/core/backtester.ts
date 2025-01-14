@@ -36,10 +36,16 @@ export class Backtester {
       return false;
     }
 
-    const strategies = this.config.strategyVariants.map(x => StrategyEntries.find(y => y.name === x.name));
+    const strategies = this.config.strategyVariants.map(x => ({
+      ...StrategyEntries.find(y => y.name === x.name),
+      config: x.config,
+    }));
     if (strategies.some(x => !x)) {
       return false;
     }
+
+    this.$datasets = datasetGroup.datasets;
+    this.$strategies = strategies as StrategyEntry[];
 
     this.$runId = await createBacktestRun({
       createdAt: new Date(),

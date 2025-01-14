@@ -1,5 +1,5 @@
 import { StrategyEntries } from '@/lib/retsuko/core/strategies';
-import { BacktestRunner } from './BacktestRunner';
+import { SingleBacktestRunner } from './SingleBacktestRunner';
 import { searchDatasets } from '@/lib/retsuko/repository';
 
 export default async function RetsukoDatasetPage() {
@@ -17,7 +17,7 @@ export default async function RetsukoDatasetPage() {
             <p>no datasets or entries</p>
           </div>
         ) : (
-            <BacktestRunner datasets={datasets} entries={entries} />
+            <SingleBacktestRunner datasets={datasets} entries={entries} />
         )
       }
     </div>

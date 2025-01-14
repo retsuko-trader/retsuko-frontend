@@ -7,7 +7,7 @@ import type { SingleBacktestConfig, BacktestReport } from '@/lib/retsuko/core/si
 import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatDateShort } from '@/lib/helper/date';
 import { runBacktest } from './actions';
-import { BacktestConfigEditor } from './BacktestConfigEditor';
+import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
 
 interface Props {
   datasets: Dataset[];
@@ -17,7 +17,7 @@ interface Props {
   }>
 }
 
-export function BacktestRunner({ datasets, entries }: Props) {
+export function SingleBacktestRunner({ datasets, entries }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [report, setReport] = React.useState<BacktestReport | null>(null);
 
@@ -42,7 +42,7 @@ export function BacktestRunner({ datasets, entries }: Props) {
 
   return (
     <div className='w-full h-full relative flex flex-row'>
-      <div className='w-full h-full'>
+      <div className='w-full h-full overflow-y-auto'>
 
         <div>
           {report === null ? (
@@ -59,7 +59,7 @@ export function BacktestRunner({ datasets, entries }: Props) {
 
                   <Row label='strategy' value={report.config.strategy.name} />
                   <Row label='config' value={JSON.stringify(report.config.strategy.config)} />
-                    <Row label='balance' value={report.config.trader.balanceInitial} />
+                  <Row label='balance' value={report.config.trader.balanceInitial} />
                   <Row label='fee' value={report.config.trader.fee} />
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function BacktestRunner({ datasets, entries }: Props) {
 
       <div className='h-full top-0 bottom-0 right-0 w-[30rem] bg-h-background drop-shadow-lg'>
         <div className='w-full h-full bg-h-tone/5 p-3'>
-          <BacktestConfigEditor
+          <SingleBacktestConfigEditor
             datasets={datasets}
             entries={entries}
             runBacktest={run}

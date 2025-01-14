@@ -12,10 +12,19 @@ function convertGroupToRaw(row: DatasetGroup | Omit<DatasetGroup, 'id'>): RawDat
 }
 
 function convertRawToGroup(row: RawDatasetGroup): DatasetGroup {
+  const datasetsRaw = JSON.parse(row.datasetsRaw) as Array<{
+    alias: string;
+    start: string;
+    end: string;
+  }>;
   return {
     id: row.id!,
     name: row.name,
-    datasets: JSON.parse(row.datasetsRaw),
+    datasets: datasetsRaw.map(x => ({
+      alias: x.alias,
+      start: new Date(x.start),
+      end: new Date(x.end),
+    })),
   };
 }
 
