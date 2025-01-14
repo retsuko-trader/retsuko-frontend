@@ -11,7 +11,15 @@ export default async function RetsukoDatasetPage() {
 
   return (
     <div className='w-full h-full'>
-      <BacktestRunner datasets={datasets} entries={entries} />
+      {
+        datasets.length === 0 || entries.length === 0 ? (
+          <div>
+            <p>no datasets or entries</p>
+          </div>
+        ) : (
+            <BacktestRunner datasets={datasets} entries={entries} />
+        )
+      }
     </div>
   )
 }
