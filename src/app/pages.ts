@@ -31,7 +31,8 @@ export function getPage(curPath: string) {
     ?? pagesWithoutIndex.find(({ path }) => curPath.startsWith(path));
 
   const subMenus = page?.subMenusFn() ?? [];
-  const subMenu = subMenus.find(({ path }) => curPath.endsWith(path));
+  const pathWithoutPage = curPath.replace((page?.path ?? '') + '/', '');
+  const subMenu = subMenus.find(({ path }) => pathWithoutPage.startsWith(path));
 
   return { page, subMenus, subMenu };
 }
