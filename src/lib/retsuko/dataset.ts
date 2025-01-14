@@ -1,6 +1,7 @@
+import type { Kysely } from 'kysely';
 import { db } from '../db/duckdb';
 import { BinanceInterval } from './binance';
-import { Market } from './tables';
+import { Candle, Market } from './tables';
 
 export type Dataset = {
   market: Market;
@@ -16,11 +17,12 @@ export async function searchDatasets(options?: {
   symbol?: string;
   interval?: BinanceInterval;
 
-  database?: typeof db;
+  database?: Kysely<{ candle: Candle }>;
 }): Promise<Dataset[]> {
   const { market, symbol, interval } = options ?? {};
 
-  const db0 = options?.database ?? db;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db0 = options?.database ?? db as any as Kysely<{ candle: Candle }>;
   let query = db0.selectFrom('candle')
     .select(({ fn }) => [
       'market',

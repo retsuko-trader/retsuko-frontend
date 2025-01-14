@@ -8,7 +8,7 @@ export default async function RetsukoDatasetPage() {
 
   return (
     <div className='w-full h-full relative flex flex-row'>
-      <div className='w-full h-full'>
+      <div className='w-full h-full overflow-y-auto'>
         <table className='font-mono'>
           <thead>
             <tr className='text-h-text/80 text-left bg-h-tone/10'>

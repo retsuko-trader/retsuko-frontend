@@ -9,9 +9,11 @@ export const getSubMenus: GetSubMenu = () => {
   return [
     {
       title: 'Task',
+      path: 'task',
     },
     {
       title: 'Calendar',
+      path: 'calendar',
     },
   ];
 };

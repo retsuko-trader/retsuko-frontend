@@ -1,5 +1,6 @@
 export type SubMenu = {
   title: string;
+  path: string;
 }
 
 export type GetSubMenu = () => SubMenu[];

@@ -70,8 +70,8 @@ export const NavBar = () => {
 
         <div className='flex flex-col'>
           {
-            subMenus.map(({ title }) => {
-              const href = `${page?.path}/${title}`;
+            subMenus.map(({ title, path }) => {
+              const href = `${page?.path}/${path}`;
               return (
                 <Link key={title} className={classNames('px-2 py-1 align-baseline text-sm hover:bg-h-text/20', {
                   'font-bold text-h-text/100': title === subMenu?.title,
