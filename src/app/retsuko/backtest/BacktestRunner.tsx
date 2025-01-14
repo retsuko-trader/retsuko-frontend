@@ -1,12 +1,13 @@
 'use client';
 
+import React from 'react';
+import classNames from 'classnames';
+import * as R from 'remeda';
 import type { BacktestConfig, BacktestReport } from '@/lib/retsuko/core/backtester';
 import type { Dataset } from '@/lib/retsuko/dataset';
-import React from 'react';
+import { formatDateShort } from '@/lib/helper/date';
 import { runBacktest } from './actions';
 import { BacktestConfigEditor } from './BacktestConfigEditor';
-import { formatDateShort } from '@/lib/helper/date';
-import classNames from 'classnames';
 
 interface Props {
   datasets: Dataset[];
@@ -34,6 +35,10 @@ export function BacktestRunner({ datasets, entries }: Props) {
   const formatPercent = (percent: number) => {
     return (percent * 100).toFixed(2) + '%';
   }
+
+  const wins = report?.trades.filter(x => x.profit > 0).length;
+  const loses = report?.trades.filter(x => x.profit < 0).length;
+  const avgTradeProfits = R.mean(report?.trades.map(x => x.profit) ?? []) ?? 0;
 
   return (
     <div className='w-full h-full relative flex flex-row'>
@@ -67,6 +72,8 @@ export function BacktestRunner({ datasets, entries }: Props) {
                   <Row label='end balance' value={formatBalance(report.endBalance)} />
                   <Row label='trade count' value={report.trades.length} />
                   <Row label='profit' value={formatPercent(report.profit)} />
+                  <Row label='wins/loses (%)' value={`${wins}/${loses} (${formatPercent(wins! / (wins! + loses!))})`} />
+                  <Row label='avg trade p%' value={formatPercent(avgTradeProfits)} />
                 </div>
               </div>
 
@@ -79,8 +86,10 @@ export function BacktestRunner({ datasets, entries }: Props) {
                       <th>date</th>
                       <th>action</th>
                       <th>price</th>
-                      <th>amount</th>
-                      <th>balance</th>
+                      <th>asset</th>
+                      <th>currency</th>
+                      <th>total_balance</th>
+                      <th>profit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -103,6 +112,12 @@ export function BacktestRunner({ datasets, entries }: Props) {
                         </td>
                         <td className='w-20 text-right'>
                           {formatBalance(trade.currency)}
+                        </td>
+                        <td className='w-20 text-right'>
+                          {formatBalance(trade.asset * trade.price + trade.currency)}
+                        </td>
+                        <td className='w-20 text-right'>
+                          {formatPercent(trade.profit)}
                         </td>
                       </tr>
                     ))}

@@ -4,4 +4,6 @@ export interface Trade {
   asset: number;
   currency: number;
   price: number;
+
+  profit: number;
 }

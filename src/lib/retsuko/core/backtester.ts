@@ -73,9 +73,21 @@ export class Backtester {
     }
 
     for await (const candle of this.$candles) {
+
       const direction = await this.$strategy.update(candle);
       if (direction) {
         const trade = await this.$trader.handleAdvice(candle, direction);
+
+        if (this.$trades.length > 0) {
+          const lastTrade = this.$trades[this.$trades.length - 1];
+          const profit = lastTrade.action === 'buy'
+            ? (candle.close - lastTrade.price) / lastTrade.price
+            : (lastTrade.price - candle.close) / candle.close;
+
+          lastTrade.profit = profit;
+          this.$trades[this.$trades.length - 1] = lastTrade;
+        }
+
         if (trade) {
           this.$trades.push(trade);
         }

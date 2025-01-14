@@ -32,6 +32,7 @@ export class PaperTrader {
       asset: this.$portfolio.asset,
       currency: this.$portfolio.currency,
       price: candle.close,
+      profit: 0,
     };
   }
 
