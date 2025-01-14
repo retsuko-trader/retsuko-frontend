@@ -6,6 +6,8 @@ interface Props {
   params: Promise<{ runId: string }>;
 }
 
+export const revalidate = 0;
+
 export default async function RestsukoBacktestRunPage({ params }: Props) {
   const { runId } = await params;
 
