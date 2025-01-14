@@ -3,14 +3,16 @@ import { DatasetGroupEditor } from './DatasetGroupEditor';
 import { getDatasetGroups, searchDatasets } from '@/lib/retsuko/repository';
 
 interface Props {
-  searchParams: Record<string, string>;
+  searchParams: Promise<Record<string, string>>;
 }
 
 export default async function RestsukoDatasetGroupPage({ searchParams }: Props) {
   const datasets = await searchDatasets();
   const groups = await getDatasetGroups();
 
-  const selectedGroup = groups.find(x => x.id === Number(searchParams.id));
+  const { id } = await searchParams;
+
+  const selectedGroup = groups.find(x => x.id === Number(id));
 
   return (
     <div className='w-full h-full relative flex flex-row'>
