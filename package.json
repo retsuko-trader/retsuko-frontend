@@ -24,7 +24,8 @@
     "pino-roll": "^2.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "remeda": "^2.19.1"
+    "remeda": "^2.19.1",
+    "tulind": "^0.8.20"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
