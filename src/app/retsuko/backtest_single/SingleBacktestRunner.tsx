@@ -50,7 +50,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   <Row label='end' value={formatDateShort(report.config.dataset.end!)} />
 
                   <Row label='strategy' value={report.config.strategy.name} />
-                  <Row label='config' value={JSON.stringify(report.config.strategy.config)} />
+                  <Row label='config' value={<div className='max-w-[48rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>} />
                   <Row label='balance' value={report.config.trader.balanceInitial} />
                   <Row label='fee' value={report.config.trader.fee} />
                 </div>
@@ -146,9 +146,9 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
       <p className='w-32 inline-block'>
         {label}:
       </p>
-      <p className='inline-block'>
+      <div className='inline-block'>
         {value}
-      </p>
+      </div>
     </div>
   );
 }

@@ -1,13 +1,10 @@
-import { StrategyEntries } from '@/lib/retsuko/core/strategies';
+import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 import { SingleBacktestRunner } from './SingleBacktestRunner';
 import { searchDatasets } from '@/lib/retsuko/repository';
 
-export default async function RetsukoDatasetPage() {
+export default async function RetsukoSingleBacktestPage() {
   const datasets = await searchDatasets();
-  const entries = StrategyEntries.map(x => ({
-    name: x.name,
-    config: x.config,
-  }));
+  const entries = [...StrategyEntriesLight];
 
   return (
     <div className='w-full h-full'>

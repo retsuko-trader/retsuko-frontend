@@ -50,7 +50,14 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
               {
                 run.strategyVariants.map((strategy, i) => (
                   <div key={`strategy-${i}`}>
-                    {strategy.name} ({JSON.stringify(strategy.config)})
+                    <div className='inline-block mr-2 align-top'>
+                      {strategy.name}
+                    </div>
+                    <div className='inline-block'>
+                      <div className='max-w-[48rem] break-words'>
+                        {JSON.stringify(strategy.config)}
+                      </div>
+                    </div>
                   </div>
                 ))
               }

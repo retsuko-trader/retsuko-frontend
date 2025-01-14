@@ -3,16 +3,13 @@ import Link from 'next/link';
 import { BacktestConfigEditor } from './BacktestConfigEditor';
 import { BacktestConfig, Backtester } from '@/lib/retsuko/core/backtester';
 import { redirect } from 'next/navigation';
-import { StrategyEntries } from '@/lib/retsuko/core/strategies';
+import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 import { formatDateShort, formatPercent } from '@/lib/helper';
 
 export default async function RetsukoBacktestPage() {
   const backtestRuns = await getBacktests();
   const datasetGroups = await getDatasetGroups();
-  const strategies = StrategyEntries.map(x => ({
-    name: x.name,
-    config: x.config,
-  }));
+  const strategies = [...StrategyEntriesLight];
 
   const run = async (config: BacktestConfig) => {
     'use server';
