@@ -1,4 +1,4 @@
-import { Candle } from '../tables/candle';
+import { Candle } from '../tables';
 import { Portfolio } from './Portfolio';
 import { Trade } from './Trade';
 

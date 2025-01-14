@@ -1,5 +1,5 @@
 import { Kline, KlineInterval, MainClient, USDMClient } from 'binance';
-import { Candle, Market } from './tables/candle';
+import { Candle, Market } from './tables';
 
 export type BinanceInterval = KlineInterval;
 

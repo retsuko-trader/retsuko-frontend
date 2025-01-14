@@ -1,6 +1,6 @@
 import { CompiledQuery } from 'kysely';
 import { createKysely, db } from '../db/duckdb';
-import { Candle, Market } from './tables/candle';
+import { Candle, Market } from './tables';
 import { searchDatasets } from './dataset';
 import { BinanceInterval, loadCandles } from './binance';
 import { MainClient, USDMClient } from 'binance';

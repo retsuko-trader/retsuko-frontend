@@ -3,7 +3,7 @@ process.env.DB_CANDLE_URL = './db/candles.duckdb';
 process.env.DB_ACCESS_MODE = 'READ_ONLY';
 
 import { createKysely } from '../src/lib/db/duckdb';
-import { Candle } from '../src/lib/retsuko/tables/candle';
+import { Candle } from '../src/lib/retsuko/tables';
 import { up } from '../src/migrations/1735797084288_CreateCandle';
 import { downloadDatasetToCandleDb, getSymbols } from '../src/lib/retsuko/importer';
 

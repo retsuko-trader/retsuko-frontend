@@ -1,6 +1,6 @@
 import { db } from '../db/duckdb';
 import { BinanceInterval } from './binance';
-import { Market } from './tables/candle';
+import { Market } from './tables';
 
 export type Dataset = {
   market: Market;

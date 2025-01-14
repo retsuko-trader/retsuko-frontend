@@ -1,4 +1,4 @@
-import { Candle } from '../../tables/candle';
+import { Candle } from '../../tables';
 import { Indicator } from '../Indicator';
 import { StochRSI } from '../indicators';
 import { Strategy, StrategyConfig } from '../strategy';

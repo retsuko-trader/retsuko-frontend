@@ -1,5 +1,5 @@
 import { getCandles } from '../dataset';
-import { Candle } from '../tables/candle';
+import { Candle } from '../tables';
 import { getDatasetCandidate } from './dataset';
 import { PaperTrader } from './paperTrader';
 import { StrategyEntries } from './strategies';
