@@ -1,4 +1,5 @@
 import { Strategy, StrategyConfig } from '../strategy';
+import { RbbAdxBb } from './rbbAdxBb';
 import { StochRSIStrategy } from './stochRsi';
 
 export interface StrategyEntry {
@@ -27,4 +28,36 @@ export const StrategyEntries: StrategyEntry[] = [
       reversed: 0,
     },
   }),
+  createEntry({
+    name: 'RbbAdxBb',
+    entry: RbbAdxBb,
+    config: {
+      smaLong: 1000,
+      smaShort: 50,
+      bullHigh: 85.6,
+      bullLow: 42.3,
+      bullModHigh: 3.2,
+      bullModLow: -9,
+      bullRsi: 14.6,
+      bearHigh: 60.4,
+      bearLow: 28.2,
+      bearModHigh: 1.4,
+      bearModLow: -1.5,
+      bearRsi: 10.5,
+      adx: 3,
+      adxHigh: 70,
+      adxLow: 50,
+      bbandNbDevDn: 2,
+      bbandNbDevUp: 2,
+      bbandTimePeriod: 20,
+      bbtrendUpperThreshold: 50,
+      bbtrendLowerThreshold: 50,
+      bbtrendPersistence: 15,
+    },
+  })
 ];
+
+export const StrategyEntriesLight = StrategyEntries.map(x => ({
+  name: x.name,
+  config: x.config,
+}));
