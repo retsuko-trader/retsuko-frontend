@@ -3,7 +3,7 @@ import { RawDatasetGroup } from './DatasetGroup';
 
 export interface Tables {
   candle: Candle;
-  dataset_group: RawDatasetGroup;
+  datasetGroup: RawDatasetGroup;
 }
 
 export * from './Candle';

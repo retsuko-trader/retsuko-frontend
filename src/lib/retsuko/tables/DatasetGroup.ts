@@ -11,5 +11,5 @@ export interface DatasetGroup {
 export interface RawDatasetGroup {
   id: number | null;
   name: string;
-  datasets_raw: string;
+  datasetsRaw: string;
 }

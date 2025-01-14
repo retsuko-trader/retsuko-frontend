@@ -42,6 +42,10 @@ export class StochRSIStrategy extends Strategy<StochRSIStrategyConfig> {
 
     const stochRsi = this.$stochRsi.value;
 
+    if (!this.$stochRsi.ready) {
+      return null;
+    }
+
     if (stochRsi > this.config.high) {
       if (this.$state.direction !== 'up') {
         this.$state = {

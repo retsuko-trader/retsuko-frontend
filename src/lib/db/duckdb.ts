@@ -1,5 +1,5 @@
 import { Database } from 'duckdb';
-import { Kysely } from 'kysely';
+import { CamelCasePlugin, Kysely } from 'kysely';
 import { DatabaseTables } from './tables';
 import { DuckDbDialect } from 'kysely-duckdb';
 
@@ -26,5 +26,8 @@ export function createKysely<T>(dbUrl: string, options?: {
       database: duckdb,
       tableMappings: {},
     }),
+    plugins: [
+      new CamelCasePlugin(),
+    ],
   });
 }
