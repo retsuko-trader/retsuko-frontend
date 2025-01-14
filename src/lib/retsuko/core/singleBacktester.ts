@@ -6,7 +6,7 @@ import { StrategyEntries } from './strategies';
 import { Strategy } from './strategy';
 import { Trade } from './Trade';
 
-export interface BacktestConfig {
+export interface SingleBacktestConfig {
   dataset: {
     alias: string;
     start?: Date;
@@ -23,16 +23,16 @@ export interface BacktestConfig {
 }
 
 export interface BacktestReport {
-  config: BacktestConfig;
+  config: SingleBacktestConfig;
   startBalance: number;
   endBalance: number;
   profit: number;
   trades: Trade[];
 }
 
-export class Backtester {
+export class SingleBacktester {
   constructor(
-    private readonly config: BacktestConfig,
+    private readonly config: SingleBacktestConfig,
   ) { }
 
   $candles: AsyncGenerator<Candle> | null = null;
@@ -73,7 +73,6 @@ export class Backtester {
     }
 
     for await (const candle of this.$candles) {
-
       const direction = await this.$strategy.update(candle);
       if (direction) {
         const trade = await this.$trader.handleAdvice(candle, direction);
