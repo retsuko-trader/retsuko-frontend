@@ -4,22 +4,22 @@ import type { Kysely } from 'kysely'
 export async function up(db: Kysely<any>): Promise<void> {
 	await db.schema
 		.createTable('candle')
-		.addColumn('source', 'varchar(32)')
-		.addColumn('interval', 'varchar(16)')
+		.addColumn('market', 'varchar(32)')
 		.addColumn('symbol', 'varchar(32)')
+		.addColumn('interval', 'varchar(16)')
 		.addColumn('ts', 'timestamp')
 		.addColumn('open', 'float8')
 		.addColumn('close', 'float8')
 		.addColumn('high', 'float8')
 		.addColumn('low', 'float8')
 		.addColumn('volume', 'float8')
-		.addPrimaryKeyConstraint('primary_key', ['source', 'interval', 'symbol', 'ts'])
+		.addPrimaryKeyConstraint('primary_key', ['market', 'symbol', 'interval', 'ts'])
 		.execute()
 
 	await db.schema
 		.createIndex('candle_symbol_index')
 		.on('candle')
-		.columns(['source', 'interval', 'symbol'])
+		.columns(['market', 'symbol', 'interval'])
 		.execute()
 }
 

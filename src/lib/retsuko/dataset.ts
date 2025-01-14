@@ -1,27 +1,46 @@
-import { CompiledQuery } from 'kysely';
 import { db } from '../db/duckdb';
+import { BinanceInterval } from './binance';
+import { Market } from './tables/candle';
 
 export type Dataset = {
+  market: Market;
   symbol: string;
-  source: string;
   interval: string;
   start: Date;
   end: Date;
   count: number;
 };
 
-export async function getDatasetList(): Promise<Dataset[]> {
-  const resp = await db.selectFrom('candle')
+export async function searchDatasets(options?: {
+  market?: Market;
+  symbol?: string;
+  interval?: BinanceInterval;
+}): Promise<Dataset[]> {
+  const { market, symbol, interval } = options ?? {};
+
+  const query = db.selectFrom('candle')
     .select(({ fn }) => [
-      'source',
+      'market',
       'interval',
       'symbol',
       fn.min('ts').as('start'),
       fn.max('ts').as('end'),
       fn.count('ts').as('count'),
     ])
-    .groupBy(['source', 'interval', 'symbol'])
-    .orderBy(['source', 'symbol', 'interval'])
+    .groupBy(['market', 'symbol', 'interval'])
+    .orderBy(['market', 'symbol', 'interval']);
+
+  if (market) {
+    query.where('market', '=', market);
+  }
+  if (symbol) {
+    query.where('symbol', '=', symbol);
+  }
+  if (interval) {
+    query.where('interval', '=', interval);
+  }
+
+  const resp = await query
     .$castTo<Dataset>()
     .execute();
 
@@ -29,18 +48,18 @@ export async function getDatasetList(): Promise<Dataset[]> {
 }
 
 export async function* getCandles(options: {
-  source: string;
+  market: Market;
   symbol: string;
-  interval: string;
+  interval: BinanceInterval;
   start?: Date;
   end?: Date;
 }) {
-  const { source, symbol, interval, start, end } = options;
+  const { market, symbol, interval, start, end } = options;
 
   // TODO: chunk optimize
   const query = db.selectFrom('candle')
     .selectAll()
-    .where('source', '=', source)
+    .where('market', '=', market)
     .where('symbol', '=', symbol)
     .where('interval', '=', interval)
     .orderBy('ts');
@@ -53,11 +72,4 @@ export async function* getCandles(options: {
   }
   const resp = await query.execute();
   yield* resp;
-}
-
-export async function importFromCandleDb() {
-  // TODO: optimize
-  await db.executeQuery(CompiledQuery.raw(`ATTACH 'db/candles.duckdb' AS candles_db (READ_ONLY)`));
-  await db.executeQuery(CompiledQuery.raw(`INSERT INTO candle SELECT * FROM candles_db.candle`))
-  await db.executeQuery(CompiledQuery.raw(`DETACH candles_db`));
 }

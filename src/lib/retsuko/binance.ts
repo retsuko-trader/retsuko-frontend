@@ -1,33 +1,14 @@
-import { Kline, MainClient } from 'binance';
-import { Candle } from './tables/candle';
+import { Kline, KlineInterval, MainClient, USDMClient } from 'binance';
+import { Candle, Market } from './tables/candle';
 
-const SOURCE = 'binance';
+export type BinanceInterval = KlineInterval;
 
-export type BinanceInterval = (
-  | '1s'
-  | '1m'
-  | '3m'
-  | '5m'
-  | '15m'
-  | '30m'
-  | '1h'
-  | '2h'
-  | '4h'
-  | '6h'
-  | '8h'
-  | '12h'
-  | '1d'
-  | '3d'
-  | '1w'
-  | '1M'
-)
-
-function klineConverter(interval: BinanceInterval, symbol: string) {
+function klineConverter(interval: BinanceInterval, market: Market, symbol: string) {
   return (kline: Kline): Candle => {
     return {
-      source: SOURCE,
-      interval,
+      market,
       symbol,
+      interval,
       ts: new Date(kline[0]),
       open: parseFloat(kline[1].toString()),
       high: parseFloat(kline[2].toString()),
@@ -38,14 +19,15 @@ function klineConverter(interval: BinanceInterval, symbol: string) {
   };
 }
 
-export async function* loadCandles(client: MainClient, options: {
+export async function* loadCandles(client: MainClient | USDMClient, options: {
+  market: Market,
   symbol: string,
   interval: BinanceInterval,
   startTime?: number,
 }): AsyncGenerator<Candle[]> {
-  const { symbol, interval, startTime } = options;
+  const { market, symbol, interval, startTime } = options;
 
-  const convertFn = klineConverter(interval, symbol);
+  const convertFn = klineConverter(interval, market, symbol);
 
   let rows = await client.getKlines({
     symbol,

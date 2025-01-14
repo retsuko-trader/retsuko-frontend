@@ -1,59 +1,36 @@
-process.env.DB_URL = './db/candles.duckdb';
+process.env.DB_URL = './db/db.duckdb';
+process.env.DB_CANDLE_URL = './db/candles.duckdb';
 
-import { MainClient } from 'binance';
-import { db } from '../src/lib/db/duckdb';
-import { loadCandles } from '../src/lib/retsuko/binance';
-
-const client = new MainClient();
-
-export async function download(symbol: string, interval: Parameters<typeof loadCandles>[1]['interval']) {
-  const candles = loadCandles(client, {
-    symbol,
-    interval,
-  });
-
-  for await (const chunk of candles) {
-    await db.insertInto('candle')
-      .values(chunk)
-      .onConflict(ctx => ctx.doNothing())
-      .execute();
-    console.log(`Inserted ${chunk.length} rows: ${chunk[0].ts.toISOString()} - ${chunk[chunk.length - 1].ts.toISOString()}`);
-  }
-}
+import { createKysely } from '../src/lib/db/duckdb';
+import { Candle } from '../src/lib/retsuko/tables/candle';
+import { up } from '../src/migrations/1735797084288_CreateCandle';
+import { downloadDatasetToCandleDb, getSymbols } from '../src/lib/retsuko/importer';
 
 async function main() {
-  await db.schema
-    .createTable('candle')
-    .ifNotExists()
-    .addColumn('source', 'varchar(32)')
-    .addColumn('interval', 'varchar(16)')
-    .addColumn('symbol', 'varchar(32)')
-    .addColumn('ts', 'timestamp')
-    .addColumn('open', 'float8')
-    .addColumn('close', 'float8')
-    .addColumn('high', 'float8')
-    .addColumn('low', 'float8')
-    .addColumn('volume', 'float8')
-    .addPrimaryKeyConstraint('primary_key', ['source', 'interval', 'symbol', 'ts'])
-    .execute();
+  // const candleDb = createKysely<{ candle: Candle }>(process.env.DB_CANDLE_URL!);
+  // await up(candleDb);
+  // await candleDb.destroy();
 
-  const symbols = [
-    'BTCUSDT',
-    'ETHUSDT',
-    'XRPUSDT',
-    'SOLUSDT',
-    'DOGEUSDT',
-  ];
+  const symbols = (await getSymbols()).splice(0, 10);
 
-  const intervals = ['5m', '30m', '1h', '12h'] as const;
+  console.log(`Downloading datasets for ${symbols.length} symbols...`);
 
-  for (const symbol of symbols) {
-    for (const interval of intervals) {
-      await download(symbol, interval);
+  const markets = ['futures', 'spot'] as const;
+  const intervals = ['5m', '30m', '1h', '2h', '4h', '8h', '12h', '1d'] as const;
+
+  for (const market of markets) {
+    for (const symbol of symbols) {
+      for (const interval of intervals) {
+        const resp = await downloadDatasetToCandleDb({
+          market,
+          symbol,
+          interval,
+        });
+
+        console.log(`Downloaded ${market}_${symbol}_${interval}: ${resp?.count} candles, ${resp?.start.toISOString()} - ${resp?.end.toISOString()}`);
+      }
     }
   }
-
-  await db.destroy();
 }
 
 main();

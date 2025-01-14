@@ -1,7 +1,11 @@
+import type { BinanceInterval } from '../binance';
+
+export type Market = 'futures' | 'spot';
+
 export interface Candle {
-  source: string;
-  interval: string;
+  market: Market;
   symbol: string;
+  interval: BinanceInterval;
   ts: Date;
   open: number;
   close: number;

@@ -5,10 +5,14 @@ import { DuckDbDialect } from 'kysely-duckdb';
 
 const DB_URL = process.env.DB_URL || 'db.db';
 
-const duckdb = new Database(DB_URL);
-export const db: Kysely<DatabaseTables> = new Kysely<DatabaseTables>({
-  dialect: new DuckDbDialect({
-    database: duckdb,
-    tableMappings: {},
-  }),
-});
+export const db: Kysely<DatabaseTables> = createKysely<DatabaseTables>(DB_URL);
+
+export function createKysely<T>(dbUrl: string) {
+  const duckdb = new Database(dbUrl);
+  return new Kysely<T>({
+    dialect: new DuckDbDialect({
+      database: duckdb,
+      tableMappings: {},
+    }),
+  });
+}

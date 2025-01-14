@@ -1,8 +1,8 @@
 import { formatDateShort } from '@/lib/helper/date';
-import { getDatasetList } from '@/lib/retsuko/dataset';
+import { searchDatasets } from '@/lib/retsuko/dataset';
 
 export default async function RetsukoDatasetPage() {
-  const datasets = await getDatasetList();
+  const datasets = await searchDatasets();
 
   return (
     <div>
@@ -19,12 +19,12 @@ export default async function RetsukoDatasetPage() {
         </thead>
         <tbody>
           {datasets.map((dataset) => {
-            const key = `${dataset.source}_${dataset.symbol}_${dataset.interval}`;
+            const key = `${dataset.market}_${dataset.symbol}_${dataset.interval}`;
 
             return (
               <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer even:bg-h-tone/5'>
                 <td className='w-20'>
-                  {dataset.source}
+                  {dataset.market}
                 </td>
                 <td className='w-20'>
                   {dataset.symbol}
