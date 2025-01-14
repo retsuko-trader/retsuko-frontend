@@ -60,7 +60,7 @@ export async function* getCandles(options: {
   const { market, symbol, interval, start, end } = options;
 
   // TODO: chunk optimize
-  const query = db.selectFrom('candle')
+  let query = db.selectFrom('candle')
     .selectAll()
     .where('market', '=', market)
     .where('symbol', '=', symbol)
@@ -68,10 +68,10 @@ export async function* getCandles(options: {
     .orderBy('ts');
 
   if (start) {
-    query.where('ts', '>=', start);
+    query = query.where('ts', '>=', start);
   }
   if (end) {
-    query.where('ts', '<=', end);
+    query = query.where('ts', '<=', end);
   }
   const resp = await query.execute();
   yield* resp;
