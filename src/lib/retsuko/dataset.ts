@@ -15,10 +15,13 @@ export async function searchDatasets(options?: {
   market?: Market;
   symbol?: string;
   interval?: BinanceInterval;
+
+  database?: typeof db;
 }): Promise<Dataset[]> {
   const { market, symbol, interval } = options ?? {};
 
-  const query = db.selectFrom('candle')
+  const db0 = options?.database ?? db;
+  let query = db0.selectFrom('candle')
     .select(({ fn }) => [
       'market',
       'interval',
@@ -31,13 +34,13 @@ export async function searchDatasets(options?: {
     .orderBy(['market', 'symbol', 'interval']);
 
   if (market) {
-    query.where('market', '=', market);
+    query = query.where('market', '=', market);
   }
   if (symbol) {
-    query.where('symbol', '=', symbol);
+    query = query.where('symbol', '=', symbol);
   }
   if (interval) {
-    query.where('interval', '=', interval);
+    query = query.where('interval', '=', interval);
   }
 
   const resp = await query

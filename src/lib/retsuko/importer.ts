@@ -6,9 +6,13 @@ import { BinanceInterval, loadCandles } from './binance';
 import { MainClient, USDMClient } from 'binance';
 
 const DB_CANDLE_URL = process.env.DB_CANDLE_URL || 'candles.db';
+const candleDb = createKysely<{ candle: Candle }>(DB_CANDLE_URL);
+
+const usdmClient = new USDMClient();
+const mainClient = new MainClient();
 
 export async function getSymbols() {
-  const client = new USDMClient();
+  const client = usdmClient;
   const symbols = await client.getExchangeInfo();
   return symbols.symbols.map((s) => s.symbol);
 }
@@ -24,36 +28,33 @@ export async function downloadDatasetToCandleDb(options: {
     market,
     symbol,
     interval,
+    database: candleDb,
   });
 
-  const candleDb = createKysely<{ candle: Candle }>(DB_CANDLE_URL);
-  const client = market === 'futures' ? new USDMClient() : new MainClient();
+  const client = market === 'futures' ? usdmClient : mainClient;
   const candles = existsDatasets.length === 0
     ? loadCandles(client, { market, symbol, interval })
     : loadCandles(client, { market, symbol, interval, startTime: existsDatasets[0].end.getTime() });
 
   for await (const chunk of candles) {
+    if (chunk.length === 0) {
+      break;
+    }
+
     await candleDb.insertInto('candle')
       .values(chunk)
       .onConflict(ctx => ctx.doNothing())
       .execute();
   }
 
-  const resp = await candleDb
-    .selectFrom('candle')
-    .select(({ fn }) => [
-      fn.min('ts').as('start'),
-      fn.max('ts').as('end'),
-      fn.count('ts').as('count'),
-    ])
-    .where('market', '=', market)
-    .where('symbol', '=', symbol)
-    .where('interval', '=', interval)
-    .$castTo<{ start: Date, end: Date, count: number }>()
-    .executeTakeFirst();
+  const resp = await searchDatasets({
+    market,
+    symbol,
+    interval,
+    database: candleDb,
+  });
 
-  await candleDb.destroy();
-  return resp;
+  return resp[0];
 }
 
 export async function downloadDatasets(options: Array<{

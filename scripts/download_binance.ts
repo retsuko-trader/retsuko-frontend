@@ -1,5 +1,6 @@
 process.env.DB_URL = './db/db.duckdb';
 process.env.DB_CANDLE_URL = './db/candles.duckdb';
+process.env.DB_ACCESS_MODE = 'READ_ONLY';
 
 import { createKysely } from '../src/lib/db/duckdb';
 import { Candle } from '../src/lib/retsuko/tables/candle';
