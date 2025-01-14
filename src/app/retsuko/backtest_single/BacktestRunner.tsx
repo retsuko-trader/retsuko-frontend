@@ -59,7 +59,7 @@ export function BacktestRunner({ datasets, entries }: Props) {
 
                   <Row label='strategy' value={report.config.strategy.name} />
                   <Row label='config' value={JSON.stringify(report.config.strategy.config)} />
-                  <Row label='balance' value={report.config.trader.balance} />
+                    <Row label='balance' value={report.config.trader.balanceInitial} />
                   <Row label='fee' value={report.config.trader.fee} />
                 </div>
               </div>

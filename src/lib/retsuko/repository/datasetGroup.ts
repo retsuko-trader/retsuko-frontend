@@ -20,11 +20,20 @@ function convertRawToGroup(row: RawDatasetGroup): DatasetGroup {
 }
 
 export async function getDatasetGroups(): Promise<DatasetGroup[]> {
-  const resp = db.selectFrom('datasetGroup')
+  const resp = await db.selectFrom('datasetGroup')
     .selectAll()
     .execute();
 
-  return (await resp).map(convertRawToGroup);
+  return resp.map(convertRawToGroup);
+}
+
+export async function getDatasetGroupById(id: number): Promise<DatasetGroup | null> {
+  const resp = await db.selectFrom('datasetGroup')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst();
+
+  return resp ? convertRawToGroup(resp) : null;
 }
 
 export async function createDatasetGroup(group: Omit<DatasetGroup, 'id'>): Promise<void> {

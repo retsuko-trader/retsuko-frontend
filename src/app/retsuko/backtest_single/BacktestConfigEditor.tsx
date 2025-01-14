@@ -25,7 +25,7 @@ export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) 
       config: entries[0].config,
     },
     trader: {
-      balance: 1000,
+      balanceInitial: 1000,
       fee: 0.05,
     }
   });
@@ -181,8 +181,8 @@ export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) 
               </label>
               <input
                 type='number'
-                value={config.trader.balance}
-                onChange={e => updateConfig({ trader: { ...config.trader, balance: e.target.valueAsNumber } })}
+                value={config.trader.balanceInitial}
+                onChange={e => updateConfig({ trader: { ...config.trader, balanceInitial: e.target.valueAsNumber } })}
                 className='inline-block w-36'
               />
             </div>

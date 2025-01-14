@@ -1,5 +1,5 @@
 import { getCandles } from '../repository';
-import { Candle } from '../tables';
+import { Candle, DatasetConfig } from '../tables';
 import { getDatasetCandidate } from './dataset';
 import { PaperTrader } from './paperTrader';
 import { StrategyEntries } from './strategies';
@@ -7,17 +7,13 @@ import { Strategy } from './strategy';
 import { Trade } from './Trade';
 
 export interface SingleBacktestConfig {
-  dataset: {
-    alias: string;
-    start?: Date;
-    end?: Date;
-  };
+  dataset: DatasetConfig;
   strategy: {
     name: string;
     config: Record<string, number>;
   };
   trader: {
-    balance: number;
+    balanceInitial: number;
     fee: number;
   };
 }
@@ -59,10 +55,9 @@ export class SingleBacktester {
       return false;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.$strategy = new strategyEntry.entry(this.config.strategy.name, this.config.strategy.config as any);
+    this.$strategy = new strategyEntry.entry(this.config.strategy.name, this.config.strategy.config);
 
-    this.$trader = new PaperTrader(this.config.trader.balance, this.config.trader.fee);
+    this.$trader = new PaperTrader(this.config.trader.balanceInitial, this.config.trader.fee);
 
     return true;
   }
@@ -105,7 +100,7 @@ export class SingleBacktester {
 
     const portfolio = this.$trader.$portfolio;
 
-    const startBalance = this.config.trader.balance;
+    const startBalance = this.config.trader.balanceInitial;
     const endBalance = portfolio.currency + portfolio.asset * this.$lastCandle.close;
 
     const profit = (endBalance - startBalance) / startBalance;

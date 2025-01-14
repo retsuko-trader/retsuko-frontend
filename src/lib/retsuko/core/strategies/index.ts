@@ -1,15 +1,21 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { StochRSIStrategy } from './stochRsi';
 
+export interface StrategyEntry {
+  name: string;
+  entry: new (name: string, config: StrategyConfig) => Strategy<StrategyConfig>;
+  config: StrategyConfig;
+}
+
 function createEntry<TConfig extends StrategyConfig, TStrategy extends Strategy<TConfig>>(options: {
   name: string;
   entry: new (name: string, config: TConfig) => TStrategy;
   config: TConfig;
-}) {
-  return options;
+}): StrategyEntry {
+  return options as unknown as StrategyEntry;
 };
 
-export const StrategyEntries = [
+export const StrategyEntries: StrategyEntry[] = [
   createEntry({
     name: 'StochRSI',
     entry: StochRSIStrategy,

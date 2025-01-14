@@ -6,6 +6,7 @@ function convertRunToRaw(row: BacktestRun): RawBacktestRun {
   return {
     id: row.id,
     createdAt: row.createdAt,
+    endedAt: row.endedAt,
     datasetGroupId: row.datasetGroupId,
     datasets: JSON.stringify(row.datasets),
     strategyVariants: JSON.stringify(row.strategyVariants),
@@ -18,6 +19,7 @@ function convertRawToRun(row: RawBacktestRun): BacktestRun {
   return {
     id: row.id,
     createdAt: row.createdAt,
+    endedAt: row.endedAt,
     datasetGroupId: row.datasetGroupId,
     datasets: JSON.parse(row.datasets),
     strategyVariants: JSON.parse(row.strategyVariants),
@@ -40,6 +42,7 @@ function convertSingleToRaw(row: BacktestSingle): RawBacktestSingle {
     balanceInitial: row.result.balanceInitial,
     balanceFinal: row.result.balanceFinal,
     profit: row.result.profit,
+    tradesCount: row.result.tradesCount,
     tradesWin: row.result.tradesWin,
     tradesLoss: row.result.tradesLoss,
     avgTradeProfit: row.result.avgTradeProfit,
@@ -63,6 +66,7 @@ function convertRawToSingle(row: RawBacktestSingle): BacktestSingle {
       balanceInitial: row.balanceInitial,
       balanceFinal: row.balanceFinal,
       profit: row.profit,
+      tradesCount: row.tradesCount,
       tradesWin: row.tradesWin,
       tradesLoss: row.tradesLoss,
       avgTradeProfit: row.avgTradeProfit,
@@ -122,6 +126,15 @@ export async function createBacktestSingle(single: Omit<BacktestSingle, 'id'>): 
     .execute();
 
   return id;
+}
+
+export async function updateBacktestRunEndsAt(id: string): Promise<void> {
+  await db.updateTable('backtestRun')
+    .set({
+      endedAt: new Date(),
+    })
+    .where('id', '=', id)
+    .execute();
 }
 
 export async function deleteBacktestRun(id: string): Promise<void> {

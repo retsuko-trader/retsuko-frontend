@@ -1,14 +1,12 @@
 import type { BacktestSingle } from './BacktestSingle';
+import { DatasetConfig } from './DatasetGroup';
 
 export interface BacktestRun {
   id: string;
   createdAt: Date;
+  endedAt: Date | null;
   datasetGroupId: number;
-  datasets: Array<{
-    alias: string;
-    start: Date;
-    end: Date;
-  }>;
+  datasets: DatasetConfig[];
 
   strategyVariants: Array<{
     name: string;
@@ -24,6 +22,7 @@ export interface BacktestRun {
 export interface RawBacktestRun {
   id: string;
   createdAt: Date;
+  endedAt: Date | null;
 
   datasetGroupId: number;
   datasets: string;

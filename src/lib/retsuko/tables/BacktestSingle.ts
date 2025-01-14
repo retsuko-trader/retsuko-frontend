@@ -1,12 +1,10 @@
+import { DatasetConfig } from './DatasetGroup';
+
 export interface BacktestSingle {
   id: string;
   runId: string;
 
-  dataset: {
-    alias: string;
-    start: Date;
-    end: Date;
-  };
+  dataset: DatasetConfig;
 
   strategy: {
     name: string;
@@ -17,6 +15,7 @@ export interface BacktestSingle {
     balanceInitial: number;
     balanceFinal: number;
     profit: number;
+    tradesCount: number;
     tradesWin: number;
     tradesLoss: number;
     avgTradeProfit: number;
@@ -37,6 +36,7 @@ export interface RawBacktestSingle {
   balanceInitial: number;
   balanceFinal: number;
   profit: number;
+  tradesCount: number;
   tradesWin: number;
   tradesLoss: number;
   avgTradeProfit: number;
