@@ -3,8 +3,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import * as R from 'remeda';
-import type { BacktestConfig, BacktestReport } from '@/lib/retsuko/core/backtester';
-import type { Dataset } from '@/lib/retsuko/dataset';
+import type { SingleBacktestConfig, BacktestReport } from '@/lib/retsuko/core/singleBacktester';
+import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatDateShort } from '@/lib/helper/date';
 import { runBacktest } from './actions';
 import { BacktestConfigEditor } from './BacktestConfigEditor';
@@ -21,7 +21,7 @@ export function BacktestRunner({ datasets, entries }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [report, setReport] = React.useState<BacktestReport | null>(null);
 
-  const run = async (config: BacktestConfig) => {
+  const run = async (config: SingleBacktestConfig) => {
     setLoading(true);
     const resp = await runBacktest(config);
     setReport(resp);

@@ -1,4 +1,4 @@
-import { getCandles } from '../dataset';
+import { getCandles } from '../repository';
 import { Candle } from '../tables';
 import { getDatasetCandidate } from './dataset';
 import { PaperTrader } from './paperTrader';

@@ -6,8 +6,8 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { EditableText } from '@/components/EditableText';
 import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
-import type { Dataset } from '@/lib/retsuko/dataset';
-import { deleteDatasetGroup, updateDatasetGroup } from '@/lib/retsuko/datasetGroup';
+import type { Dataset } from '@/lib/retsuko/repository';
+import { deleteDatasetGroup, updateDatasetGroup } from '@/lib/retsuko/repository/datasetGroup';
 import { DatasetGroup } from '@/lib/retsuko/tables';
 
 interface Props {

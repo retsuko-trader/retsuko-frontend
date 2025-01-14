@@ -1,7 +1,7 @@
 import type { Kysely } from 'kysely';
-import { db } from '../db/duckdb';
-import { BinanceInterval } from './binance';
-import { Candle, Market } from './tables';
+import { db } from '../../db/duckdb';
+import { BinanceInterval } from '../binance';
+import { Candle, Market } from '../tables';
 
 export type Dataset = {
   market: Market;

@@ -1,7 +1,6 @@
-import { getDatasetGroups } from '@/lib/retsuko/datasetGroup';
 import { DatasetGroupTable } from './DatasetGroupTable';
 import { DatasetGroupEditor } from './DatasetGroupEditor';
-import { searchDatasets } from '@/lib/retsuko/dataset';
+import { getDatasetGroups, searchDatasets } from '@/lib/retsuko/repository';
 
 interface Props {
   searchParams: Record<string, string>;

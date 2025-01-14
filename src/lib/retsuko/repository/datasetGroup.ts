@@ -1,7 +1,7 @@
 'use server';
 
-import { db } from '../db/duckdb';
-import { DatasetGroup, RawDatasetGroup } from './tables';
+import { db } from '../../db/duckdb';
+import { DatasetGroup, RawDatasetGroup } from '../tables';
 
 function convertGroupToRaw(row: DatasetGroup | Omit<DatasetGroup, 'id'>): RawDatasetGroup {
   return {

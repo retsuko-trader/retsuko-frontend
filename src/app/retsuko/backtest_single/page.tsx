@@ -1,6 +1,6 @@
 import { StrategyEntries } from '@/lib/retsuko/core/strategies';
 import { BacktestRunner } from './BacktestRunner';
-import { searchDatasets } from '@/lib/retsuko/dataset';
+import { searchDatasets } from '@/lib/retsuko/repository';
 
 export default async function RetsukoDatasetPage() {
   const datasets = await searchDatasets();

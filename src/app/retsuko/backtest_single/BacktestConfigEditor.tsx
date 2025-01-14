@@ -1,6 +1,6 @@
-import { BacktestConfig } from '@/lib/retsuko/core/backtester';
+import { SingleBacktestConfig } from '@/lib/retsuko/core/singleBacktester';
 import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
-import { Dataset } from '@/lib/retsuko/dataset';
+import { Dataset } from '@/lib/retsuko/repository/dataset';
 import moment from 'moment';
 import React from 'react';
 
@@ -10,11 +10,11 @@ interface Props {
     name: string;
     config: Record<string, number>;
   }>;
-  runBacktest: (config: BacktestConfig) => void;
+  runBacktest: (config: SingleBacktestConfig) => void;
 }
 
 export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) {
-  const [config, setConfig] = React.useState<BacktestConfig>({
+  const [config, setConfig] = React.useState<SingleBacktestConfig>({
     dataset: {
       alias: getDatasetAlias(datasets[0]),
       start: datasets[0].start,
@@ -30,7 +30,7 @@ export function BacktestConfigEditor({ datasets, entries, runBacktest }: Props) 
     }
   });
 
-  const updateConfig = (option: Partial<BacktestConfig>) => {
+  const updateConfig = (option: Partial<SingleBacktestConfig>) => {
     setConfig({
       ...config,
       ...option,
