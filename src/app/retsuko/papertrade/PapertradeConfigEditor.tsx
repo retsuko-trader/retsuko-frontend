@@ -19,7 +19,7 @@ export function PapertradeConfigEditor({ strategies }: Props) {
     description: '',
     input: {
       market: 'futures',
-      symbol: 'BTCUSD',
+      symbol: 'BTCUSDT',
       interval: '1h',
     },
     strategy: {

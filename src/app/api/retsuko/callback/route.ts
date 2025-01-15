@@ -1,5 +1,5 @@
 import { BinanceInterval } from '@/lib/retsuko/binance';
-import { handleLiveCandle } from '@/lib/retsuko/core/marketPaperTrader';
+import { handleMarketPaperTradesCandle } from '@/lib/retsuko/core/marketPaperTrader';
 
 interface StreamInput {
   symbol: string;
@@ -15,7 +15,7 @@ interface StreamInput {
 
 export async function POST(request: Request) {
   const input = await request.json() as StreamInput;
-  await handleLiveCandle({
+  await handleMarketPaperTradesCandle({
     market: 'futures',
     symbol: input.symbol,
     interval: input.interval as BinanceInterval,
