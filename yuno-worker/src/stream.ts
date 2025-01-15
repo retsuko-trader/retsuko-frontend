@@ -1,5 +1,10 @@
+import { config } from 'dotenv';
+config({ path: '.env' });
+
 import { isWsFormattedKline, WebsocketClient, type KlineInterval, type WsMessageKlineFormatted } from 'binance';
 import { db, type KlineStream } from './db.js';
+
+const CALLBACK_URL = process.env.YUNO_CALLBACK_URL || 'http://localhost:3000/callback';
 
 interface StreamInput {
   symbol: string;
@@ -112,7 +117,6 @@ export class StreamClient {
 
     if (state.lastEndTs < data.kline.startTime) {
       // skip when lastEndTs = 0 or after long break
-      console.log(state.lastEndTs, data.kline.startTime)
       if (data.kline.startTime - state.lastEndTs < 3) {
         this.send(state)
           .then(() => console.log(`[${new Date().toISOString()}] Sent ${format(input)}: ${state.close}`))
@@ -137,6 +141,9 @@ export class StreamClient {
   }
 
   async send(data: KlineStream) {
-
+    await fetch(CALLBACK_URL, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
