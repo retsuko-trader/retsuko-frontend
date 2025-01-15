@@ -5,8 +5,8 @@ export type StrategyConfig = Record<string, number>;
 
 export abstract class Strategy<TConfig extends StrategyConfig> {
   constructor(
-    public readonly name: string,
-    public readonly config: TConfig,
+    public name: string,
+    public config: TConfig,
   ) { }
 
   $indicators: Indicator[] = [];
@@ -23,4 +23,8 @@ export abstract class Strategy<TConfig extends StrategyConfig> {
 
     return null;
   }
+
+  public abstract serialize(): string;
+
+  public abstract deserialize(data: string): void;
 }

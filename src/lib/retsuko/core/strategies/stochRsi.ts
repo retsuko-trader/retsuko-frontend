@@ -92,4 +92,22 @@ export class StochRSIStrategy extends Strategy<StochRSIStrategyConfig> {
 
     return null;
   }
+
+  public serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      config: this.config,
+      state: this.$state,
+      stochRsi: this.$stochRsi.serialize(),
+    });
+  }
+
+  public deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.name = parsed.name;
+    this.config = parsed.config;
+    this.$state = parsed.state;
+    this.$stochRsi.deserialize(parsed.stochRsi);
+  }
 }

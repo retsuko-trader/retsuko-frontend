@@ -175,4 +175,33 @@ export class RbbAdxBb extends Strategy<RbbAdxBbConfig> {
       longPos: false,
     };
   }
+
+  public serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      config: this.config,
+      maSlow: this.$maSlow.serialize(),
+      maFast: this.$maFast.serialize(),
+      bullRsi: this.$bullRsi.serialize(),
+      bearRsi: this.$bearRsi.serialize(),
+      adx: this.$adx.serialize(),
+      bb: this.$bb.serialize(),
+      trend: this.$trend,
+      bbTrend: this.$bbTrend,
+    });
+  }
+
+  public deserialize(data: string): void {
+    const obj = JSON.parse(data);
+    this.name = obj.name;
+    this.config = obj.config;
+    this.$maSlow.deserialize(obj.maSlow);
+    this.$maFast.deserialize(obj.maFast);
+    this.$bullRsi.deserialize(obj.bullRsi);
+    this.$bearRsi.deserialize(obj.bearRsi);
+    this.$adx.deserialize(obj.adx);
+    this.$bb.deserialize(obj.bb);
+    this.$trend = obj.trend;
+    this.$bbTrend = obj.bbTrend;
+  }
 }
