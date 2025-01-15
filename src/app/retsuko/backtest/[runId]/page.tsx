@@ -1,6 +1,6 @@
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { getBacktestRunGroup } from '@/lib/retsuko/repository';
-import { notFound } from 'next/navigation';
+import { deleteBacktestRun, getBacktestRunGroup } from '@/lib/retsuko/repository';
+import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 interface Props {
@@ -23,6 +23,12 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
     return run.strategyVariants.findIndex(x => (
       x.name === strategy.name && JSON.stringify(x.config) === JSON.stringify(strategy.config)
     ));
+  };
+
+  const removeRun = async () => {
+    'use server';
+    await deleteBacktestRun(run.id);
+    redirect('/retsuko/backtest');
   };
 
   return (
@@ -115,6 +121,10 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
           </table>
 
         </div>
+
+        <button onClick={removeRun} className='mt-6 w-32 px-4 py-1 bg-h-red/80 hover:bg-h-red/60'>
+          delete
+        </button>
 
       </div>
     </div>

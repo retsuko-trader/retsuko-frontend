@@ -5,8 +5,15 @@ import { BacktestConfig, Backtester } from '@/lib/retsuko/core/backtester';
 import { redirect } from 'next/navigation';
 import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 import { formatDateShort, formatPercent } from '@/lib/helper';
+import { connection } from 'next/server';
+
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+export const cache = 'no-store';
 
 export default async function RetsukoBacktestPage() {
+  await connection();
+
   const backtestRuns = await getBacktests();
   const datasetGroups = await getDatasetGroups();
   const strategies = [...StrategyEntriesLight];
