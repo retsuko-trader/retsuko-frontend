@@ -1,0 +1,20 @@
+{
+  "name": "yuno-worker",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "better-sqlite3": "^11.8.0",
+    "binance": "^2.15.3",
+    "dotenv": "^16.4.7",
+    "hono": "^4.6.16",
+    "kysely": "^0.27.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1"
+  }
+}
