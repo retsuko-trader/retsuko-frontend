@@ -7,8 +7,8 @@ export class DEMA implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly weight: number,
+    public name: string,
+    public weight: number,
   ) {
     this.$inner = new EMA('_inner', weight);
     this.$outer = new EMA('_outer', weight);
@@ -26,5 +26,26 @@ export class DEMA implements Indicator {
     if (!this.ready) {
       this.ready = true;
     }
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      weight: this.weight,
+      value: this.value,
+      ready: this.ready,
+      inner: this.$inner.serialize(),
+      outer: this.$outer.serialize(),
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+
+    this.$inner.deserialize(parsed.inner);
+    this.$outer.deserialize(parsed.outer);
   }
 }

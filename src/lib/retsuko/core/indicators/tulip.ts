@@ -1,4 +1,4 @@
-import tulind from 'tulind';
+import tulind, { IndicatorIndentifier } from 'tulind';
 import { Indicator } from '../Indicator';
 import { Candle } from '../../tables';
 
@@ -18,12 +18,12 @@ export class TulipIndicator implements Indicator {
   public valuesFull: number[][] = [];
 
   constructor(
-    public readonly name: string,
-    private readonly indicator: tulind.Indicator,
-    private readonly inputs: IndicatorInput[],
-    private readonly options: number[],
-    private readonly windowLength: number,
-    private readonly readyWhen: number,
+    public name: string,
+    private indicator: tulind.Indicator,
+    private inputs: IndicatorInput[],
+    private options: number[],
+    private windowLength: number,
+    private readyWhen: number,
   ) {
     this.$inputTable = new Array(inputs.length).fill(0).map(() => []);
   }
@@ -55,6 +55,39 @@ export class TulipIndicator implements Indicator {
     });
 
     this.$age += 1;
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      indicator: this.indicator.name,
+      inputs: this.inputs,
+      options: this.options,
+      windowLength: this.windowLength,
+      readyWhen: this.readyWhen,
+      value: this.value,
+      ready: this.ready,
+      values: this.values,
+      valuesFull: this.valuesFull,
+      inputTable: this.$inputTable,
+      age: this.$age,
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+    this.name = parsed.name;
+    this.indicator = tulind.indicators[parsed.indicator as IndicatorIndentifier];
+    this.inputs = parsed.inputs;
+    this.options = parsed.options;
+    this.windowLength = parsed.windowLength;
+    this.readyWhen = parsed.readyWhen
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+    this.values = parsed.values;
+    this.valuesFull = parsed.valuesFull;
+    this.$inputTable = parsed.inputTable;
+    this.$age = parsed.age;
   }
 }
 

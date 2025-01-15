@@ -7,8 +7,8 @@ export class SMMA implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly windowLength: number,
+    public name: string,
+    public windowLength: number,
   ) {
     this.$sma = new SMA('_sma', windowLength);
   }
@@ -29,5 +29,27 @@ export class SMMA implements Indicator {
       this.ready = true;
       this.value = (this.value * (this.windowLength - 1) + price) / this.windowLength;
     }
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      windowLength: this.windowLength,
+      value: this.value,
+      ready: this.ready,
+      age: this.$age,
+      sma: this.$sma.serialize(),
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.name = parsed.name;
+    this.windowLength = parsed.windowLength;
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+    this.$age = parsed.age;
+    this.$sma.deserialize(parsed.sma);
   }
 }

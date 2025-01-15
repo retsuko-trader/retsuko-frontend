@@ -6,8 +6,8 @@ export class SMA implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly windowLength: number,
+    public name: string,
+    public windowLength: number,
   ) {
     this.$prices = new Array(windowLength);
   }
@@ -30,5 +30,29 @@ export class SMA implements Indicator {
     this.$sum += price - tail;
     this.value = this.$sum / this.windowLength;
     this.$age = (this.$age + 1) % this.windowLength;
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      windowLength: this.windowLength,
+      value: this.value,
+      ready: this.ready,
+      prices: this.$prices,
+      age: this.$age,
+      sum: this.$sum,
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.name = parsed.name;
+    this.windowLength = parsed.windowLength;
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+    this.$prices = parsed.prices;
+    this.$age = parsed.age;
+    this.$sum = parsed.sum;
   }
 }

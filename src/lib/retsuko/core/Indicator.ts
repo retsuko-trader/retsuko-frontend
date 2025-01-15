@@ -5,4 +5,7 @@ export interface Indicator {
   ready: boolean;
   value: number;
   update(candle: Candle): void;
+
+  serialize(): string;
+  deserialize(data: string): void;
 }

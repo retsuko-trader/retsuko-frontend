@@ -7,8 +7,8 @@ export class RSI implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly weight: number,
+    public name: string,
+    public weight: number,
   ) {
     this.$avgU = new SMMA('_avgU', weight);
     this.$avgD = new SMMA('_avgD', weight);
@@ -59,5 +59,37 @@ export class RSI implements Indicator {
 
     this.$lastPrice = price;
     this.$age += 1;
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      weight: this.weight,
+      value: this.value,
+      ready: this.ready,
+      avgU: this.$avgU.serialize(),
+      avgD: this.$avgD.serialize(),
+      u: this.$u,
+      d: this.$d,
+      rs: this.$rs,
+      age: this.$age,
+      lastPrice: this.$lastPrice,
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.name = parsed.name;
+    this.weight = parsed.weight;
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+    this.$avgU.deserialize(parsed.avgU);
+    this.$avgD.deserialize(parsed.avgD);
+    this.$u = parsed.u;
+    this.$d = parsed.d;
+    this.$rs = parsed.rs;
+    this.$age = parsed.age;
+    this.$lastPrice = parsed.lastPrice;
   }
 }

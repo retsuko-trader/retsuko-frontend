@@ -7,8 +7,8 @@ export class StochRSI implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly weight: number,
+    public name: string,
+    public weight: number,
   ) {
     this.$rsi = new RSI(name, weight);
   }
@@ -33,5 +33,27 @@ export class StochRSI implements Indicator {
     const lowest = Math.min(...this.$history);
     const highest = Math.max(...this.$history);
     this.value = (rsi - lowest) / (highest - lowest) * 100;
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      weight: this.weight,
+      value: this.value,
+      ready: this.ready,
+      rsi: this.$rsi.serialize(),
+      history: this.$history,
+    });
+  }
+
+  deserialize(data: string): void {
+    const parsed = JSON.parse(data);
+
+    this.name = parsed.name;
+    this.weight = parsed.weight;
+    this.value = parsed.value;
+    this.ready = parsed.ready;
+    this.$rsi.deserialize(parsed.rsi);
+    this.$history = parsed.history;
   }
 }

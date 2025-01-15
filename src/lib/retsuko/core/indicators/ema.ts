@@ -6,8 +6,8 @@ export class EMA implements Indicator {
   public ready = false;
 
   constructor(
-    public readonly name: string,
-    public readonly weight: number,
+    public name: string,
+    public weight: number,
   ) { }
 
   public update(candle: Candle) {
@@ -21,5 +21,22 @@ export class EMA implements Indicator {
 
     const k = 2 / (this.weight + 1);
     this.value = price * k + this.value * (1 - k);
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      name: this.name,
+      weight: this.weight,
+      value: this.value,
+      ready: this.ready,
+    });
+  }
+
+  deserialize(data: string): void {
+    const obj = JSON.parse(data);
+    this.name = obj.name;
+    this.weight = obj.weight;
+    this.value = obj.value;
+    this.ready = obj.ready;
   }
 }
