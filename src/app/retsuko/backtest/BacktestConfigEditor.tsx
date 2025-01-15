@@ -19,7 +19,7 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
     strategyVariants: [],
     trader: {
       balanceInitial: 1000,
-      fee: 0.0005,
+      fee: 0.001,
     },
   });
 
@@ -79,6 +79,15 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
     });
   };
 
+  const removeStrategy = (index: number) => {
+    setConfig(x => {
+      return {
+        ...x,
+        strategyVariants: x.strategyVariants.filter((_, i) => i !== index),
+      };
+    });
+  };
+
   return (
     <div>
       <p>Backtest Config</p>
@@ -106,12 +115,18 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
               config.strategyVariants.map((strategy, i) => (
                 <div key={`strategy-${i}`} className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
 
+                  <div className='flex flex-row justify-between'>
+
                   <select value={strategy.name} onChange={e => selectStrategy(i, e.target.value)} className='inline-block w-52'>
                     {strategies.map(entry => (
                       <option key={entry.name} value={entry.name}>{entry.name}</option>
                     ))}
                   </select>
 
+                    <button onClick={() => removeStrategy(i)} className='mr-2 font-bold text-h-red/60 hover:text-h-red/80'>
+                      X
+                    </button>
+                  </div>
                   <div className='mt-1 pl-2'>
                     {
                       Object.entries(strategy.config).map(([key, value]) => (

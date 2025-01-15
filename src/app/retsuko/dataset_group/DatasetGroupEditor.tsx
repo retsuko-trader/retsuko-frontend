@@ -122,7 +122,7 @@ export function DatasetGroupEditor({ datasets, group: group0 }: Props) {
                     })}
                   </select>
 
-                  <button onClick={() => removeDataset(i)} className='text-h-red/60 hover:text-h-red/80'>
+                  <button onClick={() => removeDataset(i)} className='mr-2 font-bold text-h-red/60 hover:text-h-red/80'>
                     X
                   </button>
 

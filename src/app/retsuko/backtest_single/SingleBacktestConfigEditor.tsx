@@ -28,7 +28,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     },
     trader: {
       balanceInitial: 1000,
-      fee: 0.0005,
+      fee: 0.001,
     },
   });
 
