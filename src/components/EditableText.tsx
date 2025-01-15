@@ -23,7 +23,11 @@ export function EditableText(props: {
         setIsEditing(true);
         e.preventDefault();
       }}>
-        {props.text === '' ? props.placeHolder : props.text}
+        {props.text === ''
+          ? typeof props.placeHolder === 'string'
+            ? <span className='text-h-text/40'>{props.placeHolder}</span>
+            : props.placeHolder
+          : props.text}
       </div>
     );
   }

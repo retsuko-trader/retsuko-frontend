@@ -2,7 +2,7 @@ import { getCandles } from '../repository';
 import { Candle, DatasetConfig } from '../tables';
 import { getDatasetCandidate } from './dataset';
 import { PaperTrader } from './paperTrader';
-import { StrategyEntries } from './strategies';
+import { createStrategy } from './strategies';
 import { Strategy } from './strategy';
 import { Trade } from './Trade';
 
@@ -50,12 +50,10 @@ export class SingleBacktester {
       end: this.config.dataset.end,
     });
 
-    const strategyEntry = StrategyEntries.find(x => x.name === this.config.strategy.name);
-    if (!strategyEntry) {
+    this.$strategy = createStrategy(this.config.strategy.name, this.config.strategy.config);
+    if (!this.$strategy) {
       return false;
     }
-
-    this.$strategy = new strategyEntry.entry(this.config.strategy.name, this.config.strategy.config);
 
     this.$trader = new PaperTrader(this.config.trader.balanceInitial, this.config.trader.fee);
 

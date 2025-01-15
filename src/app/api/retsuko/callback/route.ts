@@ -1,5 +1,5 @@
 import { BinanceInterval } from '@/lib/retsuko/binance';
-import { handleLiveCandle } from '@/lib/retsuko/core/liveMarket';
+import { handleLiveCandle } from '@/lib/retsuko/core/marketPaperTrader';
 
 interface StreamInput {
   symbol: string;

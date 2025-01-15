@@ -7,8 +7,8 @@ export class PaperTrader implements Trader {
   $portfolio: Portfolio;
 
   constructor(
-    private readonly initialBalance: number,
-    private readonly fee: number,
+    private initialBalance: number,
+    private fee: number,
   ) {
     this.$portfolio = {
       asset: 0,
@@ -46,5 +46,21 @@ export class PaperTrader implements Trader {
 
   extractFee(amount: number) {
     return Math.floor(amount * 1e8 * (1 - this.fee)) / 1e8;
+  }
+
+  serialize(): string {
+    return JSON.stringify({
+      inititalBalance: this.initialBalance,
+      fee: this.fee,
+      portfolio: this.$portfolio,
+    });
+  }
+
+  deserialize(data: string): void {
+    const obj = JSON.parse(data);
+
+    this.initialBalance = obj.initialBalance;
+    this.fee = obj.fee;
+    this.$portfolio = obj.portfolio;
   }
 }

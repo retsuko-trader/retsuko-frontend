@@ -61,3 +61,12 @@ export const StrategyEntriesLight = StrategyEntries.map(x => ({
   name: x.name,
   config: x.config,
 }));
+
+export function createStrategy(name: string, config: StrategyConfig): Strategy<StrategyConfig> | null {
+  const entry = StrategyEntries.find(x => x.name === name);
+  if (!entry) {
+    return null;
+  }
+
+  return new entry.entry(name, config);
+}

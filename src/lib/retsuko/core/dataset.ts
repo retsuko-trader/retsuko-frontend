@@ -7,8 +7,6 @@ export interface CandleLike {
   interval: BinanceInterval;
 }
 
-export type MarketDefinition = CandleLike
-
 export function getDatasetAlias(candleLike: CandleLike): string {
   return `${candleLike.market}_${candleLike.symbol}_${candleLike.interval}`;
 }
