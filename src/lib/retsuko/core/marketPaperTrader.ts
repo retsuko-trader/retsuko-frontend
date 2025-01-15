@@ -5,7 +5,7 @@ import { subscribeWorkerStream } from './worker';
 import { createId } from '@paralleldrive/cuid2';
 import { createStrategy, StrategyEntries } from './strategies';
 import { PaperTrader } from './paperTrader';
-import { MarketPaperTraderModel, MarketPaperTraderState } from '../tables/MarketPaperTrade';
+import { MarketPaperTrade, MarketPaperTraderModel, MarketPaperTraderState } from '../tables/MarketPaperTrade';
 
 export interface CreateMarketPaperTraderConfig {
   name: string;
@@ -44,6 +44,16 @@ export async function getMarketPaperTraders(): Promise<MarketPaperTraderModel[]>
     .execute();
 
   return resp.map(toModel);
+}
+
+export async function getMarketPaperTradesByTraderId(traderId: string): Promise<MarketPaperTrade[]> {
+  const resp = await db.selectFrom('marketPaperTrade')
+    .selectAll()
+    .where('traderId', '=', traderId)
+    .orderBy('ts', 'asc')
+    .execute();
+
+  return resp;
 }
 
 export async function createMarketPaperTrader(config: CreateMarketPaperTraderConfig): Promise<string | null> {

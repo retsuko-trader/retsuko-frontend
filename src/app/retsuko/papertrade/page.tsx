@@ -1,22 +1,33 @@
-import { getMarketPaperTraders } from '@/lib/retsuko/core/marketPaperTrader'
+import { getMarketPaperTraders, getMarketPaperTradesByTraderId } from '@/lib/retsuko/core/marketPaperTrader'
 import { PapertradeConfigEditor } from './PapertradeConfigEditor';
 import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 
 export default async function RetsukoPapertradePage() {
   const marketTraders = await getMarketPaperTraders();
 
+  const traderZips = await Promise.all(marketTraders.map(async trader => {
+    return {
+      trader,
+      trades: await getMarketPaperTradesByTraderId(trader.id),
+    }
+  }));
+
   return (
     <div className='w-full h-full relative flex flex-row'>
       <div className='w-full h-full overflow-y-auto'>
         {
-          marketTraders.map((x, i) => {
+          traderZips.map(({ trader, trades }, i) => {
             return (
               <div key={`trade-${i}`} className=''>
                 <div>
-                  {x.symbol}_{x.interval}
+                  {trader.symbol}_{trader.interval}
                 </div>
                 <div>
-                  {x.trader.portfolio.asset} {x.trader.portfolio.currency} {x.trader.portfolio.totalBalance}
+                  {trader.trader.portfolio.asset} {trader.trader.portfolio.currency} {trader.trader.portfolio.totalBalance}
+                </div>
+
+                <div>
+                  trades: {trades.length}
                 </div>
               </div>
             )
