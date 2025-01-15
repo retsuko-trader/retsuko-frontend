@@ -38,9 +38,10 @@ class LiveMarket {
     }
   }
 
-  public report() {
+  public async report() {
     return {
-      portfolio: this.trader.getPortfolio(),
+      portfolio: await this.trader.getPortfolio(),
+      trades: this.$trades,
     };
   }
 }
@@ -63,9 +64,8 @@ export async function createLiveMarket(
 }
 
 export function getLiveMarkets() {
-  return liveMarkets
-    .entries()
-    .flatMap(([key, markets]) => markets.map(market => ({ data: getDatasetCandidate(key), market })));
+  return [...liveMarkets.entries()]
+    .flatMap(([key, markets]) => markets.map(market => ({ key: getDatasetCandidate(key), market })));
 }
 
 export async function handleLiveCandle(candle: Candle) {
