@@ -1,11 +1,13 @@
 import { BinanceInterval } from '../binance';
 import { Market } from '../tables';
 
-interface CandleLike {
+export interface CandleLike {
   market: Market;
   symbol: string;
   interval: BinanceInterval;
 }
+
+export type MarketDefinition = CandleLike
 
 export function getDatasetAlias(candleLike: CandleLike): string {
   return `${candleLike.market}_${candleLike.symbol}_${candleLike.interval}`;

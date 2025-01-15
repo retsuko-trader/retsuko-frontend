@@ -1,8 +1,9 @@
 import { Candle } from '../tables';
 import { Portfolio } from './Portfolio';
 import { Trade } from './Trade';
+import { Trader } from './trader';
 
-export class PaperTrader {
+export class PaperTrader implements Trader {
   $portfolio: Portfolio;
 
   constructor(
@@ -12,6 +13,7 @@ export class PaperTrader {
     this.$portfolio = {
       asset: 0,
       currency: initialBalance,
+      totalBalance: initialBalance,
     };
   }
 
@@ -26,6 +28,8 @@ export class PaperTrader {
       this.$portfolio.asset = 0;
     }
 
+    this.$portfolio.totalBalance = this.$portfolio.currency + this.$portfolio.asset * candle.close;
+
     return {
       ts: candle.ts,
       action: direction === 'long' ? 'buy' : 'sell',
@@ -34,6 +38,10 @@ export class PaperTrader {
       price: candle.close,
       profit: 0,
     };
+  }
+
+  public async getPortfolio(): Promise<Portfolio> {
+    return this.$portfolio;
   }
 
   extractFee(amount: number) {
