@@ -1,16 +1,16 @@
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { getBacktestRunGroup } from '@/lib/retsuko/repository';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 
 interface Props {
   params: Promise<{ runId: string }>;
 }
 
-export const revalidate = 0;
-
 export default async function RestsukoBacktestRunPage({ params }: Props) {
   const { runId } = await params;
 
+  await connection();
   const backtestRunGroup = await getBacktestRunGroup(runId);
 
   if (!backtestRunGroup) {

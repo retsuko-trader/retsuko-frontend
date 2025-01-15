@@ -45,6 +45,10 @@ export default async function RetsukoBacktestPage() {
             <div className='w-24 text-right'>
               strategy
             </div>
+
+            <div className='w-16 text-right'>
+              fee
+            </div>
           </div>
           {
             backtestRuns.map(x => (

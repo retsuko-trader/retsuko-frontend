@@ -52,8 +52,8 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     updateConfig({
       dataset: {
         alias,
-        start: dataset.start,
-        end: dataset.end,
+        start: new Date(Math.max(config.dataset.start.getTime(), dataset.start.getTime())),
+        end: new Date(Math.min(config.dataset.end.getTime(), dataset.end.getTime())),
       },
     });
   };
