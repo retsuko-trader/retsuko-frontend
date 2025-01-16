@@ -1,10 +1,11 @@
 import { getMarketPaperTraders, getMarketPaperTradesByTraderId } from '@/lib/retsuko/core/marketPaperTrader'
 import { PapertradeConfigEditor } from './PapertradeConfigEditor';
 import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
-import { formatBalance, formatDateLong, formatDateShort, formatPercent } from '@/lib/helper';
+import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import React from 'react';
 import { connection } from 'next/server';
 import classNames from 'classnames';
+import Link from 'next/link';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -32,10 +33,14 @@ export default async function RetsukoPapertradePage() {
             const avgTradeProfits = trades.length > 0 ? trades.reduce((acc, trade) => acc + (trade.profit ?? 0), 0) / trades.length : 0;
 
             return (
-              <div key={`trade-${i}`} className={classNames('w-[48rem] bg-h-tone/5 p-3 border-l-2', {
-                'border-h-green/80': trader.endedAt === null,
-                'border-h-tone/30': trader.endedAt !== null,
-              })}>
+              <Link
+                key={`trade-${i}`}
+                href={`/retsuko/papertrade/${trader.id}`}
+                className={classNames('w-[48rem] bg-h-tone/5 p-3 border-l-2 hover:bg-h-tone/10 cursor-pointer', {
+                  'border-h-green/80': trader.endedAt === null,
+                  'border-h-tone/30': trader.endedAt !== null,
+                })}
+              >
                 <div className='text-h-text font-bold'>
                   {trader.name}
                 </div>
@@ -154,7 +159,7 @@ export default async function RetsukoPapertradePage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })
         }

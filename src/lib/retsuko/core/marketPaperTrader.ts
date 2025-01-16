@@ -47,6 +47,15 @@ export async function getMarketPaperTraders(): Promise<MarketPaperTraderModel[]>
   return resp.map(toModel);
 }
 
+export async function getMarketPaperTraderById(traderId: string): Promise<MarketPaperTraderModel | null> {
+  const resp = await db.selectFrom('marketPaperTraderState')
+    .selectAll()
+    .where('id', '=', traderId)
+    .executeTakeFirst();
+
+  return resp ? toModel(resp) : null;
+}
+
 export async function getMarketPaperTradesByTraderId(traderId: string): Promise<MarketPaperTrade[]> {
   const resp = await db.selectFrom('marketPaperTrade')
     .selectAll()
