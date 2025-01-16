@@ -1,6 +1,7 @@
 import { Strategy, StrategyConfig } from '../strategy';
-import { RbbAdxBb } from './rbbAdxBb';
+import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { StochRSIStrategy } from './stochRsi';
+import { TurtleStrategy } from './turtle';
 
 export interface StrategyEntry {
   name: string;
@@ -30,7 +31,7 @@ export const StrategyEntries: StrategyEntry[] = [
   }),
   createEntry({
     name: 'RbbAdxBb',
-    entry: RbbAdxBb,
+    entry: RbbAdxBbStrategy,
     config: {
       smaLong: 1000,
       smaShort: 50,
@@ -54,7 +55,18 @@ export const StrategyEntries: StrategyEntry[] = [
       bbtrendLowerThreshold: 50,
       bbtrendPersistence: 15,
     },
-  })
+  }),
+  createEntry({
+    name: 'Turtle',
+    entry: TurtleStrategy,
+    config: {
+      enterFast: 20,
+      exitFast: 10,
+      enterSlow: 55,
+      exitSlow: 20,
+      trailingStop: 15,
+    },
+  }),
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({

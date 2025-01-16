@@ -6,7 +6,7 @@ import { SMA } from '../indicators';
 import { Indicator } from '../Indicator';
 import { Candle } from '../../tables';
 
-export interface RbbAdxBbConfig extends StrategyConfig {
+export interface RbbAdxBbStrategyConfig extends StrategyConfig {
   smaLong: number;
   smaShort: number;
 
@@ -37,7 +37,7 @@ export interface RbbAdxBbConfig extends StrategyConfig {
 
 type Zone = 'none' | 'middle' | 'high' | 'low';
 
-export class RbbAdxBb extends Strategy<RbbAdxBbConfig> {
+export class RbbAdxBbStrategy extends Strategy<RbbAdxBbStrategyConfig> {
   $maSlow: Indicator;
   $maFast: Indicator;
   $bullRsi: TulipIndicator;
@@ -57,7 +57,7 @@ export class RbbAdxBb extends Strategy<RbbAdxBbConfig> {
 
   constructor(
     name: string,
-    config: RbbAdxBbConfig,
+    config: RbbAdxBbStrategyConfig,
   ) {
     super(name, config);
 
