@@ -234,7 +234,10 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
             </div>
 
             <div>
-              <label className='w-48 inline-block pr-2'>
+              <label className={classNames('w-48 inline-block pr-2', {
+                'text-h-text/40': config.trader.enableMargin,
+                'text-h-text/80': !config.trader.enableMargin,
+              })}>
                 valid trade only:
               </label>
               <input

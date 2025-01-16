@@ -96,7 +96,12 @@ input[type="checkbox"] {
   transition-property: background-color, border-color;
 }
 
-input[type="checkbox"]:checked, input[type="checkbox"]:hover {
+input[type="checkbox"]:disabled {
+  cursor: inherit;
+  opacity: 0.5;
+}
+
+input[type="checkbox"]:checked, input[type="checkbox"]:enabled:hover {
   border: none;
   background-color: rgb(var(--color-blue) / 0.8);
 }
