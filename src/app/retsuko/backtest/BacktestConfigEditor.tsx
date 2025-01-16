@@ -3,6 +3,7 @@
 import React from 'react';
 import type { DatasetGroup } from '@/lib/retsuko/tables';
 import type { BacktestConfig } from '@/lib/retsuko/core/backtester';
+import classNames from 'classnames';
 
 interface Props {
   datasetGroups: DatasetGroup[];
@@ -18,8 +19,11 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
     datasetGroupId: datasetGroups.length > 0 ? datasetGroups[0].id : -1,
     strategyVariants: [],
     trader: {
-      balanceInitial: 1000,
+      initialBalance: 1000,
       fee: 0.001,
+      enableMargin: false,
+      marginTradeAllWhenDirectionChanged: true,
+      validTradeOnly: true,
     },
   });
 
@@ -131,14 +135,14 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
                     {
                       Object.entries(strategy.config).map(([key, value]) => (
                         <div key={key}>
-                          <label className='w-28 inline-block pr-2'>
+                          <label className='w-48 inline-block pr-2'>
                             {key}:
                           </label>
                           <input
                             type='number'
                             value={value}
                             onChange={e => updateStrategyConfig(i, key, e.target.valueAsNumber)}
-                            className='inline-block w-36'
+                            className='inline-block w-32'
                           />
                         </div>
                       ))
@@ -161,26 +165,67 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
 
           <div className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
             <div>
-              <label className='w-28 inline-block pr-2'>
+              <label className='w-48 inline-block pr-2'>
                 balance:
               </label>
               <input
                 type='number'
-                value={config.trader.balanceInitial}
-                onChange={e => updateConfig({ trader: { ...config.trader, balanceInitial: e.target.valueAsNumber } })}
-                className='inline-block w-36'
+                value={config.trader.initialBalance}
+                onChange={e => updateConfig({ trader: { ...config.trader, initialBalance: e.target.valueAsNumber } })}
+                className='inline-block w-32'
               />
             </div>
 
             <div>
-              <label className='w-28 inline-block pr-2'>
+              <label className='w-48 inline-block pr-2'>
                 fee:
               </label>
               <input
                 type='number'
                 value={config.trader.fee}
                 onChange={e => updateConfig({ trader: { ...config.trader, fee: e.target.valueAsNumber } })}
-                className='inline-block w-36'
+                className='inline-block w-32'
+              />
+            </div>
+
+            <div>
+              <label className='w-48 inline-block pr-2'>
+                enable margin:
+              </label>
+              <input
+                type='checkbox'
+                checked={config.trader.enableMargin}
+                onChange={e => updateConfig({ trader: { ...config.trader, enableMargin: e.target.checked } })}
+                className='inline-block w-32'
+              />
+            </div>
+
+            <div>
+              <label className={classNames('w-48 inline-block pr-2', {
+                'text-h-text/40': !config.trader.enableMargin,
+                'text-h-text/80': config.trader.enableMargin,
+              })}>
+                margin trade all:
+              </label>
+              <input
+                type='checkbox'
+                disabled={!config.trader.enableMargin}
+                checked={config.trader.marginTradeAllWhenDirectionChanged}
+                onChange={e => updateConfig({ trader: { ...config.trader, marginTradeAllWhenDirectionChanged: e.target.checked } })}
+                className='inline-block w-32'
+              />
+            </div>
+
+            <div>
+              <label className='w-48 inline-block pr-2'>
+                valid trade only:
+              </label>
+              <input
+                type='checkbox'
+                disabled={config.trader.enableMargin}
+                checked={config.trader.validTradeOnly}
+                onChange={e => updateConfig({ trader: { ...config.trader, validTradeOnly: e.target.checked } })}
+                className='inline-block w-32'
               />
             </div>
           </div>

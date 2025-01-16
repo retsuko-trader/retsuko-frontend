@@ -1,7 +1,7 @@
 import { Database } from 'duckdb';
 import { CamelCasePlugin, Kysely } from 'kysely';
 import { DatabaseTables } from './tables';
-import { DuckDbDialect } from 'kysely-duckdb';
+import { DuckDbDialect } from '@20chan/kysely-duckdb';
 
 const DB_URL = process.env.DB_URL || 'db.db';
 const DB_ACCESS_MODE = process.env.DB_ACCESS_MODE || 'READ_WRITE';

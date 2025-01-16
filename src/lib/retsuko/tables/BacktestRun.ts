@@ -1,3 +1,4 @@
+import { PaperTraderOptions } from '../core/paperTrader';
 import type { BacktestSingle } from './BacktestSingle';
 import { DatasetConfig } from './DatasetGroup';
 
@@ -13,10 +14,7 @@ export interface BacktestRun {
     config: Record<string, number>;
   }>;
 
-  tradeOptions: {
-    balanceInitial: number;
-    fee: number;
-  };
+  tradeOptions: PaperTraderOptions;
 }
 
 export interface RawBacktestRun {
@@ -31,6 +29,8 @@ export interface RawBacktestRun {
 
   balanceInitial: number;
   fee: number;
+  enableMargin: boolean;
+  makeValidTradeOnly: boolean;
 }
 
 export interface BacktestRunGroup {

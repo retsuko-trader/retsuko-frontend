@@ -1,7 +1,7 @@
 import { getCandles } from '../repository';
 import { Candle, DatasetConfig } from '../tables';
 import { getDatasetCandidate } from './dataset';
-import { PaperTrader } from './paperTrader';
+import { PaperTrader, PaperTraderOptions } from './paperTrader';
 import { createStrategy } from './strategies';
 import { Strategy } from './strategy';
 import { Trade } from './Trade';
@@ -12,10 +12,7 @@ export interface SingleBacktestConfig {
     name: string;
     config: Record<string, number>;
   };
-  trader: {
-    balanceInitial: number;
-    fee: number;
-  };
+  trader: PaperTraderOptions;
 }
 
 export interface BacktestReport {
@@ -55,7 +52,7 @@ export class SingleBacktester {
       return false;
     }
 
-    this.$trader = new PaperTrader(this.config.trader.balanceInitial, this.config.trader.fee);
+    this.$trader = new PaperTrader(this.config.trader);
 
     return true;
   }
@@ -98,7 +95,7 @@ export class SingleBacktester {
 
     const portfolio = this.$trader.$portfolio;
 
-    const startBalance = this.config.trader.balanceInitial;
+    const startBalance = this.config.trader.initialBalance;
     const endBalance = portfolio.currency + portfolio.asset * this.$lastCandle.close;
 
     const profit = (endBalance - startBalance) / startBalance;

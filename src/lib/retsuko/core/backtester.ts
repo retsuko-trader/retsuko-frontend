@@ -5,6 +5,7 @@ import {
   updateBacktestRunEndsAt,
 } from '../repository';
 import { DatasetConfig } from '../tables';
+import { PaperTraderOptions } from './paperTrader';
 import { SingleBacktester } from './singleBacktester';
 import { StrategyEntries, StrategyEntry } from './strategies';
 
@@ -14,10 +15,7 @@ export interface BacktestConfig {
     name: string;
     config: Record<string, number>;
   }>;
-  trader: {
-    balanceInitial: number;
-    fee: number;
-  };
+  trader: PaperTraderOptions;
 }
 
 export class Backtester {

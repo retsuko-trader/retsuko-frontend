@@ -37,9 +37,10 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
       <div className='w-full h-full overflow-y-auto'>
 
         <div>
-          {report === null ? (
+          {report === null && (
             <p className='text-h-text/40'>backtest result not loaded</p>
-          ) : (
+          )}
+          {report !== null && (
             <div className='flex flex-col gap-y-4'>
               <div>
                 <p>configs</p>
@@ -51,7 +52,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
 
                   <Row label='strategy' value={report.config.strategy.name} />
                   <Row label='config' value={<div className='max-w-[48rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>} />
-                  <Row label='balance' value={report.config.trader.balanceInitial} />
+                  <Row label='balance' value={report.config.trader.initialBalance} />
                   <Row label='fee' value={report.config.trader.fee} />
                 </div>
               </div>
@@ -74,41 +75,43 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
 
                 <table className='font-mono'>
                   <thead>
-                    <tr className='text-h-text/80 bg-h-tone/10'>
+                    <tr className='text-h-text/80 bg-h-tone/10 border-l-2 border-h-tone/10'>
                       <th>date</th>
                       <th>action</th>
                       <th>price</th>
                       <th>asset</th>
                       <th>currency</th>
-                      <th>total_balance</th>
+                      <th>total</th>
                       <th>profit</th>
                     </tr>
                   </thead>
                   <tbody>
                     {report.trades.reverse().map(trade => (
-                      <tr key={trade.ts.toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer', {
+                      <tr key={trade.ts.toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer border-l-2', {
                         'bg-h-red/10': trade.action === 'sell',
                         'bg-h-green/10': trade.action === 'buy',
+                        'border-h-red/80': trade.profit < 0,
+                        'border-h-green/80': trade.profit > 0,
                       })}>
-                        <td className='w-36'>
+                        <td className='w-36 pl-1'>
                           {formatDateShort(trade.ts)}
                         </td>
-                        <td className='w-20'>
+                        <td className='w-12'>
                           {trade.action}
                         </td>
-                        <td className='w-20 text-right'>
+                        <td className='w-24 text-right'>
                           {formatBalance(trade.price)}
                         </td>
-                        <td className='w-20 text-right'>
-                          {formatBalance(trade.asset)}
+                        <td className='w-24 text-right'>
+                          {formatBalance(trade.asset, 6)}
                         </td>
-                        <td className='w-20 text-right'>
+                        <td className='w-24 text-right'>
                           {formatBalance(trade.currency)}
                         </td>
-                        <td className='w-20 text-right'>
+                        <td className='w-24 text-right'>
                           {formatBalance(trade.asset * trade.price + trade.currency)}
                         </td>
-                        <td className='w-20 text-right'>
+                        <td className='w-20 text-right pr-1'>
                           {formatPercent(trade.profit)}
                         </td>
                       </tr>

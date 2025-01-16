@@ -4,7 +4,7 @@ import { CandleLike } from './dataset';
 import { subscribeWorkerStream } from './worker';
 import { createId } from '@paralleldrive/cuid2';
 import { createStrategy, StrategyEntries } from './strategies';
-import { PaperTrader } from './paperTrader';
+import { PaperTrader, PaperTraderOptions } from './paperTrader';
 import { MarketPaperTrade, MarketPaperTraderModel, MarketPaperTraderState } from '../tables/MarketPaperTrade';
 import { revalidatePath } from 'next/cache';
 
@@ -16,10 +16,7 @@ export interface CreateMarketPaperTraderConfig {
     name: string;
     config: Record<string, number>;
   };
-  trader: {
-    balanceInitial: number;
-    fee: number;
-  };
+  trader: PaperTraderOptions;
 }
 
 function toModel(row: MarketPaperTraderState): MarketPaperTraderModel {
@@ -73,7 +70,7 @@ export async function createMarketPaperTrader(config: CreateMarketPaperTraderCon
   }
 
   const strategy = new strategyEntry.entry(config.strategy.name, config.strategy.config);
-  const trader = new PaperTrader(config.trader.balanceInitial, config.trader.fee);
+  const trader = new PaperTrader(config.trader);
 
   const resp = await db.insertInto('marketPaperTraderState')
     .values({
@@ -118,9 +115,15 @@ async function handleSingleCandle(trader: MarketPaperTraderState, candle: Candle
   if (!strategy) {
     return false;
   }
-  strategy?.deserialize(trader.strategySerialized);
+  strategy.deserialize(trader.strategySerialized);
 
-  const paperTrader = new PaperTrader(0, 0);
+  const paperTrader = new PaperTrader({
+    initialBalance: 1000,
+    fee: 0.001,
+    enableMargin: false,
+    marginTradeAllWhenDirectionChanged: false,
+    validTradeOnly: false,
+  });
   paperTrader.deserialize(trader.traderSerialized);
 
   const direction = await strategy.update(candle);

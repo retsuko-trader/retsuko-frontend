@@ -3,29 +3,72 @@ import { Portfolio } from './Portfolio';
 import { Trade } from './Trade';
 import { Trader } from './trader';
 
+export interface PaperTraderOptions {
+  initialBalance: number;
+  fee: number;
+  enableMargin: boolean;
+  marginTradeAllWhenDirectionChanged: boolean;
+  validTradeOnly: boolean;
+}
+
 export class PaperTrader implements Trader {
   $portfolio: Portfolio;
+  $direction: 'long' | 'short' = 'short';
 
   constructor(
-    private initialBalance: number,
-    private fee: number,
+    private config: PaperTraderOptions,
   ) {
     this.$portfolio = {
       asset: 0,
-      currency: initialBalance,
-      totalBalance: initialBalance,
+      currency: config.initialBalance,
+      totalBalance: config.initialBalance,
     };
   }
 
   public async handleAdvice(candle: Candle, direction: 'long' | 'short'): Promise<Trade | null> {
     if (direction === 'long') {
-      const amount = this.extractFee(this.$portfolio.currency / candle.close);
-      this.$portfolio.asset += amount;
-      this.$portfolio.currency = 0;
+      if (!this.config.enableMargin && this.config.validTradeOnly && this.$direction === 'long') {
+        return null;
+      }
+
+      if (this.config.enableMargin) {
+        if (
+          this.config.marginTradeAllWhenDirectionChanged
+          && this.$direction === 'short'
+          && this.$portfolio.asset < 0
+        ) {
+          this.buyMargin(this.$portfolio.currency, candle.close);
+        } else {
+          this.buyMargin(this.config.initialBalance, candle.close);
+        }
+      } else {
+        const amount = this.extractFee(this.$portfolio.currency / candle.close);
+        this.$portfolio.asset += amount;
+        this.$portfolio.currency = 0;
+      }
+      this.$direction = 'long';
+
     } else {
-      const amount = this.extractFee(this.$portfolio.asset * candle.close);
-      this.$portfolio.currency += amount;
-      this.$portfolio.asset = 0;
+      if (!this.config.enableMargin && this.config.validTradeOnly && this.$direction === 'short') {
+        return null;
+      }
+
+      if (this.config.enableMargin) {
+        if (
+          this.config.marginTradeAllWhenDirectionChanged
+          && this.$direction === 'long'
+          && this.$portfolio.currency < 0
+        ) {
+          this.sellMargin(this.$portfolio.asset, candle.close);
+        } else {
+          this.sellMargin(this.config.initialBalance / candle.close, candle.close);
+        }
+      } else {
+        const amount = this.extractFee(this.$portfolio.asset * candle.close);
+        this.$portfolio.currency += amount;
+        this.$portfolio.asset = 0;
+      }
+      this.$direction = 'short';
     }
 
     this.$portfolio.totalBalance = this.$portfolio.currency + this.$portfolio.asset * candle.close;
@@ -45,13 +88,29 @@ export class PaperTrader implements Trader {
   }
 
   extractFee(amount: number) {
-    return Math.floor(amount * 1e8 * (1 - this.fee)) / 1e8;
+    return Math.floor(amount * 1e8 * (1 - this.config.fee)) / 1e8;
+  }
+
+  buyMargin(price: number, close: number) {
+    const amount = this.extractFee(price / close);
+    this.$portfolio.asset += amount;
+    this.$portfolio.currency -= price;
+  }
+
+  sellMargin(price: number, close: number) {
+    const amount = this.extractFee(price * close);
+    this.$portfolio.asset -= price;
+    this.$portfolio.currency += amount;
   }
 
   serialize(): string {
     return JSON.stringify({
-      inititalBalance: this.initialBalance ?? 1000,
-      fee: this.fee,
+      inititalBalance: this.config.initialBalance ?? 1000,
+      fee: this.config.fee,
+      enableMargin: this.config.enableMargin,
+      validTradeOnly: this.config.validTradeOnly,
+      marginTradeAllWhenDirectionChanged: this.config.marginTradeAllWhenDirectionChanged,
+      direction: this.$direction,
       portfolio: this.$portfolio,
     });
   }
@@ -59,8 +118,14 @@ export class PaperTrader implements Trader {
   deserialize(data: string): void {
     const obj = JSON.parse(data);
 
-    this.initialBalance = obj.initialBalance;
-    this.fee = obj.fee;
+    this.config = {
+      initialBalance: obj.initialBalance,
+      fee: obj.fee,
+      enableMargin: obj.enableMargin ?? false,
+      validTradeOnly: obj.validTradeOnly ?? false,
+      marginTradeAllWhenDirectionChanged: obj.marginTradeAllWhenDirectionChanged ?? false,
+    };
+    this.$direction = obj.direction;
     this.$portfolio = obj.portfolio;
   }
 }
