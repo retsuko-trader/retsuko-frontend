@@ -6,6 +6,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { createStrategy, StrategyEntries } from './strategies';
 import { PaperTrader } from './paperTrader';
 import { MarketPaperTrade, MarketPaperTraderModel, MarketPaperTraderState } from '../tables/MarketPaperTrade';
+import { revalidatePath } from 'next/cache';
 
 export interface CreateMarketPaperTraderConfig {
   name: string;
@@ -95,7 +96,7 @@ export async function createMarketPaperTrader(config: CreateMarketPaperTraderCon
 export async function handleMarketPaperTradesCandle(candle: Candle) {
   const traders = await db.selectFrom('marketPaperTraderState')
     .selectAll()
-    .where('endedAt', 'is not', null)
+    .where('endedAt', 'is', null)
     .where('symbol', '=', candle.symbol)
     .where('interval', '=', candle.interval)
     .execute();
@@ -115,6 +116,8 @@ async function handleSingleCandle(trader: MarketPaperTraderState, candle: Candle
 
   const direction = await strategy.update(candle);
 
+  revalidatePath('/retsuko/papertrade');
+
   if (direction) {
     const trade = await paperTrader.handleAdvice(candle, direction);
     if (trade) {
@@ -132,4 +135,13 @@ async function handleSingleCandle(trader: MarketPaperTraderState, candle: Candle
         .execute();
     }
   }
+
+  await db.updateTable('marketPaperTraderState')
+    .set({
+      updatedAt: new Date(),
+      strategySerialized: strategy.serialize(),
+      traderSerialized: paperTrader.serialize(),
+    })
+    .where('id', '=', trader.id)
+    .execute();
 }

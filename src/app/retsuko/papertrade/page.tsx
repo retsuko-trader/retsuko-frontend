@@ -1,10 +1,15 @@
 import { getMarketPaperTraders, getMarketPaperTradesByTraderId } from '@/lib/retsuko/core/marketPaperTrader'
 import { PapertradeConfigEditor } from './PapertradeConfigEditor';
 import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
+import { formatBalance, formatDateLong, formatDateShort } from '@/lib/helper';
+import React from 'react';
+
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+export const cache = 'no-store';
 
 export default async function RetsukoPapertradePage() {
   const marketTraders = await getMarketPaperTraders();
-
   const traderZips = await Promise.all(marketTraders.map(async trader => {
     return {
       trader,
@@ -14,7 +19,7 @@ export default async function RetsukoPapertradePage() {
 
   return (
     <div className='w-full h-full relative flex flex-row'>
-      <div className='w-full h-full overflow-y-auto'>
+      <div className='w-full h-full overflow-y-auto flex flex-col gap-y-4'>
         {
           traderZips.map(({ trader, trades }, i) => {
             return (
@@ -23,11 +28,38 @@ export default async function RetsukoPapertradePage() {
                   {trader.symbol}_{trader.interval}
                 </div>
                 <div>
+                  <p>
+                    createdAt: {formatDateShort(trader.createdAt)}
+                  </p>
+                  <p>
+
+                    updatedAt: {formatDateLong(trader.updatedAt)}
+                  </p>
+                </div>
+                <div>
                   {trader.trader.portfolio.asset} {trader.trader.portfolio.currency} {trader.trader.portfolio.totalBalance}
                 </div>
 
                 <div>
                   trades: {trades.length}
+
+                  <div className='flex flex-col'>
+                    {
+                      trades.map((trade, i) => {
+                        return (
+                          <div key={`trade-${i}`} className='flex flex-row gap-x-4'>
+                            <div>{trade.id}</div>
+                            <div>{formatDateLong(trade.ts)}</div>
+                            <div>{trade.action}</div>
+                            <div>{trade.price}</div>
+                            <div>{trade.asset}</div>
+                            <div>{formatBalance(trade.currency)}</div>
+                            <div>{formatBalance(trade.asset * trade.price + trade.currency)}</div>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
                 </div>
               </div>
             )
