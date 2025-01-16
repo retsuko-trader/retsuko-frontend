@@ -1,9 +1,10 @@
 import { Candle } from '../tables';
 import { Indicator } from './Indicator';
+import { Serializable } from './serializable';
 
 export type StrategyConfig = Record<string, number>;
 
-export abstract class Strategy<TConfig extends StrategyConfig> {
+export abstract class Strategy<TConfig extends StrategyConfig> implements Serializable {
   constructor(
     public name: string,
     public config: TConfig,
