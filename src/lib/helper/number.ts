@@ -1,5 +1,5 @@
-export const formatBalance = (balance: number) => {
-  return balance.toFixed(2);
+export const formatBalance = (balance: number, digits: number = 2) => {
+  return balance.toFixed(digits);
 };
 
 export const formatPercent = (percent: number) => {

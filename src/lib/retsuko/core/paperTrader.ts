@@ -50,7 +50,7 @@ export class PaperTrader implements Trader {
 
   serialize(): string {
     return JSON.stringify({
-      inititalBalance: this.initialBalance,
+      inititalBalance: this.initialBalance ?? 1000,
       fee: this.fee,
       portfolio: this.$portfolio,
     });
