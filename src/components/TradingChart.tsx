@@ -64,7 +64,7 @@ export function TradingChart({
         showInLegend: true,
         xValueFormatString: 'YYYY-MM-DD HH:mm',
         dataPoints: candles.map(x => ({
-          x: x.ts.getTime(),
+          x: x.ts,
           y: x.close,
         })),
       },

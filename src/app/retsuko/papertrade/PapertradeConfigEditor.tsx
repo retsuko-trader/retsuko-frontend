@@ -6,6 +6,7 @@ import { CreateMarketPaperTraderConfig } from '@/lib/retsuko/core/marketPaperTra
 import React from 'react';
 import { createTrader } from './action';
 import classNames from 'classnames';
+import { sortedIntervals } from '@/lib/helper';
 
 interface Props {
   strategies: Array<{
@@ -125,12 +126,11 @@ export function PapertradeConfigEditor({ strategies }: Props) {
                 value={config.input.interval}
                 onChange={e => updateConfig({ input: { ...config.input, interval: e.target.value as BinanceInterval } })}
               >
-                <option value='1m'>1m</option>
-                <option value='5m'>5m</option>
-                <option value='15m'>15m</option>
-                <option value='1h'>1h</option>
-                <option value='4h'>4h</option>
-                <option value='1d'>1d</option>
+                {
+                  sortedIntervals.map(x => (
+                    <option key={x} value={x}>{x}</option>
+                  ))
+                }
               </select>
             </div>
           </div>

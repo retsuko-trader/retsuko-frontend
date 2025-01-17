@@ -49,7 +49,7 @@ export class TulipIndicator implements Indicator {
     }
 
     this.indicator.indicator(this.$inputTable, this.options, (err, results) => {
-      this.value = results[0][results.length - 1];
+      this.value = results[0][results[0].length - 1];
       this.values = results.map(x => x[x.length - 1]);
       this.valuesFull = results;
     });
@@ -121,6 +121,15 @@ export namespace Tulip {
     period,
   );
 
+  export const MACD = (name: string, short: number, long: number, signal: number) => new TulipIndicator(
+    name,
+    tulind.indicators.macd,
+    ['close'],
+    [short, long, signal],
+    long,
+    long,
+  );
+
   export const RSI = (name: string, period: number) => new TulipIndicator(
     name,
     tulind.indicators.rsi,
@@ -128,5 +137,14 @@ export namespace Tulip {
     [period],
     period,
     period,
+  );
+
+  export const STOCH = (name: string, fastKPeriod: number, slowKPeriod: number, dPeriod: number) => new TulipIndicator(
+    name,
+    tulind.indicators.stoch,
+    ['high', 'low', 'close'],
+    [fastKPeriod, slowKPeriod, dPeriod],
+    fastKPeriod + slowKPeriod + dPeriod,
+    fastKPeriod + slowKPeriod + dPeriod,
   );
 }

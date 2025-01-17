@@ -10,8 +10,10 @@ function convertRunToRaw(row: BacktestRun): RawBacktestRun {
     datasetGroupId: row.datasetGroupId,
     datasets: JSON.stringify(row.datasets),
     strategyVariants: JSON.stringify(row.strategyVariants),
-    balanceInitial: row.tradeOptions.balanceInitial,
+    balanceInitial: row.tradeOptions.initialBalance,
     fee: row.tradeOptions.fee,
+    enableMargin: row.tradeOptions.enableMargin,
+    makeValidTradeOnly: row.tradeOptions.validTradeOnly,
   };
 }
 
@@ -24,8 +26,11 @@ function convertRawToRun(row: RawBacktestRun): BacktestRun {
     datasets: JSON.parse(row.datasets),
     strategyVariants: JSON.parse(row.strategyVariants),
     tradeOptions: {
-      balanceInitial: row.balanceInitial,
+      initialBalance: row.balanceInitial,
       fee: row.fee,
+      enableMargin: row.enableMargin,
+      marginTradeAllWhenDirectionChanged: true,
+      validTradeOnly: false,
     },
   };
 }

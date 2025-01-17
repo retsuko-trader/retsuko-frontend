@@ -1,4 +1,5 @@
 import { Strategy, StrategyConfig } from '../strategy';
+import { BestoneStrategy } from './bestone';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { StochRSIStrategy } from './stochRsi';
 import { TurtleStrategy } from './turtle';
@@ -67,6 +68,24 @@ export const StrategyEntries: StrategyEntry[] = [
       trailingStop: 15,
     },
   }),
+  createEntry({
+    name: 'bestone',
+    entry: BestoneStrategy,
+    config: {
+      macdFastPeriod: 12,
+      macdSlowPeriod: 26,
+      macdSignalPeriod: 9,
+      emaShortTimePeriod: 9,
+      emaLongTimePeriod: 21,
+      stochFastKPeriod: 9,
+      stochSlowKPeriod: 3,
+      stochSlowDPeriod: 3,
+      rsiTimePeriod: 14.1,
+      rsiHigh: 70,
+      rsiLow: 30,
+      historySize: 48,
+    },
+  })
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({
