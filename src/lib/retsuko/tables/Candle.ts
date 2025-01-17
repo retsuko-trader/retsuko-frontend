@@ -13,3 +13,8 @@ export interface Candle {
   low: number;
   volume: number;
 }
+
+export interface SimpleCandle {
+  ts: Date;
+  close: number;
+}

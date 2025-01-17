@@ -10,6 +10,8 @@
     "kysely": "kysely"
   },
   "dependencies": {
+    "@20chan/kysely-duckdb": "^0.1.0",
+    "@canvasjs/react-charts": "^1.0.2",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@duckdb/node-api": "^1.1.3-alpha.8",
@@ -18,7 +20,6 @@
     "classnames": "^2.5.1",
     "duckdb": "^1.1.3",
     "kysely": "^0.27.5",
-    "@20chan/kysely-duckdb": "^0.1.0",
     "moment": "^2.30.1",
     "next": "15.1.2",
     "pino-roll": "^2.2.0",

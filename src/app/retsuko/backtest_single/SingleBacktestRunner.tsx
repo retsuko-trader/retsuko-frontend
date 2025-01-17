@@ -6,8 +6,10 @@ import * as R from 'remeda';
 import type { SingleBacktestConfig, BacktestReport } from '@/lib/retsuko/core/singleBacktester';
 import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { runBacktest } from './actions';
+import { loadCandles, runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
+import { TradingChart } from '@/components/TradingChart';
+import type { SimpleCandle } from '@/lib/retsuko/tables';
 
 interface Props {
   datasets: Dataset[];
@@ -20,11 +22,13 @@ interface Props {
 export function SingleBacktestRunner({ datasets, entries }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [report, setReport] = React.useState<BacktestReport | null>(null);
+  const [candles, setCandles] = React.useState<SimpleCandle[]>([]);
 
   const run = async (config: SingleBacktestConfig) => {
     setLoading(true);
     const resp = await runBacktest(config);
     setReport(resp);
+    setCandles(await loadCandles(config));
     setLoading(false);
   };
 
@@ -68,6 +72,15 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   <Row label='wins/loses (%)' value={`${wins}/${loses} (${formatPercent(wins! / (wins! + loses!))})`} />
                   <Row label='avg trade p%' value={formatPercent(avgTradeProfits)} />
                 </div>
+              </div>
+
+              <div>
+                <TradingChart
+                  title='backtest single simulation result'
+                  candles={candles}
+                  trades={report.trades}
+                  showBalance
+                />
               </div>
 
               <div>
