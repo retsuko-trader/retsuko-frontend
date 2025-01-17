@@ -2,6 +2,7 @@ import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { StochRSIStrategy } from './stochRsi';
+import { SuperTrendStrategy } from './superTrend';
 import { TurtleStrategy } from './turtle';
 
 export interface StrategyEntry {
@@ -85,7 +86,15 @@ export const StrategyEntries: StrategyEntry[] = [
       rsiLow: 30,
       historySize: 48,
     },
-  })
+  }),
+  createEntry({
+    name: 'superTrend',
+    entry: SuperTrendStrategy,
+    config: {
+      atrPeriod: 7,
+      bandFactor: 3,
+    },
+  }),
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({

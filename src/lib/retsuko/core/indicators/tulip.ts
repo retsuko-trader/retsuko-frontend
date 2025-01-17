@@ -103,6 +103,15 @@ export namespace Tulip {
     period,
   );
 
+  export const ATR = (name: string, period: number) => new TulipIndicator(
+    name,
+    tulind.indicators.atr,
+    ['high', 'low', 'close'],
+    [period],
+    period,
+    period,
+  );
+
   export const BBANDS = (name: string, period: number, stddev: number) => new TulipIndicator(
     name,
     tulind.indicators.bbands,
