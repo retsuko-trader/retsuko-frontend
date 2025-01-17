@@ -30,7 +30,7 @@ export interface RawBacktestRun {
   balanceInitial: number;
   fee: number;
   enableMargin: boolean;
-  makeValidTradeOnly: boolean;
+  validTradeOnly: boolean;
 }
 
 export interface BacktestRunGroup {

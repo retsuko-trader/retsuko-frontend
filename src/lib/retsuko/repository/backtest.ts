@@ -13,7 +13,7 @@ function convertRunToRaw(row: BacktestRun): RawBacktestRun {
     balanceInitial: row.tradeOptions.initialBalance,
     fee: row.tradeOptions.fee,
     enableMargin: row.tradeOptions.enableMargin,
-    makeValidTradeOnly: row.tradeOptions.validTradeOnly,
+    validTradeOnly: row.tradeOptions.validTradeOnly,
   };
 }
 
@@ -30,7 +30,7 @@ function convertRawToRun(row: RawBacktestRun): BacktestRun {
       fee: row.fee,
       enableMargin: row.enableMargin,
       marginTradeAllWhenDirectionChanged: true,
-      validTradeOnly: false,
+      validTradeOnly: row.validTradeOnly,
     },
   };
 }
