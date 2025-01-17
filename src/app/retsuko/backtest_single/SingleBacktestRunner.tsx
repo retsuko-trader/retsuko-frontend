@@ -35,6 +35,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
   const wins = report?.trades.filter(x => x.profit > 0).length;
   const loses = report?.trades.filter(x => x.profit < 0).length;
   const avgTradeProfits = R.mean(report?.trades.map(x => x.profit) ?? []) ?? 0;
+  const candlesProfit = candles.length <= 1 ? 1 : (candles[candles.length - 1].close - candles[0].close) / candles[0].close;
 
   return (
     <div className='w-full h-full relative flex flex-row'>
@@ -71,6 +72,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   <Row label='profit' value={formatPercent(report.profit)} />
                   <Row label='wins/loses (%)' value={`${wins}/${loses} (${formatPercent(wins! / (wins! + loses!))})`} />
                   <Row label='avg trade p%' value={formatPercent(avgTradeProfits)} />
+                  <Row label='sharpe ratio' value={formatPercent((report.profit) / candlesProfit)} />
                 </div>
               </div>
 
