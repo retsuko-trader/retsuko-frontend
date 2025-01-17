@@ -30,3 +30,13 @@ export const sortedSymbols = [
   'ZRXUSDT',
   'COMPUSDT',
 ];
+
+export function sortSymbol(a: string, b: string): number {
+  if (sortedSymbols.indexOf(a) === -1) {
+    return 1;
+  } else if (sortedSymbols.indexOf(b) === -1) {
+    return -1;
+  }
+
+  return sortedSymbols.indexOf(a) - sortedSymbols.indexOf(b);
+}

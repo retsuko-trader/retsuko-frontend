@@ -2,6 +2,7 @@ import type { Kysely } from 'kysely';
 import { db } from '../../db/duckdb';
 import { BinanceInterval } from '../binance';
 import { Candle, Market } from '../tables';
+import { sortDataset } from '../../helper';
 
 export type Dataset = {
   market: Market;
@@ -49,7 +50,7 @@ export async function searchDatasets(options?: {
     .$castTo<Dataset>()
     .execute();
 
-  return resp;
+  return resp.sort(sortDataset);
 }
 
 export async function* getCandles(options: {
