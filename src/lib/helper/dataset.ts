@@ -1,4 +1,5 @@
 import { BinanceInterval } from '../retsuko/binance';
+import { getDatasetCandidate } from '../retsuko/core/dataset';
 import { sortInterval } from './interval';
 import { sortSymbol } from './symbol';
 
@@ -20,4 +21,8 @@ export const sortDataset = (a: DatasetLike, b: DatasetLike): number => {
   }
 
   return sortInterval(a.interval, b.interval);
+}
+
+export const sortDatasetAlias = (a: string, b: string): number => {
+  return sortDataset(getDatasetCandidate(a), getDatasetCandidate(b));
 }

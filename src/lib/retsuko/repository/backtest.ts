@@ -1,6 +1,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { db } from '@/lib/db/duckdb';
 import { BacktestRun, BacktestRunGroup, BacktestSingle, RawBacktestRun, RawBacktestSingle } from '../tables';
+import { sortDatasetAlias } from '@/lib/helper';
 
 function convertRunToRaw(row: BacktestRun): RawBacktestRun {
   return {
@@ -97,6 +98,7 @@ export async function getBacktestRunGroup(id: string): Promise<BacktestRunGroup 
   if (!run) {
     return null;
   }
+  const runResult = convertRawToRun(run);
 
   const singles = await db.selectFrom('backtestSingle')
     .selectAll()
@@ -104,8 +106,21 @@ export async function getBacktestRunGroup(id: string): Promise<BacktestRunGroup 
     .execute();
 
   return {
-    run: convertRawToRun(run),
-    singles: singles.map(convertRawToSingle),
+    run: runResult,
+    singles: singles.map(convertRawToSingle).sort((a, b) => {
+      const strategyIndexA = runResult.strategyVariants.findIndex(x => (
+        x.name === a.strategy.name && JSON.stringify(x.config) === JSON.stringify(a.strategy.config)
+      ));
+      const strategyIndexB = runResult.strategyVariants.findIndex(x => (
+        x.name === b.strategy.name && JSON.stringify(x.config) === JSON.stringify(b.strategy.config)
+      ));
+
+      if (strategyIndexA !== strategyIndexB) {
+        return strategyIndexA - strategyIndexB;
+      }
+
+      return sortDatasetAlias(a.dataset.alias, b.dataset.alias)
+    }),
   };
 }
 
