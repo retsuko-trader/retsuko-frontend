@@ -71,7 +71,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
               }
             </div>} />
 
-            <Row label='balance' value={run.tradeOptions.balanceInitial} />
+            <Row label='balance' value={run.tradeOptions.initialBalance} />
             <Row label='fee' value={formatPercent(run.tradeOptions.fee)} />
           </div>
         </div>

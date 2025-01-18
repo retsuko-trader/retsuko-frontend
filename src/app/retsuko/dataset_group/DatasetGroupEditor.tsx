@@ -9,6 +9,7 @@ import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
 import type { Dataset } from '@/lib/retsuko/repository';
 import { deleteDatasetGroup, updateDatasetGroup } from '@/lib/retsuko/repository/datasetGroup';
 import { DatasetGroup } from '@/lib/retsuko/tables';
+import { sortDatasetAlias } from '@/lib/helper';
 
 interface Props {
   datasets: Dataset[];
@@ -110,7 +111,7 @@ export function DatasetGroupEditor({ datasets, group: group0 }: Props) {
 
         <div className='mt-4 flex flex-col gap-2'>
           {
-            group.datasets.map((x, i) => (
+            group.datasets.sort((a, b) => sortDatasetAlias(a.alias, b.alias)).map((x, i) => (
               <div key={`${group.id}_datasets${i}`} className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
                 <div className='flex flex-row justify-between'>
                   <select value={x.alias} onChange={e => changeDataset(i, { alias: e.target.value })} className='inline-block w-52'>

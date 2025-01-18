@@ -75,12 +75,10 @@ export class NeoStrategy extends Strategy<NeoStrategyConfig> {
     if (maFast < maSlow) {
       const rsi = this.$bearRsi.value;
       if (rsi > this.config.bearRsiHigh) {
-        console.log('try short bear');
         if (this.short()) {
           return 'short';
         }
       } else if (rsi < this.config.bearRsiLow) {
-        console.log('try long bear');
         if (this.long()) {
           return 'long';
         }
@@ -89,12 +87,10 @@ export class NeoStrategy extends Strategy<NeoStrategyConfig> {
       if (roc <= this.config.rocLvl) {
         const rsi = this.$idleRsi.value;
         if (rsi > this.config.idleRsiHigh) {
-          console.log('try short idle');
           if (this.short()) {
             return 'short';
           }
         } else if (rsi < this.config.idleRsiLow) {
-          console.log('try long idle');
           if (this.long()) {
             return 'long';
           }
@@ -102,12 +98,10 @@ export class NeoStrategy extends Strategy<NeoStrategyConfig> {
       } else {
         const rsi = this.$bullRsi.value;
         if (rsi > this.config.bullRsiHigh) {
-          console.log('try short bull');
           if (this.short()) {
             return 'short';
           }
         } else if (rsi < this.config.bullRsiLow) {
-          console.log('try long bull');
           if (this.long()) {
             return 'long';
           }

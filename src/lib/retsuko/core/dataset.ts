@@ -1,5 +1,5 @@
-import { BinanceInterval } from '../binance';
-import { Market } from '../tables';
+import type { BinanceInterval } from '../binance';
+import type { Market } from '../tables';
 
 export interface CandleLike {
   market: Market;

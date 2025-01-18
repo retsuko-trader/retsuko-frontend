@@ -2,8 +2,10 @@ import { formatDateShort } from '@/lib/helper';
 import { searchDatasets } from '@/lib/retsuko/repository';
 import { importDataFromCandleDatabase } from './actions';
 import React from 'react';
+import { connection } from 'next/server';
 
 export default async function RetsukoDatasetPage() {
+  await connection();
   const datasets = await searchDatasets();
 
   return (

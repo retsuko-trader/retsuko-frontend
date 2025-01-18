@@ -13,7 +13,6 @@ export const cache = 'no-store';
 
 export default async function RetsukoBacktestPage() {
   await connection();
-
   const backtestRuns = await getBacktests();
   const datasetGroups = await getDatasetGroups();
   const strategies = [...StrategyEntriesLight];
