@@ -1,7 +1,8 @@
-import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { deleteBacktestRun, getBacktestRunGroup } from '@/lib/retsuko/repository';
 import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
+import interpolate from 'color-interpolate';
+import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
+import { deleteBacktestRun, getBacktestRunGroup } from '@/lib/retsuko/repository';
 
 interface Props {
   params: Promise<{ runId: string }>;
@@ -24,6 +25,8 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
       x.name === strategy.name && JSON.stringify(x.config) === JSON.stringify(strategy.config)
     ));
   };
+
+  const color = interpolate(['rgb(228 86 73)', 'rgb(80 161 79)', 'rgb(80 161 79)', 'rgb(1 132 188)']);
 
   const removeRun = async () => {
     'use server';
@@ -102,7 +105,9 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                     <td className='w-12 text-right'>
                       {formatBalance(single.result.balanceFinal)}
                     </td>
-                    <td className='w-20 text-right'>
+                    <td className='w-20 text-right' style={{
+                      color: color((single.result.profit - 1) / 3),
+                    }}>
                       {formatPercent(single.result.profit)}
                     </td>
                     <td className='w-16 text-right'>
