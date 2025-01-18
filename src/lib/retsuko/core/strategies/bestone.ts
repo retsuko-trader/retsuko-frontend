@@ -1,5 +1,5 @@
 import { Candle } from '../../tables';
-import { EMA } from '../indicators';
+import { EMA, RSI } from '../indicators';
 import { Tulip, TulipIndicator } from '../indicators/tulip';
 import { Strategy, StrategyConfig } from '../strategy';
 
@@ -29,7 +29,7 @@ export class BestoneStrategy extends Strategy<BestoneStrategyConfig> {
   $macd: TulipIndicator;
   $emaShort: EMA;
   $emaLong: EMA;
-  $rsi: TulipIndicator;
+  $rsi: RSI;
   $stoch: TulipIndicator;
   $candles: Candle[];
   $trend: BestoneState;
@@ -43,7 +43,7 @@ export class BestoneStrategy extends Strategy<BestoneStrategyConfig> {
     this.$macd = this.addIndicator(Tulip.MACD('macd', config.macdFastPeriod, config.macdSlowPeriod, config.macdSignalPeriod));
     this.$emaShort = this.addIndicator(new EMA('emaShort', config.emaShortTimePeriod));
     this.$emaLong = this.addIndicator(new EMA('emaLong', config.emaLongTimePeriod));
-    this.$rsi = this.addIndicator(Tulip.RSI('rsi', config.rsiTimePeriod));
+    this.$rsi = this.addIndicator(new RSI('rsi', config.rsiTimePeriod));
     this.$stoch = this.addIndicator(Tulip.STOCH('stoch', config.stochFastKPeriod, config.stochSlowKPeriod, config.stochSlowDPeriod));
     this.$candles = [];
     this.$trend = {

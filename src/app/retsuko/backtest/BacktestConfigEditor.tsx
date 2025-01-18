@@ -96,8 +96,8 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
     <div>
       <p>Backtest Config</p>
 
-      <div className='mt-4 font-mono flex flex-col gap-y-6'>
-        <div>
+      <div className='font-mono flex flex-col gap-y-6'>
+        <div className='mt-4'>
           <label className='w-20 inline-block'>
             datasets:
           </label>
@@ -234,7 +234,7 @@ export function BacktestConfigEditor({ datasetGroups, strategies, runBacktest }:
           </div>
         </div>
 
-        <div className='flex'>
+        <div className=''>
           <button
             onClick={() => runBacktest(config)}
             className='w-32 px-4 py-2 bg-h-green/80 hover:bg-h-green/60'

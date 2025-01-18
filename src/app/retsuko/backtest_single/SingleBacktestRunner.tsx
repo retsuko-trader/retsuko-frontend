@@ -145,8 +145,8 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
         )}
       </div>
 
-      <div className='h-full top-0 bottom-0 right-0 w-[30rem] bg-h-background drop-shadow-lg'>
-        <div className='w-full h-full bg-h-tone/5 p-3'>
+      <div className='h-full top-0 bottom-0 right-0 w-[32rem] bg-h-background drop-shadow-lg'>
+        <div className='w-full h-full bg-h-tone/5 p-3 overflow-y-auto'>
           <SingleBacktestConfigEditor
             datasets={datasets}
             entries={entries}
