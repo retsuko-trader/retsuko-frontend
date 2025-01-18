@@ -2,7 +2,9 @@ import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import interpolate from 'color-interpolate';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { deleteBacktestRun, getBacktestRunGroup } from '@/lib/retsuko/repository';
+import { deleteBacktestRun, getBacktestRunGroup, getBacktestTradesBalancesSampled } from '@/lib/retsuko/repository';
+import { SimpleChart } from '@/components/SimpleChart';
+import { revalidatePath } from 'next/cache';
 
 interface Props {
   params: Promise<{ runId: string }>;
@@ -19,6 +21,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
   }
 
   const { run, singles } = backtestRunGroup;
+  const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
 
   const getStrategyIndex = (strategy: { name: string, config: Record<string, number> }) => {
     return run.strategyVariants.findIndex(x => (
@@ -31,6 +34,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
   const removeRun = async () => {
     'use server';
     await deleteBacktestRun(run.id);
+    revalidatePath('/retsuko/backtest');
     redirect('/retsuko/backtest');
   };
 
@@ -89,14 +93,15 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                 <th className='text-right'>profit</th>
                 <th className='text-right'>trades</th>
                 <th>w/l</th>
-                <th className='text-right'>avg p%</th>
+                <th className='text-right pr-2'>avg p%</th>
+                <th>balances</th>
               </tr>
             </thead>
             <tbody className='text-h-text/60'>
               {
-                singles.map(single => (
+                singles.map((single, i) => (
                   <tr key={single.id} className='even:bg-h-tone/5 hover:text-h-text/80 cursor-pointer'>
-                    <td className='w-44'>
+                    <td className='w-44 pl-1'>
                       {single.dataset.alias}
                     </td>
                     <td className='w-28'>
@@ -116,8 +121,11 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                     <td className='w-24 text-center'>
                       {single.result.tradesWin}/{single.result.tradesLoss}
                     </td>
-                    <td className='w-20 text-right'>
+                    <td className='w-20 text-right pr-2'>
                       {formatPercent(single.result.avgTradeProfit)}
+                    </td>
+                    <td className='w-36'>
+                      <SimpleChart data={trades[i]} reference={single.result.balanceInitial} />
                     </td>
                   </tr>
                 ))

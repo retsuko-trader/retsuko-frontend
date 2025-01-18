@@ -1,4 +1,4 @@
-import { BinanceInterval } from '../retsuko/binance';
+import type { BinanceInterval } from '../retsuko/binance';
 import { getDatasetCandidate } from '../retsuko/core/dataset';
 import { sortInterval } from './interval';
 import { sortSymbol } from './symbol';

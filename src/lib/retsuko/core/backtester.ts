@@ -4,6 +4,7 @@ import {
   getDatasetGroupById,
   updateBacktestRunEndsAt,
 } from '../repository';
+import { createBacktestTrades } from '../repository/backtestTrade';
 import { DatasetConfig } from '../tables';
 import { PaperTraderOptions } from './paperTrader';
 import { SingleBacktester } from './singleBacktester';
@@ -79,7 +80,7 @@ export class Backtester {
           continue;
         }
 
-        await createBacktestSingle({
+        const singleId = await createBacktestSingle({
           runId: this.$runId,
           dataset,
           strategy,
@@ -93,6 +94,8 @@ export class Backtester {
             avgTradeProfit: report.trades.length === 0 ? 0 : report.trades.reduce((acc, x) => acc + x.profit, 0) / report.trades.length,
           }
         });
+
+        await createBacktestTrades(singleId, report.trades);
       }
     }
 
