@@ -1,5 +1,6 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
+import { NeoStrategy } from './neo';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { StochRSIStrategy } from './stochRsi';
 import { SuperTrendStrategy } from './superTrend';
@@ -93,6 +94,25 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       atrPeriod: 7,
       bandFactor: 3,
+    },
+  }),
+  createEntry({
+    name: 'NEO',
+    entry: NeoStrategy,
+    config: {
+      smaLong: 150,
+      smaShort: 40,
+      bullRsi: 10,
+      bullRsiHigh: 80,
+      bullRsiLow: 50,
+      idleRsi: 12,
+      idleRsiHigh: 65,
+      idleRsiLow: 39,
+      bearRsi: 15,
+      bearRsiHigh: 50,
+      bearRsiLow: 25,
+      roc: 6,
+      rocLvl: 0,
     },
   }),
 ];

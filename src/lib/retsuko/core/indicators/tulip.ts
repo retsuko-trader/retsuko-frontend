@@ -139,6 +139,15 @@ export namespace Tulip {
     long,
   );
 
+  export const ROC = (name: string, period: number) => new TulipIndicator(
+    name,
+    tulind.indicators.roc,
+    ['close'],
+    [period],
+    period,
+    period,
+  );
+
   export const RSI = (name: string, period: number) => new TulipIndicator(
     name,
     tulind.indicators.rsi,

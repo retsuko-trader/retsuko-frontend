@@ -12,12 +12,12 @@ export default async function RetsukoDatasetPage() {
         <table className='font-mono'>
           <thead>
             <tr className='text-h-text/80 text-left bg-h-tone/10'>
-              <th>source</th>
+              <th className='pl-1'>source</th>
               <th>symbol</th>
               <th>int</th>
               <th className='text-center'>start</th>
               <th className='text-center'>end</th>
-              <th className='text-right'>count</th>
+              <th className='text-right pr-1'>count</th>
             </tr>
           </thead>
           <tbody>
@@ -26,7 +26,7 @@ export default async function RetsukoDatasetPage() {
 
               return (
                 <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer even:bg-h-tone/5'>
-                  <td className='w-20'>
+                  <td className='w-20 pl-1'>
                     {dataset.market}
                   </td>
                   <td className='w-20'>
@@ -41,7 +41,7 @@ export default async function RetsukoDatasetPage() {
                   <td className='w-36'>
                     {formatDateShort(dataset.end)}
                   </td>
-                  <td className='w-20 text-right'>
+                  <td className='w-20 text-right pr-1'>
                     {dataset.count}
                   </td>
                 </tr>
