@@ -164,7 +164,14 @@ export async function deleteBacktestRun(id: string): Promise<void> {
     .where('id', '=', id)
     .execute();
 
-  await db.deleteFrom('backtestSingle')
+  const singleIds = await db.deleteFrom('backtestSingle')
     .where('runId', '=', id)
+    .returning('id')
     .execute();
+
+  for (const { id: singleId } of singleIds) {
+    await db.deleteFrom('backtestTrade')
+      .where('backtestSingleId', '=', singleId)
+      .execute();
+  }
 }
