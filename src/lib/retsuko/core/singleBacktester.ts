@@ -33,10 +33,10 @@ export interface BacktestMetrics {
   sortino: number;
   sharpe: number;
   calmar: number;
-  profitFactor: number;
   minBalance: number;
+  minBalanceTs: number;
   maxBalance: number;
-  maxAccountDrawdown: number;
+  maxBalanceTs: number;
   drawdown: number;
   drawdownHigh: number;
   drawdownLow: number;
@@ -57,10 +57,10 @@ export class SingleBacktester {
       sortino: 0,
       sharpe: 0,
       calmar: 0,
-      profitFactor: 0,
       minBalance: Number.MAX_VALUE,
+      minBalanceTs: 0,
       maxBalance: 0,
-      maxAccountDrawdown: 0,
+      maxBalanceTs: 0,
       drawdown: 0,
       drawdownHigh: 0,
       drawdownLow: 0,
@@ -150,19 +150,27 @@ export class SingleBacktester {
 
     this.$metrics.totalTrades += trade ? 1 : 0;
 
-    this.$metrics.minBalance = Math.min(this.$metrics.minBalance, balance);
-    this.$metrics.maxBalance = Math.max(this.$metrics.maxBalance, balance);
+    if (balance < this.$metrics.minBalance) {
+      this.$metrics.minBalance = balance;
+      this.$metrics.minBalanceTs = candle.ts.getTime();
+    }
+    if (balance > this.$metrics.maxBalance) {
+      this.$metrics.maxBalance = balance;
+      this.$metrics.maxBalanceTs = candle.ts.getTime();
+    }
+    this.$metrics.marketChange = (this.$lastCandle.close - this.$firstCandle.close) / this.$firstCandle.close;
 
     const startBalance = this.config.trader.initialBalance;
     const profit = (balance - startBalance) / startBalance;
     this.$metrics.totalProfit = profit;
 
     const drawdown = (balance - this.$metrics.maxBalance) / this.$metrics.maxBalance;
-    if (drawdown < this.$metrics.maxAccountDrawdown) {
-      this.$metrics.maxAccountDrawdown = drawdown;
+    if (drawdown < this.$metrics.drawdown) {
+      this.$metrics.drawdown = drawdown;
       this.$metrics.drawdownHigh = this.$metrics.maxBalance;
       this.$metrics.drawdownLow = balance;
-      this.$metrics.drawdownStartTs = this.$lastCandle.ts.getTime();
+      this.$metrics.drawdownStartTs = this.$metrics.maxBalanceTs;
+      this.$metrics.drawdownEndTs = candle.ts.getTime();
     }
 
     const metrics = new MetricsHelper(this.config, portfolio, this.$metrics, this.$firstCandle, this.$lastCandle);

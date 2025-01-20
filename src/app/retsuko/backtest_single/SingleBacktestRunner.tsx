@@ -35,7 +35,6 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
   const wins = report?.trades.filter(x => x.profit > 0).length;
   const loses = report?.trades.filter(x => x.profit < 0).length;
   const avgTradeProfits = R.mean(report?.trades.map(x => x.profit) ?? []) ?? 0;
-  const candlesProfit = candles.length <= 1 ? 1 : (candles[candles.length - 1].close - candles[0].close) / candles[0].close;
 
   return (
     <div className='w-full h-full relative flex flex-row'>
@@ -69,10 +68,21 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   <Row label='start balance' value={formatBalance(report.startBalance)} />
                   <Row label='end balance' value={formatBalance(report.endBalance)} />
                   <Row label='trade count' value={report.trades.length} />
-                  <Row label='profit' value={formatPercent(report.profit)} />
+                  <Row label='total profit%' value={formatPercent(report.profit)} />
+                  <Row label='CAGR %' value={formatPercent(report.metrics.cagr)} />
+                  <Row label='sortino' value={formatBalance(report.metrics.sortino)} />
+                  <Row label='sharpe' value={formatBalance(report.metrics.sharpe)} />
+                  <Row label='calmar' value={formatBalance(report.metrics.calmar)} />
+                  <Row label='min/max balance' value={`${formatBalance(report.metrics.minBalance)} / ${formatBalance(report.metrics.maxBalance)}`} />
+                  <Row label='drawdown' value={formatPercent(report.metrics.drawdown)} />
+                  <Row label='drawdown high' value={formatBalance(report.metrics.drawdownHigh)} />
+                  <Row label='drawdown low' value={formatBalance(report.metrics.drawdownLow)} />
+                  <Row label='drawdown start' value={formatDateShort(new Date(report.metrics.drawdownStartTs))} />
+                  <Row label='drawdown end' value={formatDateShort(new Date(report.metrics.drawdownEndTs))} />
+                  <Row label='market change' value={formatPercent(report.metrics.marketChange)} />
                   <Row label='wins/loses (%)' value={`${wins}/${loses} (${formatPercent(wins! / (wins! + loses!))})`} />
                   <Row label='avg trade p%' value={formatPercent(avgTradeProfits)} />
-                  <Row label='sharpe ratio' value={formatPercent((report.profit) / candlesProfit)} />
+                  <Row label='profit/market' value={formatPercent((report.profit) / report.metrics.marketChange)} />
                 </div>
               </div>
 
@@ -161,7 +171,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className='w-32 inline-block'>
+      <p className='w-36 inline-block'>
         {label}:
       </p>
       <div className='inline-block'>
