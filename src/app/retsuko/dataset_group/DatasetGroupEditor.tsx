@@ -72,16 +72,38 @@ export function DatasetGroupEditor({ datasets, group: group0 }: Props) {
         return x;
       }
 
-      const datasets = [...x.datasets];
-      datasets[index] = {
-        ...datasets[index],
-        ...options,
-      };
+      if (options.alias) {
+        const alias = options.alias;
+        if (x.datasets.some(x => x.alias === alias)) {
+          return x;
+        }
 
-      return {
-        ...x,
-        datasets,
-      };
+        const start = datasets.find(x => getDatasetAlias(x) === alias)?.start;
+        const end = datasets.find(x => getDatasetAlias(x) === alias)?.end;
+
+        const datasets0 = [...x.datasets];
+        datasets0[index] = {
+          alias,
+          start: start || datasets0[index].start,
+          end: end || datasets0[index].end,
+        };
+
+        return {
+          ...x,
+          datasets: datasets0,
+        };
+      } else {
+        const datasets0 = [...x.datasets];
+        datasets0[index] = {
+          ...datasets0[index],
+          ...options,
+        };
+
+        return {
+          ...x,
+          datasets: datasets0,
+        };
+      }
     });
   };
 

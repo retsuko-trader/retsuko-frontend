@@ -1,12 +1,14 @@
 import { DatasetGroupTable } from './DatasetGroupTable';
 import { DatasetGroupEditor } from './DatasetGroupEditor';
 import { getDatasetGroups, searchDatasets } from '@/lib/retsuko/repository';
+import { connection } from 'next/server';
 
 interface Props {
   searchParams: Promise<Record<string, string>>;
 }
 
 export default async function RestsukoDatasetGroupPage({ searchParams }: Props) {
+  await connection();
   const datasets = await searchDatasets();
   const groups = await getDatasetGroups();
 
