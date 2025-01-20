@@ -45,6 +45,7 @@ export class PaperTrader implements Trader {
         const amount = this.extractFee(this.$portfolio.currency / candle.close);
         this.$portfolio.asset += amount;
         this.$portfolio.currency = 0;
+        this.$portfolio.totalBalance = this.$portfolio.asset * candle.close;
       }
       this.$direction = 'long';
 
@@ -67,6 +68,7 @@ export class PaperTrader implements Trader {
         const amount = this.extractFee(this.$portfolio.asset * candle.close);
         this.$portfolio.currency += amount;
         this.$portfolio.asset = 0;
+        this.$portfolio.totalBalance = this.$portfolio.currency;
       }
       this.$direction = 'short';
     }
@@ -95,12 +97,14 @@ export class PaperTrader implements Trader {
     const amount = this.extractFee(price / close);
     this.$portfolio.asset += amount;
     this.$portfolio.currency -= price;
+    this.$portfolio.totalBalance = this.$portfolio.currency + this.$portfolio.asset * close;
   }
 
   sellMargin(price: number, close: number) {
     const amount = this.extractFee(price * close);
     this.$portfolio.asset -= price;
     this.$portfolio.currency += amount;
+    this.$portfolio.totalBalance = this.$portfolio.currency + this.$portfolio.asset * close;
   }
 
   serialize(): string {

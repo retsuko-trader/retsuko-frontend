@@ -52,6 +52,7 @@ function convertSingleToRaw(row: BacktestSingle): RawBacktestSingle {
     tradesWin: row.result.tradesWin,
     tradesLoss: row.result.tradesLoss,
     avgTradeProfit: row.result.avgTradeProfit,
+    metricsRaw: JSON.stringify(row.metrics),
   };
 }
 
@@ -77,6 +78,7 @@ function convertRawToSingle(row: RawBacktestSingle): BacktestSingle {
       tradesLoss: row.tradesLoss,
       avgTradeProfit: row.avgTradeProfit,
     },
+    metrics: JSON.parse(row.metricsRaw),
   };
 }
 

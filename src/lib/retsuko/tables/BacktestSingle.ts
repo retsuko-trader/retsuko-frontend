@@ -1,3 +1,4 @@
+import { BacktestMetrics } from '../core/singleBacktester';
 import { DatasetConfig } from './DatasetGroup';
 
 export interface BacktestSingle {
@@ -20,6 +21,8 @@ export interface BacktestSingle {
     tradesLoss: number;
     avgTradeProfit: number;
   };
+
+  metrics: BacktestMetrics;
 }
 
 export interface RawBacktestSingle {
@@ -40,4 +43,6 @@ export interface RawBacktestSingle {
   tradesWin: number;
   tradesLoss: number;
   avgTradeProfit: number;
+
+  metricsRaw: string;
 }

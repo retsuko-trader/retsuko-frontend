@@ -92,7 +92,8 @@ export class Backtester {
             tradesWin: report.trades.filter(x => x.profit > 0).length,
             tradesLoss: report.trades.filter(x => x.profit < 0).length,
             avgTradeProfit: report.trades.length === 0 ? 0 : report.trades.reduce((acc, x) => acc + x.profit, 0) / report.trades.length,
-          }
+          },
+          metrics: report.metrics,
         });
 
         await createBacktestTrades(singleId, report.trades);
