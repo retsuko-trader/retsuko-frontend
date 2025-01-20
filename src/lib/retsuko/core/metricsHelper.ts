@@ -60,6 +60,6 @@ export class MetricsHelper {
 
   public calmar(): number {
     const expectedReturn = this.metrics.totalProfit / this.days();
-    return expectedReturn / this.metrics.drawdownHigh * Math.sqrt(365);
+    return expectedReturn / this.metrics.drawdown * Math.sqrt(365);
   }
 }

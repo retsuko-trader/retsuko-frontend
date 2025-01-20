@@ -29,7 +29,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
     ));
   };
 
-  const color = interpolate(['rgb(228 86 73)', 'rgb(80 161 79)', 'rgb(80 161 79)', 'rgb(1 132 188)']);
+  const color = interpolate(['rgb(228 86 73)', 'rgb(1 132 188)', 'rgb(1 132 188)', 'rgb(80 161 79)']);
 
   const removeRun = async () => {
     'use server';
@@ -91,6 +91,10 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                 <th>strategy</th>
                 <th>balance</th>
                 <th className='text-right'>profit</th>
+                <th className='text-right'>sharpe</th>
+                <th className='text-right'>drawdown</th>
+                <th className='text-right'>profit/m</th>
+                <th className='text-right'>market</th>
                 <th className='text-right'>trades</th>
                 <th>w/l</th>
                 <th className='text-right pr-2'>avg p%</th>
@@ -114,6 +118,24 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                       color: color((single.result.profit - 1) / 3),
                     }}>
                       {formatPercent(single.result.profit)}
+                    </td>
+                    <td className='w-16 text-right' style={{
+                      color: color((single.metrics.sharpe - 0.2) / 2),
+                    }}>
+                      {formatBalance(single.metrics.sharpe, 3)}
+                    </td>
+                    <td className='w-20 text-right' style={{
+                      color: color(single.metrics.drawdown + 0.8),
+                    }}>
+                      {formatPercent(single.metrics.drawdown)}
+                    </td>
+                    <td className='w-20 text-right' style={{
+                      color: color(single.metrics.totalProfit / single.metrics.marketChange),
+                    }}>
+                      {formatPercent(single.metrics.totalProfit / single.metrics.marketChange)}
+                    </td>
+                    <td className='w-20 text-right'>
+                      {formatPercent(single.metrics.marketChange)}
                     </td>
                     <td className='w-16 text-right'>
                       {single.result.tradesCount}
