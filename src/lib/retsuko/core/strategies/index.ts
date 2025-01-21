@@ -2,6 +2,7 @@ import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
 import { NeoStrategy } from './neo';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
+import { SimpleRsiStrategy } from './simpleRsi';
 import { StochRSIStrategy } from './stochRsi';
 import { SuperTrendStrategy } from './superTrend';
 import { TurtleStrategy } from './turtle';
@@ -115,6 +116,15 @@ export const StrategyEntries: StrategyEntry[] = [
       rocLvl: 0,
     },
   }),
+  createEntry({
+    name: 'SimpleRSI',
+    entry: SimpleRsiStrategy,
+    config: {
+      rsiTimePeriod: 5,
+      rsiHigh: 70,
+      rsiLow: 70,
+    },
+  })
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({
