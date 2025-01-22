@@ -141,9 +141,13 @@ export class StreamClient {
   }
 
   async send(data: KlineStream) {
-    await fetch(CALLBACK_URL, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      await fetch(CALLBACK_URL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

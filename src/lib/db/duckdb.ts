@@ -21,6 +21,10 @@ export function createKysely<T>(dbUrl: string, options?: {
     access_mode: accessMode ?? 'READ_WRITE',
   });
 
+  process.on('exit', () => {
+    duckdb.close();
+  });
+
   return new Kysely<T>({
     dialect: new DuckDbDialect({
       database: duckdb,
