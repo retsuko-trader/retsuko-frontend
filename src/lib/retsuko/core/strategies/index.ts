@@ -1,5 +1,6 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
+import { MinMaxStrategy } from './minmax';
 import { NeoStrategy } from './neo';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { SimpleRsiStrategy } from './simpleRsi';
@@ -123,6 +124,13 @@ export const StrategyEntries: StrategyEntry[] = [
       rsiTimePeriod: 5,
       rsiHigh: 70,
       rsiLow: 70,
+    },
+  }),
+  createEntry({
+    name: 'MinMax',
+    entry: MinMaxStrategy,
+    config: {
+      window: 10,
     },
   })
 ];
