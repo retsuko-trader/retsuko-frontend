@@ -7,7 +7,9 @@ import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { SimpleRsiStrategy } from './simpleRsi';
 import { StochRSIStrategy } from './stochRsi';
 import { SuperTrendStrategy } from './superTrend';
+import { SuperTrendTurtleStrategy } from './superTrendTurtle';
 import { TurtleStrategy } from './turtle';
+import { TurtleRegimeStrategy } from './turtleRegime';
 
 export interface StrategyEntry {
   name: string;
@@ -71,6 +73,17 @@ export const StrategyEntries: StrategyEntry[] = [
       enterSlow: 55,
       exitSlow: 20,
       trailingStop: 15,
+    },
+  }),
+  createEntry({
+    name: 'TurtleRegime',
+    entry: TurtleRegimeStrategy,
+    config: {
+      enterFast: 20,
+      exitFast: 10,
+      enterSlow: 55,
+      exitSlow: 20,
+      bullPeriod: 50,
     },
   }),
   createEntry({
@@ -142,6 +155,19 @@ export const StrategyEntries: StrategyEntry[] = [
       bandWindow: 10,
       bandFactor: 2.5,
       lowerIbs: 0.3,
+    },
+  }),
+  createEntry({
+    name: 'SuperTrendTurtle',
+    entry: SuperTrendTurtleStrategy,
+    config: {
+      atrPeriod: 7,
+      bandFactor: 3,
+      enterFast: 20,
+      exitFast: 10,
+      enterSlow: 55,
+      exitSlow: 20,
+      bullPeriod: 50,
     },
   }),
 ];
