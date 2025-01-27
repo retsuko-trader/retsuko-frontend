@@ -14,6 +14,7 @@ export interface PaperTraderOptions {
 export class PaperTrader implements Trader {
   $portfolio: Portfolio;
   $direction: 'long' | 'short' = 'short';
+  $position: number = 0;
 
   constructor(
     private config: PaperTraderOptions,
@@ -32,7 +33,18 @@ export class PaperTrader implements Trader {
       }
 
       if (this.config.enableMargin) {
-        if (
+        if (this.config.validTradeOnly) {
+          if (this.$position === -1) {
+            this.$position += 1;
+            this.buyMargin(-this.$portfolio.asset * candle.close, candle.close);
+          } else if (this.$position === 0) {
+            this.$position += 1;
+            this.buyMargin(this.$portfolio.currency, candle.close);
+          } else {
+            return null;
+          }
+        }
+        else if (
           this.config.marginTradeAllWhenDirectionChanged
           && this.$direction === 'short'
           && this.$portfolio.asset < 0
@@ -55,7 +67,18 @@ export class PaperTrader implements Trader {
       }
 
       if (this.config.enableMargin) {
-        if (
+        if (this.config.validTradeOnly) {
+          if (this.$position === 1) {
+            this.$position -= 1;
+            this.sellMargin(this.$portfolio.asset, candle.close);
+          } else if (this.$position === 0) {
+            this.$position -= 1;
+            this.sellMargin(this.$portfolio.currency / candle.close, candle.close);
+          } else {
+            return null;
+          }
+        }
+        else if (
           this.config.marginTradeAllWhenDirectionChanged
           && this.$direction === 'long'
           && this.$portfolio.currency < 0

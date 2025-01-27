@@ -234,15 +234,11 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
             </div>
 
             <div>
-              <label className={classNames('w-48 inline-block pr-2', {
-                'text-h-text/40': config.trader.enableMargin,
-                'text-h-text/80': !config.trader.enableMargin,
-              })}>
+              <label className={classNames('w-48 inline-block pr-2')}>
                 valid trade only:
               </label>
               <input
                 type='checkbox'
-                disabled={config.trader.enableMargin}
                 checked={config.trader.validTradeOnly}
                 onChange={e => updateConfig({ trader: { ...config.trader, validTradeOnly: e.target.checked } })}
                 className='inline-block w-32'
