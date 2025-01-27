@@ -2,6 +2,7 @@ import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
 import { MinMaxStrategy } from './minmax';
 import { NeoStrategy } from './neo';
+import { PoincareStrategy } from './poincare';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { SimpleRsiStrategy } from './simpleRsi';
 import { StochRSIStrategy } from './stochRsi';
@@ -132,7 +133,17 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       window: 10,
     },
-  })
+  }),
+  createEntry({
+    name: 'Poincare',
+    entry: PoincareStrategy,
+    config: {
+      window: 25,
+      bandWindow: 10,
+      bandFactor: 2.5,
+      lowerIbs: 0.3,
+    },
+  }),
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({
