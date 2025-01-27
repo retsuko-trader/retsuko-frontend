@@ -34,14 +34,11 @@ export class PaperTrader implements Trader {
 
       if (this.config.enableMargin) {
         if (this.config.validTradeOnly) {
-          if (this.$position === -1) {
-            this.$position += 1;
-            this.buyMargin(-this.$portfolio.asset * candle.close, candle.close);
-          } else if (this.$position === 0) {
-            this.$position += 1;
-            this.buyMargin(this.$portfolio.currency, candle.close);
-          } else {
+          if (this.$position >= 1) {
             return null;
+          } else {
+            this.$position = 1;
+            this.buyMargin(-this.$portfolio.asset * candle.close + this.$portfolio.currency, candle.close);
           }
         }
         else if (
@@ -68,14 +65,12 @@ export class PaperTrader implements Trader {
 
       if (this.config.enableMargin) {
         if (this.config.validTradeOnly) {
-          if (this.$position === 1) {
-            this.$position -= 1;
-            this.sellMargin(this.$portfolio.asset, candle.close);
-          } else if (this.$position === 0) {
-            this.$position -= 1;
-            this.sellMargin(this.$portfolio.currency / candle.close, candle.close);
-          } else {
+          if (this.$position <= -1) {
             return null;
+          } else {
+            this.$position = -1;
+            this.sellMargin(this.$portfolio.asset, candle.close);
+            this.sellMargin(this.$portfolio.currency / candle.close, candle.close);
           }
         }
         else if (
