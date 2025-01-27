@@ -20,6 +20,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
   $trend: SuperTrendState;
   $lastTrend: SuperTrendState;
   $lastCandleClose: number;
+  $age: number = 0;
 
   constructor(
     name: string,
@@ -49,6 +50,11 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     super.update(candle);
 
     const atr = this.$atr.value;
+    this.$age += 1;
+
+    if (this.$age < this.config.atrPeriod) {
+      return null;
+    }
 
     this.$trend.upperBandBasic = (candle.high + candle.low) / 2 + atr * this.config.bandFactor;
     this.$trend.lowerBandBasic = (candle.high + candle.low) / 2 - atr * this.config.bandFactor;
@@ -98,6 +104,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
       trend: this.$trend,
       lastTrend: this.$lastTrend,
       lastCandleClose: this.$lastCandleClose,
+      age: this.$age,
     });
   }
 
@@ -108,5 +115,6 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     this.$trend = parsed.trend;
     this.$lastTrend = parsed.lastTrend;
     this.$lastCandleClose = parsed.lastCandleClose;
+    this.$age = parsed.age;
   }
 }
