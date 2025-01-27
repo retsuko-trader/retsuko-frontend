@@ -20,7 +20,7 @@ export class MetricsHelper {
   public cagr(): number {
     const days = this.days();
 
-    return Math.pow(this.portfolio.totalBalance / this.config.trader.initialBalance, 1 / days / 365 - 1);
+    return Math.pow(this.portfolio.totalBalance / this.config.trader.initialBalance, 1 / (days / 365));
   }
 
   public avgTrades(): number {
