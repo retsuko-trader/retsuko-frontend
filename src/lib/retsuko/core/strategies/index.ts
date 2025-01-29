@@ -1,5 +1,6 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
+import { MichaelHarrisDaxStrategy } from './michaelHarrisDax';
 import { MinMaxStrategy } from './minmax';
 import { NeoStrategy } from './neo';
 import { PoincareStrategy } from './poincare';
@@ -168,6 +169,13 @@ export const StrategyEntries: StrategyEntry[] = [
       enterSlow: 55,
       exitSlow: 20,
       bullPeriod: 50,
+    },
+  }),
+  createEntry({
+    name: 'michaelHarrisDax',
+    entry: MichaelHarrisDaxStrategy,
+    config: {
+      window: 5,
     },
   }),
 ];
