@@ -215,7 +215,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
             }
 
             <button onClick={addStrategy} className='w-full px-4 py-0.5 bg-h-yellow/60 hover:bg-h-yellow/40'>
-              add dataset
+              add strategy
             </button>
           </div>
 
