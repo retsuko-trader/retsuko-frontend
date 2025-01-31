@@ -1,33 +1,29 @@
 'use client';
 
-import { SimpleCandle } from '@/lib/retsuko/tables';
 // @ts-expect-error CanvasJS is not typed
 import CanvasChartReact from '@canvasjs/react-charts';
-
-export const ssr = 'false';
+import type { Trade } from '@/lib/retsuko/core/Trade';
+import { SimpleCandle } from '@/lib/retsuko/tables';
 
 interface Props {
   title: string;
 
   candles?: SimpleCandle[];
 
-  trades?: Array<{
-    ts: Date;
-    action: 'buy' | 'sell';
-    asset: number;
-    currency: number;
-    price: number;
-    profit: number;
-  }>;
+  tradesList?: Trade[][];
 
   showBalance?: boolean;
+  logarithmicBalance?: boolean;
+  showTrades?: boolean;
 }
 
 export function TradingChart({
   title,
   candles,
-  trades,
+  tradesList,
   showBalance,
+  logarithmicBalance,
+  showTrades,
 }: Props) {
 
   const options = {
@@ -46,6 +42,8 @@ export function TradingChart({
     },
     axisY2: {
       title: 'Balance',
+      logarithmic: logarithmicBalance ?? false,
+      minimum: 1000,
       crosshair: {
         enabled: true,
         snapToDataPoint: true,
@@ -59,8 +57,6 @@ export function TradingChart({
       candles && candles.length > 0 && {
         name: 'Price',
         type: 'line',
-        color: 'red',
-        lineColor: 'red',
         showInLegend: true,
         xValueFormatString: 'YYYY-MM-DD HH:mm',
         dataPoints: candles.map(x => ({
@@ -68,11 +64,9 @@ export function TradingChart({
           y: x.close,
         })),
       },
-      showBalance && trades && {
-        name: 'Balance',
+      ...(showBalance ? tradesList ?? [] : []).map((trades, i) => ({
+        name: `Balance[${i}]`,
         type: 'stepLine',
-        color: 'blue',
-        lineColor: 'blue',
         showInLegend: true,
         xValueFormatString: 'YYYY-MM-DD HH:mm',
         yValueFormatString: '0.00',
@@ -81,8 +75,8 @@ export function TradingChart({
           x: x.ts,
           y: x.asset * x.price + x.currency,
         })),
-      },
-      trades && {
+      })),
+      ...(showTrades ? tradesList ?? [] : []).map(trades => ({
         name: 'Trade',
         type: 'scatter',
         showInLegend: true,
@@ -95,7 +89,7 @@ export function TradingChart({
           z: x.action,
           markerColor: x.action === 'buy' ? 'green' : 'red',
         })),
-      },
+      })),
     ].filter(x => !!x),
   };
 

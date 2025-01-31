@@ -13,19 +13,18 @@ interface Props {
     name: string;
     config: Record<string, number>;
   }>;
-  runBacktest: (config: SingleBacktestConfig) => void;
+  runBacktest: (configs: SingleBacktestConfig[]) => void;
 }
 
+type Config = Omit<SingleBacktestConfig, 'strategy'>;
+type Strategy = SingleBacktestConfig['strategy'];
+
 export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: Props) {
-  const [config, setConfig] = React.useState<SingleBacktestConfig>({
+  const [config, setConfig] = React.useState<Config>({
     dataset: {
       alias: getDatasetAlias(datasets[0]),
       start: datasets[0].start,
       end: datasets[0].end,
-    },
-    strategy: {
-      name: entries[0].name,
-      config: entries[0].config,
     },
     trader: {
       initialBalance: 1000,
@@ -36,7 +35,14 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     },
   });
 
-  const updateConfig = (option: Partial<SingleBacktestConfig>) => {
+  const [strategies, setStrategies] = React.useState<Strategy[]>([
+    {
+      name: entries[0].name,
+      config: entries[0].config,
+    },
+  ]);
+
+  const updateConfig = (option: Partial<Config>) => {
     setConfig({
       ...config,
       ...option,
@@ -71,34 +77,56 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     });
   };
 
-  const selectStrategy = (name: string) => {
+  const addStrategy = () => {
+    setStrategies([
+      ...strategies,
+      {
+        name: entries[0].name,
+        config: entries[0].config,
+      }
+    ]);
+  };
+
+  const removeStrategy = (index: number) => {
+    setStrategies(xs => xs.filter((_, i) => i !== index));
+  }
+
+  const selectStrategy = (index: number, name: string) => {
     const entry = entries.find(x => x.name === name);
     if (!entry) {
       return;
     }
 
-    if (entry.name === config.strategy.name) {
-      return;
-    }
-
-    updateConfig({
-      strategy: {
-        name,
-        config: entry.config,
+    setStrategies(xs => {
+      if (xs[index].name === name) {
+        return xs;
       }
+
+      return xs.map((x, i) => {
+        if (i === index) {
+          return {
+            name,
+            config: entry.config,
+          };
+      }
+        return x;
+      })
     });
   };
 
-  const updateStrategyConfig = (name: string, value: number) => {
-    updateConfig({
-      strategy: {
-        name: config.strategy.name,
-        config: {
-          ...config.strategy.config,
-          [name]: value,
-        }
+  const updateStrategyConfig = (index: number, name: string, value: number) => {
+    setStrategies(xs => xs.map((x, i) => {
+      if (i === index) {
+        return {
+          ...x,
+          config: {
+            ...x.config,
+            [name]: value,
+          }
+        };
       }
-    });
+      return x;
+    }));
   };
 
   return (
@@ -150,29 +178,47 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
           <label className='w-20 inline-block'>
             strategy:
           </label>
-          <select value={config.strategy.name} onChange={e => selectStrategy(e.target.value)} className='inline-block w-52'>
-            {entries.map(entry => (
-              <option key={entry.name} value={entry.name}>{entry.name}</option>
-            ))}
-          </select>
-
-          <div className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
+          <div className='flex flex-col gap-2'>
             {
-              Object.entries(config.strategy.config).map(([key, value]) => (
-                <div key={key}>
-                  <label className='w-48 inline-block pr-2'>
-                    {key}:
-                  </label>
-                  <input
-                    type='number'
-                    value={value}
-                    onChange={e => updateStrategyConfig(key, e.target.valueAsNumber)}
-                    className='inline-block w-32'
-                  />
+              strategies.map((strategy, i) => (
+                <div key={i} className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
+                  <div className='flex flex-row justify-between'>
+
+                    <select value={strategy.name} onChange={e => selectStrategy(i, e.target.value)} className='inline-block w-52'>
+                      {entries.map(entry => (
+                        <option key={entry.name} value={entry.name}>{entry.name}</option>
+                      ))}
+                    </select>
+
+                    <button onClick={() => removeStrategy(i)} className='mr-2 font-bold text-h-red/60 hover:text-h-red/80'>
+                      X
+                    </button>
+                  </div>
+
+                  {
+                    Object.entries(strategy.config).map(([key, value]) => (
+                      <div key={key}>
+                        <label className='w-48 inline-block pr-2'>
+                          {key}:
+                        </label>
+                        <input
+                          type='number'
+                          value={value}
+                          onChange={e => updateStrategyConfig(i, key, e.target.valueAsNumber)}
+                          className='inline-block w-32'
+                        />
+                      </div>
+                    ))
+                  }
                 </div>
               ))
             }
+
+            <button onClick={addStrategy} className='w-full px-4 py-0.5 bg-h-yellow/60 hover:bg-h-yellow/40'>
+              add dataset
+            </button>
           </div>
+
         </div>
 
         <div>
@@ -249,7 +295,10 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
 
         <div className='flex'>
           <button
-            onClick={() => runBacktest(config)}
+            onClick={() => runBacktest(strategies.map(strategy => ({
+              ...config,
+              strategy,
+            })))}
             className='w-32 px-4 py-2 bg-h-green/80 hover:bg-h-green/60'
           >
             Run

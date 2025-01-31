@@ -9,6 +9,7 @@ import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { loadCandles, runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
 import type { SimpleCandle } from '@/lib/retsuko/tables';
+import { Table } from '@/components/Table';
 import dynamic from 'next/dynamic';
 
 const TradingChart = dynamic(() => import('@/components/TradingChart').then(x => x.TradingChart), { ssr: false });
@@ -23,77 +24,115 @@ interface Props {
 
 export function SingleBacktestRunner({ datasets, entries }: Props) {
   const [loading, setLoading] = React.useState(false);
-  const [report, setReport] = React.useState<BacktestReport | null>(null);
+  const [reports, setReports] = React.useState<BacktestReport[]>([]);
   const [candles, setCandles] = React.useState<SimpleCandle[]>([]);
+  const [logarithmicBalance, setLogarithmicBalance] = React.useState(false);
 
-  const run = async (config: SingleBacktestConfig) => {
+  const run = async (configs: SingleBacktestConfig[]) => {
     setLoading(true);
-    const resp = await runBacktest(config);
-    setReport(resp);
-    setCandles(await loadCandles(config));
+    const resp = (await Promise.all(configs.map(x => runBacktest(x)))).filter(x => x !== null);
+    setReports(resp);
+    setCandles(await loadCandles(configs[0]));
     setLoading(false);
   };
-
-  const wins = report?.trades.filter(x => x.profit > 0).length;
-  const loses = report?.trades.filter(x => x.profit < 0).length;
-  const avgTradeProfits = R.mean(report?.trades.map(x => x.profit) ?? []) ?? 0;
 
   return (
     <div className='w-full h-full relative flex flex-row'>
       <div className='w-full h-full overflow-y-auto'>
 
         <div>
-          {report === null && (
+          {reports.length === 0 && (
             <p className='text-h-text/40'>backtest result not loaded</p>
           )}
-          {report !== null && (
-            <div className='flex flex-col gap-y-4'>
-              <div>
-                <p>configs</p>
+        </div>
 
-                <div className='border-l-2 border-h-yellow/80 pl-2 font-mono'>
-                  <Row label='dataset' value={report.config.dataset.alias} />
-                  <Row label='start' value={formatDateShort(report.config.dataset.start!)} />
-                  <Row label='end' value={formatDateShort(report.config.dataset.end!)} />
+        <div className='flex flex-col gap-y-4'>
+          <div>
+            <p>configs</p>
 
-                  <Row label='strategy' value={report.config.strategy.name} />
-                  <Row label='config' value={<div className='max-w-[48rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>} />
-                  <Row label='balance' value={report.config.trader.initialBalance} />
-                  <Row label='fee' value={report.config.trader.fee} />
-                </div>
-              </div>
+            <Table
+              name='configs'
+              rows={[
+                ['dataset', 'start', 'end', 'strategy', 'config', 'balance', 'fee'],
+                ...reports.map((report, i) => [
+                  report.config.dataset.alias,
+                  formatDateShort(report.config.dataset.start!),
+                  formatDateShort(report.config.dataset.end!),
+                  report.config.strategy.name,
+                  <div key={`config-${i}`} className='max-w-[24rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>,
+                  report.config.trader.initialBalance,
+                  report.config.trader.fee,
+                ]),
+              ]}
+              transpose
+              firstColumnAsRowHeader
+              className='border-l-2 border-h-yellow/80'
+            />
+          </div>
 
-              <div>
-                <p>result</p>
+          <div>
+            <p>results</p>
 
-                <div className='border-l-2 border-h-blue/80 pl-2 font-mono'>
-                  <Row label='start balance' value={formatBalance(report.startBalance)} />
-                  <Row label='end balance' value={formatBalance(report.endBalance)} />
-                  <Row label='trade count' value={report.trades.length} />
-                  <Row label='total profit%' value={formatPercent(report.profit)} />
-                  <Row label='CAGR %' value={formatPercent(report.metrics.cagr)} />
-                  <Row label='sortino' value={formatBalance(report.metrics.sortino)} />
-                  <Row label='sharpe' value={formatBalance(report.metrics.sharpe)} />
-                  <Row label='calmar' value={formatBalance(report.metrics.calmar)} />
-                  <Row label='min/max balance' value={`${formatBalance(report.metrics.minBalance)} / ${formatBalance(report.metrics.maxBalance)}`} />
-                  <Row label='drawdown' value={formatPercent(report.metrics.drawdown)} />
-                  <Row label='drawdown high' value={formatBalance(report.metrics.drawdownHigh)} />
-                  <Row label='drawdown low' value={formatBalance(report.metrics.drawdownLow)} />
-                  <Row label='drawdown start' value={formatDateShort(new Date(report.metrics.drawdownStartTs))} />
-                  <Row label='drawdown end' value={formatDateShort(new Date(report.metrics.drawdownEndTs))} />
-                  <Row label='market change' value={formatPercent(report.metrics.marketChange)} />
-                  <Row label='wins/loses (%)' value={`${wins}/${loses} (${formatPercent(wins! / (wins! + loses!))})`} />
-                  <Row label='avg trade p%' value={formatPercent(avgTradeProfits)} />
-                  <Row label='profit/market' value={formatPercent((report.profit) / report.metrics.marketChange)} />
-                </div>
-              </div>
+            <Table
+              name='results'
+              rows={[
+                ['start balance', 'end balance', 'trade count', 'total profit%', 'CAGR %', 'sortino', 'sharpe', 'calmar', 'min/max balance', 'drawdown', 'drawdown high', 'drawdown low', 'drawdown start', 'drawdown end', 'market change', 'wins/loses (%)', 'avg trade p%', 'profit/market'],
+                ...reports.map(report => [
+                  formatBalance(report.startBalance),
+                  formatBalance(report.endBalance),
+                  report.trades.length,
+                  formatPercent(report.profit),
+                  formatPercent(report.metrics.cagr),
+                  formatBalance(report.metrics.sortino),
+                  formatBalance(report.metrics.sharpe),
+                  formatBalance(report.metrics.calmar),
+                  `${formatBalance(report.metrics.minBalance)} / ${formatBalance(report.metrics.maxBalance)}`,
+                  formatPercent(report.metrics.drawdown),
+                  formatBalance(report.metrics.drawdownHigh),
+                  formatBalance(report.metrics.drawdownLow),
+                  formatDateShort(new Date(report.metrics.drawdownStartTs)),
+                  formatDateShort(new Date(report.metrics.drawdownEndTs)),
+                  formatPercent(report.metrics.marketChange),
+                  `${report.trades.filter(x => x.profit > 0).length}/${report.trades.filter(x => x.profit < 0).length} (${formatPercent(report.trades.filter(x => x.profit > 0).length / (report.trades.filter(x => x.profit > 0).length + report.trades.filter(x => x.profit < 0).length))})`,
+                  formatPercent(R.mean(report.trades.map(x => x.profit)) ?? 0),
+                  formatPercent(report.profit / report.metrics.marketChange),
+                ]),
+              ]}
+              transpose
+              firstColumnAsRowHeader
+              className='border-l-2 border-h-blue/80'
+            />
+          </div>
 
+          <TradingChart
+            title='backtest single simulation result'
+            candles={candles}
+            tradesList={reports.map(report => report.trades)}
+            showBalance
+            logarithmicBalance={logarithmicBalance}
+          />
+
+          <div className='flex flex-row justify-center'>
+            <label>
+              logaritmic balance
+              <input
+                type='checkbox'
+                checked={logarithmicBalance}
+                onChange={e => setLogarithmicBalance(e.target.checked)}
+                className='ml-2'
+              />
+            </label>
+          </div>
+
+          {reports.map((report, i) => (
+            <div key={i} className='flex flex-col gap-y-4'>
               <div>
                 <TradingChart
                   title='backtest single simulation result'
                   candles={candles}
-                  trades={report.trades}
+                  tradesList={[report.trades]}
                   showBalance
+                  showTrades
                 />
               </div>
 
@@ -147,7 +186,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                 </table>
               </div>
             </div>
-          )}
+          ))}
         </div>
 
         {loading && (
@@ -168,17 +207,4 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
       </div>
     </div>
   )
-}
-
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div>
-      <p className='w-36 inline-block'>
-        {label}:
-      </p>
-      <div className='inline-block'>
-        {value}
-      </div>
-    </div>
-  );
 }
