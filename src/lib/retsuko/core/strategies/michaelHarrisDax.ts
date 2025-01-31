@@ -1,5 +1,6 @@
 import { Candle } from '../../tables';
 import { TrailingStopLoss } from '../helper';
+import { EMA, RSI } from '../indicators';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface MichaelHarrisDaxStrategyConfig extends StrategyConfig {
@@ -13,6 +14,9 @@ export interface MichaelHarrisDaxStrategyConfig extends StrategyConfig {
 export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyConfig> {
   $candles: Candle[] = [];
   $stopLoss: TrailingStopLoss;
+  $rsi: RSI;
+  $ema5: EMA;
+  $ema30: EMA;
 
   constructor(
     name: string,
@@ -20,9 +24,14 @@ export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyC
   ) {
     super(name, config);
     this.$stopLoss = new TrailingStopLoss(config.trailingStop);
+    this.$rsi = this.addIndicator(new RSI('rsi', 5));
+    this.$ema5 = this.addIndicator(new EMA('ema5', 5));
+    this.$ema30 = this.addIndicator(new EMA('ema30', 30));
   }
 
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
+    super.update(candle);
+
     this.$candles.push(candle);
 
     if (this.$candles.length > this.config.window) {
@@ -58,7 +67,7 @@ export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyC
       pre2.low > pre3.low,
     ];
 
-    if (buyConditions.every(x => x)) {
+    if (buyConditions.every(x => x) && this.$ema5.value > this.$ema30.value) {
       this.$stopLoss.create(this.config.trailingStop, candle.close);
       return 'long';
     }
@@ -85,7 +94,7 @@ export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyC
       pre1.close > curr.close,
     ];
 
-    if (sellConditions.every(x => x)) {
+    if (sellConditions.every(x => x) && this.$ema5.value < this.$ema30.value) {
       this.$stopLoss.destroy();
       return 'short';
     }
