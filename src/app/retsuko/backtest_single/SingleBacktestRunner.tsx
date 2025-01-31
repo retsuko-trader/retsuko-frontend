@@ -8,8 +8,10 @@ import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { loadCandles, runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
-import { TradingChart } from '@/components/TradingChart';
 import type { SimpleCandle } from '@/lib/retsuko/tables';
+import dynamic from 'next/dynamic';
+
+const TradingChart = dynamic(() => import('@/components/TradingChart').then(x => x.TradingChart), { ssr: false });
 
 interface Props {
   datasets: Dataset[];
