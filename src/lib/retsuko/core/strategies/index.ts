@@ -176,6 +176,10 @@ export const StrategyEntries: StrategyEntry[] = [
     entry: MichaelHarrisDaxStrategy,
     config: {
       window: 5,
+      delay: 0,
+      buyAlgorithm: 0,
+      sellAlgorithm: 1,
+      trailingStop: 15,
     },
   }),
 ];

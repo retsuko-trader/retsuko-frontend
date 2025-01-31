@@ -1,18 +1,25 @@
 import { Candle } from '../../tables';
+import { TrailingStopLoss } from '../helper';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface MichaelHarrisDaxStrategyConfig extends StrategyConfig {
   window: number;
+  delay: number;
+  trailingStop: number;
+  buyAlgorithm: number;
+  sellAlgorithm: number;
 }
 
 export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyConfig> {
   $candles: Candle[] = [];
+  $stopLoss: TrailingStopLoss;
 
   constructor(
     name: string,
     config: MichaelHarrisDaxStrategyConfig,
   ) {
     super(name, config);
+    this.$stopLoss = new TrailingStopLoss(config.trailingStop);
   }
 
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
@@ -26,32 +33,60 @@ export class MichaelHarrisDaxStrategy extends Strategy<MichaelHarrisDaxStrategyC
       return null;
     }
 
-    const curr = this.$candles[this.$candles.length - 1];
-    const pre1 = this.$candles[this.$candles.length - 2];
-    const pre2 = this.$candles[this.$candles.length - 3];
-    const pre3 = this.$candles[this.$candles.length - 4];
+    if (this.$stopLoss.isTriggered(candle.close)) {
+      this.$stopLoss.destroy();
+      return 'short';
+    }
 
-    const b1 = curr.high > pre1.high;
-    const b2 = pre1.high > curr.low;
-    const b3 = curr.low > pre2.high;
-    const b4 = pre2.high > pre1.low;
-    const b5 = pre1.low > pre3.high;
-    const b6 = pre3.high > pre2.low;
-    const b7 = pre2.low > pre3.low;
+    const curr = this.$candles[this.$candles.length - 1 - this.config.delay];
+    const pre1 = this.$candles[this.$candles.length - 2 - this.config.delay];
+    const pre2 = this.$candles[this.$candles.length - 3 - this.config.delay];
+    const pre3 = this.$candles[this.$candles.length - 4 - this.config.delay];
+    const pre4 = this.$candles[this.$candles.length - 5 - this.config.delay];
 
-    if (b1 && b2 && b3 && b4 && b5 && b6 && b7) {
+    const buyConditions = this.config.buyAlgorithm === 0 ? [
+      pre2.low > curr.high,
+      curr.high > pre3.low,
+      pre3.low > pre1.low,
+    ] : [
+      curr.high > pre1.high,
+      pre1.high > curr.low,
+      curr.low > pre2.high,
+      pre2.high > pre1.low,
+      pre1.low > pre3.high,
+      pre3.high > pre2.low,
+      pre2.low > pre3.low,
+    ];
+
+    if (buyConditions.every(x => x)) {
+      this.$stopLoss.create(this.config.trailingStop, candle.close);
       return 'long';
     }
 
-    const s1 = curr.low < pre1.low;
-    const s2 = pre1.low < curr.high;
-    const s3 = curr.high < pre2.low;
-    const s4 = pre2.low < pre1.high;
-    const s5 = pre1.high < pre3.low;
-    const s6 = pre3.low < pre2.high;
-    const s7 = pre2.high < pre3.high;
+    const sellConditions = this.config.sellAlgorithm === 0 ? [
+      curr.high > pre1.high,
+      pre1.high > pre2.high,
+      pre2.high > curr.close,
+      curr.close > curr.low,
+      curr.low > pre1.low,
+      pre1.low > pre2.low,
+    ] : this.config.sellAlgorithm === 1 ? [
+      curr.low < pre1.low,
+      pre1.low < curr.high,
+      curr.high < pre2.low,
+      pre2.low < pre1.high,
+      pre1.high < pre3.low,
+      pre3.low < pre2.high,
+      pre2.high < pre3.high,
+    ] : [
+      pre4.close > pre2.close,
+      pre2.close > pre3.close,
+      pre3.close > pre1.close,
+      pre1.close > curr.close,
+    ];
 
-    if (s1 && s2 && s3 && s4 && s5 && s6 && s7) {
+    if (sellConditions.every(x => x)) {
+      this.$stopLoss.destroy();
       return 'short';
     }
 
