@@ -112,7 +112,7 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       atrPeriod: 7,
       bandFactor: 3,
-      trailingStop: 4,
+      trailingStop: 3.5,
     },
   }),
   createEntry({
@@ -166,7 +166,7 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       atrPeriod: 7,
       bandFactor: 3,
-      trailingStop: 4,
+      trailingStop: 3.5,
       enterFast: 20,
       exitFast: 10,
       enterSlow: 55,
