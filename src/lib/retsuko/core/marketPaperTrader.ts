@@ -7,6 +7,9 @@ import { createStrategy, StrategyEntries } from './strategies';
 import { PaperTrader, PaperTraderOptions } from './paperTrader';
 import { MarketPaperTrade, MarketPaperTraderModel, MarketPaperTraderState } from '../tables/MarketPaperTrade';
 import { revalidatePath } from 'next/cache';
+import { Strategy, StrategyConfig } from './strategy';
+import { getLatestCandles } from '../binance';
+import { USDMClient } from 'binance';
 
 export interface CreateMarketPaperTraderConfig {
   name: string;
@@ -63,13 +66,24 @@ export async function getMarketPaperTradesByTraderId(traderId: string): Promise<
   return resp;
 }
 
+async function preload(dataset: CandleLike, strategy: Strategy<StrategyConfig>) {
+  const candles = await getLatestCandles(new USDMClient(), {
+    market: 'futures',
+    symbol: dataset.symbol,
+    interval: dataset.interval,
+    limit: 100,
+  })
+  await strategy.preload(candles);
+  return strategy;
+}
+
 export async function createMarketPaperTrader(config: CreateMarketPaperTraderConfig): Promise<string | null> {
   const strategyEntry = StrategyEntries.find(x => x.name === config.strategy.name);
   if (!strategyEntry) {
     return null;
   }
 
-  const strategy = new strategyEntry.entry(config.strategy.name, config.strategy.config);
+  const strategy = await preload(config.input, new strategyEntry.entry(config.strategy.name, config.strategy.config));
   const trader = new PaperTrader(config.trader);
 
   const resp = await db.insertInto('marketPaperTraderState')
@@ -97,6 +111,16 @@ export async function createMarketPaperTrader(config: CreateMarketPaperTraderCon
   });
 
   return resp?.id ?? null;
+}
+
+export async function removeMarketPaperTrader(traderId: string) {
+  await db.deleteFrom('marketPaperTraderState')
+    .where('id', '=', traderId)
+    .execute();
+
+  await db.deleteFrom('marketPaperTrade')
+    .where('traderId', '=', traderId)
+    .execute();
 }
 
 export async function handleMarketPaperTradesCandle(candle: Candle) {

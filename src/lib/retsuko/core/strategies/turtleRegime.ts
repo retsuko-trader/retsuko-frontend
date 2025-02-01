@@ -33,9 +33,41 @@ export class TurtleRegimeStrategy extends Strategy<TurtleRegimeStrategyConfig> {
     this.$sma = this.addIndicator(new SMA('sma', config.bullPeriod));
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
-    super.update(candle);
+  async preload(candles: Candle[]): Promise<void> {
+    await super.preload(candles);
 
+    for (const candle of candles) {
+      this.updateInner(candle);
+    }
+  }
+
+  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+    const status = this.updateInner(candle);
+
+    if (status === null) {
+      return null;
+    }
+
+    if (!this.$sma.ready) {
+      return null;
+    }
+
+    if (candle.close < this.$sma.value) {
+      return 'short';
+    }
+
+    if (status === TradeType.OPEN_FLONG || status === TradeType.OPEN_SLONG) {
+      return 'long';
+    }
+    if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
+      return 'short';
+    }
+
+    return null;
+  }
+
+  updateInner(candle: Candle): TradeType | null {
+    super.update(candle);
     this.$candles.push(candle);
 
     const price = candle.close;
@@ -79,26 +111,7 @@ export class TurtleRegimeStrategy extends Strategy<TurtleRegimeStrategyConfig> {
       }
     }
 
-    if (status === null) {
-      return null;
-    }
-
-    if (!this.$sma.ready) {
-      return null;
-    }
-
-    if (price < this.$sma.value) {
-      return 'short';
-    }
-
-    if (status === TradeType.OPEN_FLONG || status === TradeType.OPEN_SLONG) {
-      return 'long';
-    }
-    if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
-      return 'short';
-    }
-
-    return null;
+    return status;
   }
 
   calculateBreakOut(count: number) {

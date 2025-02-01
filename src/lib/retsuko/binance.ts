@@ -49,3 +49,23 @@ export async function* loadCandles(client: MainClient | USDMClient, options: {
     // await setTimeout(100);
   }
 }
+
+export async function getLatestCandles(client: MainClient | USDMClient, options: {
+  market: Market,
+  symbol: string,
+  interval: BinanceInterval,
+  limit: number,
+}): Promise<Candle[]> {
+  const { market, symbol, interval, limit } = options;
+
+  const convertFn = klineConverter(interval, market, symbol);
+
+  const rows = await client.getKlines({
+    symbol,
+    interval,
+    endTime: Date.now(),
+    limit,
+  });
+
+  return rows.map(convertFn);
+}

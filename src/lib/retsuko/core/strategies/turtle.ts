@@ -33,7 +33,39 @@ export class TurtleStrategy extends Strategy<TurtleStrategyConfig> {
     this.$stopLoss = new TrailingStopLoss(config.trailingStop);
   }
 
+  async preload(candles: Candle[]): Promise<void> {
+    await super.preload(candles);
+
+    for (const candle of candles) {
+      this.updateInner(candle);
+    }
+  }
+
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
+    const status = this.updateInner(candle);
+
+    if (this.$stopLoss.isTriggered(candle.close)) {
+      this.$stopLoss.destroy();
+      return 'short';
+    }
+
+    if (status === null) {
+      return null;
+    }
+
+    if (status === TradeType.OPEN_FLONG || status === TradeType.OPEN_SLONG) {
+      this.$stopLoss.create(this.config.trailingStop, candle.close);
+      return 'long';
+    }
+    if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
+      this.$stopLoss.destroy();
+      return 'short';
+    }
+
+    return null;
+  }
+
+  updateInner(candle: Candle): TradeType | null {
     this.$candles.push(candle);
 
     const price = candle.close;
@@ -77,25 +109,7 @@ export class TurtleStrategy extends Strategy<TurtleStrategyConfig> {
       }
     }
 
-    if (this.$stopLoss.isTriggered(price)) {
-      this.$stopLoss.destroy();
-      return 'short';
-    }
-
-    if (status === null) {
-      return null;
-    }
-
-    if (status === TradeType.OPEN_FLONG || status === TradeType.OPEN_SLONG) {
-      this.$stopLoss.create(this.config.trailingStop, price);
-      return 'long';
-    }
-    if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
-      this.$stopLoss.destroy();
-      return 'short';
-    }
-
-    return null;
+    return status;
   }
 
   calculateBreakOut(count: number) {

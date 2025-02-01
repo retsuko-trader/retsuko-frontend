@@ -17,6 +17,14 @@ export abstract class Strategy<TConfig extends StrategyConfig> implements Serial
     return indicator;
   }
 
+  public async preload(candles: Candle[]): Promise<void> {
+    for (const indicator of this.$indicators) {
+      for (const candle of candles) {
+        indicator.update(candle);
+      }
+    }
+  }
+
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
     for (const indicator of this.$indicators) {
       indicator.update(candle);
