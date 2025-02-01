@@ -4,6 +4,7 @@ import { MichaelHarrisDaxStrategy } from './michaelHarrisDax';
 import { MinMaxStrategy } from './minmax';
 import { NeoStrategy } from './neo';
 import { PoincareStrategy } from './poincare';
+import { RaynerTeosStrategy } from './raynerTeos';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
 import { SimpleRsiStrategy } from './simpleRsi';
 import { StochRSIStrategy } from './stochRsi';
@@ -111,6 +112,7 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       atrPeriod: 7,
       bandFactor: 3,
+      trailingStop: 4,
     },
   }),
   createEntry({
@@ -164,6 +166,7 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       atrPeriod: 7,
       bandFactor: 3,
+      trailingStop: 4,
       enterFast: 20,
       exitFast: 10,
       enterSlow: 55,
@@ -182,6 +185,16 @@ export const StrategyEntries: StrategyEntry[] = [
       trailingStop: 15,
     },
   }),
+  createEntry({
+    name: 'raynerTeos',
+    entry: RaynerTeosStrategy,
+    config: {
+      window: 20,
+      smaShort: 20,
+      smaLong: 200,
+      rsiPeriod: 2,
+    }
+  })
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({

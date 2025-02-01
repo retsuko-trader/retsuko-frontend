@@ -1,10 +1,12 @@
 import { Candle } from '../../tables';
+import { TrailingStopLoss } from '../helper';
 import { Tulip, TulipIndicator } from '../indicators/tulip';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface SuperTrendStrategyConfig extends StrategyConfig {
   atrPeriod: number;
   bandFactor: number;
+  trailingStop: number;
 }
 
 interface SuperTrendState {
@@ -21,6 +23,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
   $lastTrend: SuperTrendState;
   $lastCandleClose: number;
   $age: number = 0;
+  $stopLoss: TrailingStopLoss;
 
   constructor(
     name: string,
@@ -44,6 +47,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
       superTrend: 0,
     };
     this.$lastCandleClose = 0;
+    this.$stopLoss = new TrailingStopLoss(this.config.trailingStop);
   }
 
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
@@ -86,11 +90,18 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     this.$lastCandleClose = candle.close;
     this.$lastTrend = { ...this.$trend };
 
+    if (this.$stopLoss.isTriggered(candle.close)) {
+      this.$stopLoss.destroy();
+      return 'short';
+    }
+
     if (candle.close > this.$trend.superTrend) {
+      this.$stopLoss.create(this.config.trailingStop, candle.close);
       return 'long';
     }
 
     if (candle.close < this.$trend.superTrend) {
+      this.$stopLoss.destroy();
       return 'short';
     }
 
@@ -105,6 +116,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
       lastTrend: this.$lastTrend,
       lastCandleClose: this.$lastCandleClose,
       age: this.$age,
+      stopLoss: this.$stopLoss.serialize(),
     });
   }
 
@@ -116,5 +128,6 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     this.$lastTrend = parsed.lastTrend;
     this.$lastCandleClose = parsed.lastCandleClose;
     this.$age = parsed.age;
+    this.$stopLoss.deserialize(parsed.stopLoss);
   }
 }

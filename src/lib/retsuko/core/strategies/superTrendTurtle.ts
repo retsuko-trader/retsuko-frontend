@@ -6,6 +6,7 @@ import { TurtleRegimeStrategy } from './turtleRegime';
 export interface SuperTrendTurtleStrategyConfig extends StrategyConfig {
   atrPeriod: number;
   bandFactor: number;
+  trailingStop: number;
 
   enterFast: number;
   exitFast: number;
@@ -30,6 +31,7 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
     this.$superTrend = new SuperTrendStrategy('superTrend', {
       atrPeriod: config.atrPeriod,
       bandFactor: config.bandFactor,
+      trailingStop: config.trailingStop,
     });
     this.$turtle = new TurtleRegimeStrategy('turtle', {
       enterFast: config.enterFast,
@@ -38,6 +40,12 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
       exitSlow: config.exitSlow,
       bullPeriod: config.bullPeriod,
     });
+  }
+
+  public async preload(candles: Candle[]): Promise<void> {
+    await super.preload(candles);
+    await this.$superTrend.preload(candles);
+    await this.$turtle.preload(candles);
   }
 
   public async update(candle: Candle): Promise<'long' | 'short' | null> {
