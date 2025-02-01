@@ -1,3 +1,4 @@
+import * as R from 'remeda';
 import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import interpolate from 'color-interpolate';
@@ -22,6 +23,8 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
 
   const { run, singles } = backtestRunGroup;
   const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
+
+  const singlesByDataset = R.groupBy(singles, x => x.dataset.alias);
 
   const getStrategyIndex = (strategy: { name: string, config: Record<string, number> }) => {
     return run.strategyVariants.findIndex(x => (
@@ -104,58 +107,64 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
             </thead>
             <tbody className='text-h-text/60'>
               {
-                singles.map((single, i) => (
-                  <tr key={single.id} className='even:bg-h-tone/5 hover:text-h-text/80 cursor-pointer'>
-                    <td className='w-44 pl-1'>
-                      {single.dataset.alias}
-                    </td>
-                    <td className='w-28'>
-                      {single.strategy.name}[{getStrategyIndex(single.strategy)}]
-                    </td>
-                    <td className='w-12 text-right'>
-                      {formatBalance(single.result.balanceFinal)}
-                    </td>
-                    <td className='w-20 text-right' style={{
-                      color: color((single.result.profit - 1) / 3),
-                    }}>
-                      {formatPercent(single.result.profit)}
-                    </td>
-                    <td className='w-16 text-right' style={{
-                      color: color((single.metrics.sharpe - 0.2) / 2),
-                    }}>
-                      {formatBalance(single.metrics.sharpe, 3)}
-                    </td>
-                    <td className='w-16 text-right' style={{
-                      color: color((single.metrics.sortino - 0.2) / 2),
-                    }}>
-                      {formatBalance(single.metrics.sortino, 3)}
-                    </td>
-                    <td className='w-20 text-right' style={{
-                      color: color(single.metrics.drawdown + 0.8),
-                    }}>
-                      {formatPercent(single.metrics.drawdown)}
-                    </td>
-                    <td className='w-20 text-right' style={{
-                      color: color(single.metrics.totalProfit / single.metrics.marketChange),
-                    }}>
-                      {formatPercent(single.metrics.totalProfit / single.metrics.marketChange)}
-                    </td>
-                    <td className='w-20 text-right'>
-                      {formatPercent(single.metrics.marketChange)}
-                    </td>
-                    <td className='w-16 text-right'>
-                      {single.result.tradesCount}
-                    </td>
-                    <td className='w-24 text-center'>
-                      {single.result.tradesWin}/{single.result.tradesLoss}
-                    </td>
-                    <td className='w-20 text-right pr-2'>
-                      {formatPercent(single.result.avgTradeProfit)}
-                    </td>
-                    <td className='w-36'>
-                      <SimpleChart data={trades[i]} reference={single.result.balanceInitial} />
-                    </td>
-                  </tr>
+                Object.entries(singlesByDataset).flatMap(([alias, singles], i) => (
+                  singles.map((single, j) => (
+                    <tr key={single.id} className='even:bg-h-tone/5 hover:text-h-text/80 cursor-pointer'>
+                      {
+                        j === 0 && (
+                          <td className='w-44 pl-1' rowSpan={singles.length}>
+                            {alias}
+                          </td>
+                        )
+                      }
+                      <td className='w-48 pl-1'>
+                        {single.strategy.name}[{getStrategyIndex(single.strategy)}]
+                      </td>
+                      <td className='w-12 text-right'>
+                        {formatBalance(single.result.balanceFinal)}
+                      </td>
+                      <td className='w-20 text-right' style={{
+                        color: color((single.result.profit - 1) / 3),
+                      }}>
+                        {formatPercent(single.result.profit)}
+                      </td>
+                      <td className='w-16 text-right' style={{
+                        color: color((single.metrics.sharpe - 0.2) / 2),
+                      }}>
+                        {formatBalance(single.metrics.sharpe, 3)}
+                      </td>
+                      <td className='w-16 text-right' style={{
+                        color: color((single.metrics.sortino - 0.2) / 2),
+                      }}>
+                        {formatBalance(single.metrics.sortino, 3)}
+                      </td>
+                      <td className='w-20 text-right' style={{
+                        color: color(single.metrics.drawdown + 0.8),
+                      }}>
+                        {formatPercent(single.metrics.drawdown)}
+                      </td>
+                      <td className='w-20 text-right' style={{
+                        color: color(single.metrics.totalProfit / single.metrics.marketChange),
+                      }}>
+                        {formatPercent(single.metrics.totalProfit / single.metrics.marketChange)}
+                      </td>
+                      <td className='w-20 text-right'>
+                        {formatPercent(single.metrics.marketChange)}
+                      </td>
+                      <td className='w-16 text-right'>
+                        {single.result.tradesCount}
+                      </td>
+                      <td className='w-24 text-center'>
+                        {single.result.tradesWin}/{single.result.tradesLoss}
+                      </td>
+                      <td className='w-20 text-right pr-2'>
+                        {formatPercent(single.result.avgTradeProfit)}
+                      </td>
+                      <td className='w-36'>
+                        <SimpleChart data={trades[i]} reference={single.result.balanceInitial} />
+                      </td>
+                    </tr>
+                  ))
                 ))
               }
             </tbody>
