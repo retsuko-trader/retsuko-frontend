@@ -1,12 +1,19 @@
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { getMarketPaperTraderById, getMarketPaperTradesByTraderId } from '@/lib/retsuko/core/marketPaperTrader';
+import { getMarketPaperTraderById, getMarketPaperTradesByTraderId, removeMarketPaperTrader } from '@/lib/retsuko/core/marketPaperTrader';
 import classNames from 'classnames';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 interface Props {
   params: Promise<{ traderId: string }>;
 }
+
+const remove = async (id: string) => {
+  'use server';
+
+  await removeMarketPaperTrader(id);
+  redirect('/retsuko/papertrade');
+};
 
 export default async function RetsukoPapertradeTraderPage({ params }: Props) {
   const { traderId } = await params;
@@ -14,6 +21,8 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
   await connection();
   const trader = await getMarketPaperTraderById(traderId);
   const trades = await getMarketPaperTradesByTraderId(traderId);
+
+  const removeThis = remove.bind(null, traderId);
 
   if (!trader) {
     notFound();
@@ -25,6 +34,14 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
         <div>
           Papertrader {trader.name}
         </div>
+
+        <details>
+          <summary>dump</summary>
+
+          <pre className='font-mono max-w-full break-words'>
+            {JSON.stringify(JSON.parse(trader.strategySerialized), null, 2)}
+          </pre>
+        </details>
 
         <div className='mt-3'>
           <table className='font-mono'>
@@ -72,6 +89,12 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
               }
             </tbody>
           </table>
+        </div>
+
+        <div className='mt-3'>
+          <form action={removeThis}>
+            <input type='submit' value='delete' className='px-4 py-1 bg-h-red/60 hover:bg-h-red/40 cursor-pointer' />
+          </form>
         </div>
       </div>
     </div>

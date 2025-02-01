@@ -7,6 +7,7 @@ import React from 'react';
 import { createTrader } from './action';
 import classNames from 'classnames';
 import { sortedIntervals } from '@/lib/helper';
+import { redirect } from 'next/navigation';
 
 interface Props {
   strategies: Array<{
@@ -76,6 +77,7 @@ export function PapertradeConfigEditor({ strategies }: Props) {
 
   const create = async () => {
     await createTrader(config);
+    redirect('/retsuko/papertrade');
   };
 
   return (
