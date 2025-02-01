@@ -94,6 +94,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                 <th>strategy</th>
                 <th>balance</th>
                 <th className='text-right'>profit</th>
+                <th className='text-right'>CAGR %</th>
                 <th className='text-right'>sharpe</th>
                 <th className='text-right'>sortino</th>
                 <th className='text-right'>drawdown</th>
@@ -127,6 +128,11 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         color: color((single.result.profit - 1) / 3),
                       }}>
                         {formatPercent(single.result.profit)}
+                      </td>
+                      <td className='w-20 text-right' style={{
+                        color: color((single.metrics.cagr - 1)),
+                      }}>
+                        {formatPercent(single.metrics.cagr)}
                       </td>
                       <td className='w-16 text-right' style={{
                         color: color((single.metrics.sharpe - 0.2) / 2),
