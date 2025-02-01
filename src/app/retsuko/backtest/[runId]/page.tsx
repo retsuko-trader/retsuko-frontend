@@ -145,7 +145,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         {formatBalance(single.metrics.sortino, 3)}
                       </td>
                       <td className='w-20 text-right' style={{
-                        color: color(single.metrics.drawdown + 0.8),
+                        color: color(single.metrics.drawdown + 0.6),
                       }}>
                         {formatPercent(single.metrics.drawdown)}
                       </td>
