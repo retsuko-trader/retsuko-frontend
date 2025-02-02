@@ -1,15 +1,15 @@
 'use client';
 
 // @ts-expect-error CanvasJS is not typed
-import CanvasChartReact from '@canvasjs/react-charts';
+import CanvasChartReact from '@canvasjs/react-stockcharts';
 import type { Trade } from '@/lib/retsuko/core/Trade';
-import { SimpleCandle } from '@/lib/retsuko/tables';
+import { Candle } from '@/lib/retsuko/tables';
 import { Signal } from '@/lib/retsuko/core/Signal';
 
 interface Props {
   title: string;
 
-  candles?: SimpleCandle[];
+  candles?: Candle[];
 
   tradesList?: Trade[][];
 
@@ -26,76 +26,92 @@ export function TradingChart({
   logarithmicBalance,
   showTrades,
 }: Props) {
+  const axisX = {
+    valueFormatString: 'YYYY-MM-DD HH:mm',
+    crosshair: {
+      enabled: true,
+      snapToDataPoint: true,
+    },
+  };
+  const toolTip = {
+    shared: true,
+  };
 
-  const options = {
+  let height = 150;
+  if (candles && candles.length > 0) {
+    height += 400;
+  }
+
+  const options2 = {
     title: {
       text: title,
     },
-    axisX: {
-      valueFormatString: 'YYYY-MM-DD HH:mm',
-      crosshair: {
-        enabled: true,
-        snapToDataPoint: true,
-      },
-    },
-    axisY: {
-      title: 'Price',
-      logarithmic: logarithmicBalance ?? false,
-    },
-    axisY2: {
-      title: 'Balance',
-      logarithmic: logarithmicBalance ?? false,
-      minimum: 1000,
-      crosshair: {
-        enabled: true,
-        snapToDataPoint: true,
-      },
-    },
-    toolTip: {
-      shared: true,
-    },
-    zoomEnabled: true,
-    data: [
+    charts: [
       candles && candles.length > 0 && {
-        name: 'Price',
-        type: 'line',
-        showInLegend: true,
-        xValueFormatString: 'YYYY-MM-DD HH:mm',
-        dataPoints: candles.map(x => ({
-          x: x.ts,
-          y: x.close,
-        })),
+        height: 400,
+        axisX,
+        axisY: {
+          title: 'Price',
+          logarithmic: logarithmicBalance ?? false,
+        },
+        axisY2: {
+          title: 'Balance',
+          logarithmic: logarithmicBalance ?? false,
+          minimum: 1000,
+          crosshair: {
+            enabled: true,
+            snapToDataPoint: true,
+          },
+        },
+        toolTip,
+        data: [
+          {
+            name: 'Price',
+            type: 'candlestick',
+            showInLegend: true,
+            xValueFormatString: 'YYYY-MM-DD HH:mm',
+            dataPoints: candles.map(x => ({
+              x: x.ts,
+              y: [x.open, x.high, x.low, x.close],
+            })),
+          },
+          ...(showBalance ? tradesList ?? [] : []).map((trades, i) => ({
+            name: `Balance[${i}]`,
+            type: 'stepLine',
+            showInLegend: true,
+            xValueFormatString: 'YYYY-MM-DD HH:mm',
+            yValueFormatString: '0.00',
+            axisYType: 'secondary',
+            dataPoints: trades.map(x => ({
+              x: x.ts,
+              y: x.asset * x.price + x.currency,
+            })),
+          })),
+          ...(showTrades ? tradesList ?? [] : []).map(trades => ({
+            name: 'Trade',
+            type: 'scatter',
+            showInLegend: true,
+            xValueFormatString: 'YYYY-MM-DD HH:mm',
+            markerType: 'triangle',
+            markerSize: 10,
+            dataPoints: trades.map(x => ({
+              x: x.ts,
+              y: x.price,
+              z: x.action,
+              markerColor: Signal.summary(x.action) === 'long' ? 'green' : 'red',
+            })),
+          })),
+        ],
       },
-      ...(showBalance ? tradesList ?? [] : []).map((trades, i) => ({
-        name: `Balance[${i}]`,
-        type: 'stepLine',
-        showInLegend: true,
-        xValueFormatString: 'YYYY-MM-DD HH:mm',
-        yValueFormatString: '0.00',
-        axisYType: 'secondary',
-        dataPoints: trades.map(x => ({
-          x: x.ts,
-          y: x.asset * x.price + x.currency,
-        })),
-      })),
-      ...(showTrades ? tradesList ?? [] : []).map(trades => ({
-        name: 'Trade',
-        type: 'scatter',
-        showInLegend: true,
-        xValueFormatString: 'YYYY-MM-DD HH:mm',
-        markerType: 'triangle',
-        markerSize: 10,
-        dataPoints: trades.map(x => ({
-          x: x.ts,
-          y: x.price,
-          z: x.action,
-          markerColor: Signal.summary(x.action) === 'long' ? 'green' : 'red',
-        })),
-      })),
-    ].filter(x => !!x),
+    ],
+  };
+
+  const containerProps = {
+    width: '90%',
+    height: `${height}px`,
   };
 
   return (
-    <CanvasChartReact.CanvasJSChart options={options} />
+    <CanvasChartReact.CanvasJSStockChart key={height.toString()} containerProps={containerProps} options={options2} />
   )
 }
