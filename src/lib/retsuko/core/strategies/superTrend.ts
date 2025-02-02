@@ -143,6 +143,11 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
         index: 0,
         value: this.$trend.superTrend,
       },
+      {
+        name: 'atr',
+        index: 1,
+        value: this.$atr.value,
+      },
     ];
   }
 

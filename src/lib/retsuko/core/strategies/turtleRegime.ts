@@ -1,4 +1,5 @@
 import { Candle } from '../../tables';
+import { DebugIndicator } from '../DebugIndicator';
 import { SMA } from '../indicators';
 import { Signal } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
@@ -120,6 +121,36 @@ export class TurtleRegimeStrategy extends Strategy<TurtleRegimeStrategyConfig> {
     const high = Math.max(...list.map(c => c.close));
     const low = Math.min(...list.map(c => c.close));
     return { high, low };
+  }
+
+  public async debug(_candle: Candle): Promise<DebugIndicator[]> {
+    return [
+      {
+        name: 'sma',
+        index: 2,
+        value: this.$sma.value,
+      },
+      {
+        name: 'enterFast',
+        index: 2,
+        value: this.calculateBreakOut(this.config.enterFast).high,
+      },
+      {
+        name: 'exitFast',
+        index: 2,
+        value: this.calculateBreakOut(this.config.exitFast).low,
+      },
+      {
+        name: 'enterSlow',
+        index: 2,
+        value: this.calculateBreakOut(this.config.enterSlow).high,
+      },
+      {
+        name: 'exitSlow',
+        index: 2,
+        value: this.calculateBreakOut(this.config.exitSlow).low,
+      },
+    ];
   }
 
   public serialize(): string {
