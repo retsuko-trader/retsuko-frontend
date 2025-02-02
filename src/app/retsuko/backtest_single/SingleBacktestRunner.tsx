@@ -130,7 +130,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
             <div key={i} className='flex flex-col gap-y-4'>
               <div>
                 <TradingChart
-                  title='backtest single simulation result'
+                  title={`backtest single simulation result ${i}`}
                   candles={candles}
                   tradesList={[report.trades]}
                   indicators={indicators[i]}

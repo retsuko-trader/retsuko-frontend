@@ -7,6 +7,7 @@ import type { Trade } from '@/lib/retsuko/core/Trade';
 import { Candle } from '@/lib/retsuko/tables';
 import { Signal } from '@/lib/retsuko/core/Signal';
 import { StrategyIndicator } from '@/lib/retsuko/core/singleBacktester';
+import { useDarkTheme } from './layout/ThemeSwitch';
 
 interface Props {
   title: string;
@@ -32,8 +33,18 @@ export function TradingChart({
   showTrades,
   showIndicators,
 }: Props) {
+  const [isDark] = useDarkTheme();
+
   const indicatorsByIndex = Object.entries(R.groupBy(Object.entries(indicators ?? {}), x => x[1][0]))
     .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
+  let height = 200;
+  if (candles && candles.length > 0) {
+    height += 300;
+  }
+  if (showIndicators) {
+    height += indicatorsByIndex.length * 170;
+  }
 
   const axisX = {
     valueFormatString: 'YYYY-MM-DD HH:mm',
@@ -46,15 +57,8 @@ export function TradingChart({
     shared: true,
   };
 
-  let height = 200;
-  if (candles && candles.length > 0) {
-    height += 400;
-  }
-  if (showIndicators) {
-    height += indicatorsByIndex.length * 150;
-  }
-
   const options = {
+    theme: isDark ? 'dark1' : 'light1',
     title: {
       text: title,
       fontSize: 30,
@@ -75,7 +79,7 @@ export function TradingChart({
     },
     charts: [
       candles && candles.length > 0 && {
-        height: 400,
+        height: 300,
         axisX,
         axisY: {
           title: 'Price',
@@ -131,7 +135,7 @@ export function TradingChart({
         ],
       },
       ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
-        height: 150,
+        height: 170,
         axisX,
         axisY: {
           title: `indicators[${index}]`,
@@ -144,7 +148,7 @@ export function TradingChart({
           xValueFormatString: 'YYYY-MM-DD HH:mm',
           yValueFormatString: '0.00',
           dataPoints: data[1].map(([x, y]) => ({
-            x,
+            x: new Date(x),
             y,
           })),
         })),
