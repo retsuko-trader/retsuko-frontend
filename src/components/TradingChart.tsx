@@ -2,9 +2,11 @@
 
 // @ts-expect-error CanvasJS is not typed
 import CanvasChartReact from '@canvasjs/react-stockcharts';
+import * as R from 'remeda';
 import type { Trade } from '@/lib/retsuko/core/Trade';
 import { Candle } from '@/lib/retsuko/tables';
 import { Signal } from '@/lib/retsuko/core/Signal';
+import { StrategyIndicator } from '@/lib/retsuko/core/singleBacktester';
 
 interface Props {
   title: string;
@@ -12,20 +14,27 @@ interface Props {
   candles?: Candle[];
 
   tradesList?: Trade[][];
+  indicators?: StrategyIndicator;
 
   showBalance?: boolean;
   logarithmicBalance?: boolean;
   showTrades?: boolean;
+  showIndicators?: boolean;
 }
 
 export function TradingChart({
   title,
   candles,
   tradesList,
+  indicators,
   showBalance,
   logarithmicBalance,
   showTrades,
+  showIndicators,
 }: Props) {
+  const indicatorsByIndex = Object.entries(R.groupBy(Object.entries(indicators ?? {}), x => x[1][0]))
+    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
   const axisX = {
     valueFormatString: 'YYYY-MM-DD HH:mm',
     crosshair: {
@@ -37,14 +46,32 @@ export function TradingChart({
     shared: true,
   };
 
-  let height = 150;
+  let height = 200;
   if (candles && candles.length > 0) {
     height += 400;
   }
+  if (showIndicators) {
+    height += indicatorsByIndex.length * 150;
+  }
 
-  const options2 = {
+  const options = {
     title: {
       text: title,
+      fontSize: 30,
+    },
+    rangeSelector: {
+      height: 50,
+      buttonStyle: {
+        labelFontSize: 16,
+      },
+      inputFields: {
+        style: {
+          fontSize: 16,
+        },
+      },
+    },
+    navigator: {
+      height: 100,
     },
     charts: [
       candles && candles.length > 0 && {
@@ -103,6 +130,25 @@ export function TradingChart({
           })),
         ],
       },
+      ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
+        height: 150,
+        axisX,
+        axisY: {
+          title: `indicators[${index}]`,
+        },
+        toolTip,
+        data: indicators.map(([name, data]) => ({
+          name,
+          type: 'line',
+          showInLegend: true,
+          xValueFormatString: 'YYYY-MM-DD HH:mm',
+          yValueFormatString: '0.00',
+          dataPoints: data[1].map(([x, y]) => ({
+            x,
+            y,
+          })),
+        })),
+      })) : []),
     ],
   };
 
@@ -112,6 +158,6 @@ export function TradingChart({
   };
 
   return (
-    <CanvasChartReact.CanvasJSStockChart key={height.toString()} containerProps={containerProps} options={options2} />
+    <CanvasChartReact.CanvasJSStockChart key={height.toString()} containerProps={containerProps} options={options} />
   )
 }

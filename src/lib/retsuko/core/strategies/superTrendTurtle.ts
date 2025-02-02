@@ -1,4 +1,5 @@
 import { Candle } from '../../tables';
+import { DebugIndicator } from '../DebugIndicator';
 import { Signal, SignalKind, SignalWithConfidence } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
 import { SuperTrendStrategy } from './superTrend';
@@ -74,6 +75,13 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
     }
 
     return null;
+  }
+
+  async debug(candle: Candle): Promise<DebugIndicator[]> {
+    return [
+      ...await this.$superTrend.debug(candle),
+      ...await this.$turtle.debug(candle),
+    ];
   }
 
   public serialize(): string {

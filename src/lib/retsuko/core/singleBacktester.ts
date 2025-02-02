@@ -16,12 +16,15 @@ export interface SingleBacktestConfig {
   trader: PaperTraderOptions;
 }
 
+export type StrategyIndicator = Record<string, [number, Array<[number, number]>]>;
+
 export interface BacktestReport {
   config: SingleBacktestConfig;
   startBalance: number;
   endBalance: number;
   profit: number;
   trades: Trade[];
+  indicators: StrategyIndicator;
   metrics: BacktestMetrics;
 }
 
@@ -76,6 +79,7 @@ export class SingleBacktester {
 
   $trades: Trade[] = [];
   $metrics: BacktestMetrics;
+  $indicators: StrategyIndicator = {};
 
   $firstCandle: Candle | null = null;
   $lastCandle: Candle | null = null;
@@ -112,6 +116,14 @@ export class SingleBacktester {
       }
 
       const direction = await this.$strategy.update(candle);
+      const indicators = await this.$strategy.debug(candle);
+      for (const indicator of indicators) {
+        if (!this.$indicators[indicator.name]) {
+          this.$indicators[indicator.name] = [indicator.index, []];
+        }
+        this.$indicators[indicator.name][1].push([candle.ts.getTime(), indicator.value]);
+      }
+
       if (direction) {
         const trade = await this.$trader.handleAdvice(candle, direction);
 
@@ -194,7 +206,6 @@ export class SingleBacktester {
 
     const startBalance = this.config.trader.initialBalance;
     const endBalance = portfolio.currency + portfolio.asset * this.$lastCandle.close;
-
     const profit = (endBalance - startBalance) / startBalance;
 
     return {
@@ -204,6 +215,7 @@ export class SingleBacktester {
       profit,
       trades: this.$trades,
       metrics: this.$metrics,
+      indicators: this.$indicators,
     };
   }
 }

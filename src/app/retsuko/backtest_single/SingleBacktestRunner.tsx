@@ -3,12 +3,12 @@
 import React from 'react';
 import classNames from 'classnames';
 import * as R from 'remeda';
-import type { SingleBacktestConfig, BacktestReport } from '@/lib/retsuko/core/singleBacktester';
+import type { SingleBacktestConfig, BacktestReport, StrategyIndicator } from '@/lib/retsuko/core/singleBacktester';
 import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import { loadCandles, runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
-import type { SimpleCandle } from '@/lib/retsuko/tables';
+import type { Candle } from '@/lib/retsuko/tables';
 import { Table } from '@/components/Table';
 import dynamic from 'next/dynamic';
 
@@ -25,7 +25,8 @@ interface Props {
 export function SingleBacktestRunner({ datasets, entries }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [reports, setReports] = React.useState<BacktestReport[]>([]);
-  const [candles, setCandles] = React.useState<SimpleCandle[]>([]);
+  const [indicators, setIndicators] = React.useState<StrategyIndicator[]>([]);
+  const [candles, setCandles] = React.useState<Candle[]>([]);
   const [logarithmicBalance, setLogarithmicBalance] = React.useState(false);
 
   const run = async (configs: SingleBacktestConfig[]) => {
@@ -33,6 +34,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
     const resp = (await Promise.all(configs.map(x => runBacktest(x)))).filter(x => x !== null);
     setReports(resp);
     setCandles(await loadCandles(configs[0]));
+    setIndicators(resp.map(x => x.indicators));
     setLoading(false);
   };
 
@@ -131,8 +133,10 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   title='backtest single simulation result'
                   candles={candles}
                   tradesList={[report.trades]}
+                  indicators={indicators[i]}
                   showBalance
                   showTrades
+                  showIndicators
                 />
               </div>
 

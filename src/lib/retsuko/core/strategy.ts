@@ -1,4 +1,5 @@
 import { Candle } from '../tables';
+import { DebugIndicator } from './DebugIndicator';
 import { Indicator } from './Indicator';
 import { Serializable } from './serializable';
 import { Signal } from './Signal';
@@ -32,6 +33,11 @@ export abstract class Strategy<TConfig extends StrategyConfig> implements Serial
     }
 
     return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async debug(candle: Candle): Promise<DebugIndicator[]> {
+    return [];
   }
 
   public abstract serialize(): string;

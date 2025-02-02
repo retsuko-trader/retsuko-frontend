@@ -1,4 +1,5 @@
 import { Candle } from '../../tables';
+import { DebugIndicator } from '../DebugIndicator';
 import { TrailingStopLoss } from '../helper';
 import { Tulip, TulipIndicator } from '../indicators/tulip';
 import { Signal } from '../Signal';
@@ -123,6 +124,26 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     this.$lastTrend = { ...this.$trend };
 
     return true;
+  }
+
+  public async debug(_candle: Candle): Promise<DebugIndicator[]> {
+    return [
+      {
+        name: 'upperBand',
+        index: 0,
+        value: this.$trend.upperBand,
+      },
+      {
+        name: 'lowerBand',
+        index: 0,
+        value: this.$trend.lowerBand,
+      },
+      {
+        name: 'superTrend',
+        index: 0,
+        value: this.$trend.superTrend,
+      },
+    ];
   }
 
   public serialize(): string {
