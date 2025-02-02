@@ -1,4 +1,5 @@
 import { type BinanceInterval } from '../binance';
+import { SignalKind } from '../core/Signal';
 
 export interface MarketPaperTraderState {
   id: string;
@@ -49,7 +50,8 @@ export interface MarketPaperTrade {
   traderId: string;
 
   ts: Date;
-  action: 'buy' | 'sell';
+  action: SignalKind;
+  confidence: number;
   asset: number;
   currency: number;
   price: number;
