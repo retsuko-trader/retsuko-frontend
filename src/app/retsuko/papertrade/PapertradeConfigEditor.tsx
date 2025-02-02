@@ -33,7 +33,6 @@ export function PapertradeConfigEditor({ strategies }: Props) {
       initialBalance: 1000,
       fee: 0.001,
       enableMargin: false,
-      marginTradeAllWhenDirectionChanged: true,
       validTradeOnly: false,
     },
   });
@@ -205,22 +204,6 @@ export function PapertradeConfigEditor({ strategies }: Props) {
                 type='checkbox'
                 checked={config.trader.enableMargin}
                 onChange={e => updateConfig({ trader: { ...config.trader, enableMargin: e.target.checked } })}
-                className='inline-block w-32'
-              />
-            </div>
-
-            <div>
-              <label className={classNames('w-48 inline-block pr-2', {
-                'text-h-text/40': !config.trader.enableMargin,
-                'text-h-text/80': config.trader.enableMargin,
-              })}>
-                margin trade all:
-              </label>
-              <input
-                type='checkbox'
-                disabled={!config.trader.enableMargin}
-                checked={config.trader.marginTradeAllWhenDirectionChanged}
-                onChange={e => updateConfig({ trader: { ...config.trader, marginTradeAllWhenDirectionChanged: e.target.checked } })}
                 className='inline-block w-32'
               />
             </div>

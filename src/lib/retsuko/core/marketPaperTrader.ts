@@ -163,6 +163,7 @@ async function handleSingleCandle(trader: MarketPaperTraderState, candle: Candle
           traderId: trader.id,
           ts: new Date(),
           action: trade.action,
+          confidence: trade.confidence,
           asset: trade.asset,
           currency: trade.currency,
           price: candle.close,

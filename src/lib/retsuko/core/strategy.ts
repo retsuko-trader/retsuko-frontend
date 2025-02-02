@@ -1,6 +1,7 @@
 import { Candle } from '../tables';
 import { Indicator } from './Indicator';
 import { Serializable } from './serializable';
+import { Signal } from './Signal';
 
 export type StrategyConfig = Record<string, number>;
 
@@ -25,7 +26,7 @@ export abstract class Strategy<TConfig extends StrategyConfig> implements Serial
     }
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+  public async update(candle: Candle): Promise<Signal | null> {
     for (const indicator of this.$indicators) {
       indicator.update(candle);
     }

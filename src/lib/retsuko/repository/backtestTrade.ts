@@ -10,6 +10,7 @@ export async function createBacktestTrades(
     backtestSingleId,
     ts: trade.ts,
     action: trade.action,
+    confidence: trade.confidence,
     asset: trade.asset,
     currency: trade.currency,
     price: trade.price,

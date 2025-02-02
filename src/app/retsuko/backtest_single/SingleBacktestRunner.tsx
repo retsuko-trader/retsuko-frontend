@@ -141,9 +141,10 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
 
                 <table className='font-mono'>
                   <thead>
-                    <tr className='text-h-text/80 bg-h-tone/10 border-l-2 border-h-tone/10'>
+                    <tr className='text-h-text/80 bg-h-tone/10 border-l-4 border-h-tone/10'>
                       <th>date</th>
                       <th>action</th>
+                      <th>conf</th>
                       <th>price</th>
                       <th>asset</th>
                       <th>currency</th>
@@ -153,17 +154,22 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   </thead>
                   <tbody>
                     {report.trades.reverse().map(trade => (
-                      <tr key={trade.ts.toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer border-l-2', {
-                        'bg-h-red/10': trade.action === 'sell',
-                        'bg-h-green/10': trade.action === 'buy',
+                      <tr key={trade.ts.toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer border-l-4', {
+                        'bg-h-red/10': trade.action === 'short',
+                        'bg-h-green/10': trade.action === 'long',
+                        'bg-h-white/10': trade.action.startsWith('close'),
                         'border-h-red/80': trade.profit < 0,
                         'border-h-green/80': trade.profit > 0,
+                        'border-h-white/20': trade.profit === 0,
                       })}>
                         <td className='w-36 pl-1'>
                           {formatDateShort(trade.ts)}
                         </td>
-                        <td className='w-12'>
+                        <td className='w-20'>
                           {trade.action}
+                        </td>
+                        <td className='w-10 text-right'>
+                          {formatPercent(trade.confidence, 0)}
                         </td>
                         <td className='w-24 text-right'>
                           {formatBalance(trade.price)}

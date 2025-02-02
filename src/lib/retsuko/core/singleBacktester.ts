@@ -115,17 +115,21 @@ export class SingleBacktester {
       if (direction) {
         const trade = await this.$trader.handleAdvice(candle, direction);
 
-        if (this.$trades.length > 0) {
-          const lastTrade = this.$trades[this.$trades.length - 1];
-          const profit = lastTrade.action === 'buy'
-            ? (candle.close - lastTrade.price) / lastTrade.price
-            : (lastTrade.price - candle.close) / candle.close;
-
-          lastTrade.profit = profit;
-          this.$trades[this.$trades.length - 1] = lastTrade;
-        }
-
         if (trade) {
+          if (this.$trades.length > 0) {
+            const lastTrade = this.$trades[this.$trades.length - 1];
+
+            if (lastTrade.action === 'long' || lastTrade.action === 'short') {
+              const currBalance = trade.asset * candle.close + trade.currency;
+              const prevBalance = lastTrade.asset * lastTrade.price + lastTrade.currency;
+
+              const profit = (currBalance - prevBalance) / prevBalance;
+
+              lastTrade.profit = profit;
+              this.$trades[this.$trades.length - 1] = lastTrade;
+            }
+          }
+
           this.$trades.push(trade);
         }
 

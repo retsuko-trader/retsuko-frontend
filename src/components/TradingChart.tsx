@@ -4,6 +4,7 @@
 import CanvasChartReact from '@canvasjs/react-charts';
 import type { Trade } from '@/lib/retsuko/core/Trade';
 import { SimpleCandle } from '@/lib/retsuko/tables';
+import { Signal } from '@/lib/retsuko/core/Signal';
 
 interface Props {
   title: string;
@@ -87,7 +88,7 @@ export function TradingChart({
           x: x.ts,
           y: x.price,
           z: x.action,
-          markerColor: x.action === 'buy' ? 'green' : 'red',
+          markerColor: Signal.summary(x.action) === 'long' ? 'green' : 'red',
         })),
       })),
     ].filter(x => !!x),
