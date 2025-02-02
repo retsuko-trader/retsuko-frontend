@@ -40,6 +40,7 @@ export function TradingChart({
     },
     axisY: {
       title: 'Price',
+      logarithmic: logarithmicBalance ?? false,
     },
     axisY2: {
       title: 'Balance',
