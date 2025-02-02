@@ -1,5 +1,6 @@
 import { Candle } from '../../tables';
 import { TrailingStopLoss } from '../helper';
+import { Signal } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface TurtleStrategyConfig extends StrategyConfig {
@@ -41,12 +42,12 @@ export class TurtleStrategy extends Strategy<TurtleStrategyConfig> {
     }
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+  public async update(candle: Candle): Promise<Signal | null> {
     const status = this.updateInner(candle);
 
     if (this.$stopLoss.isTriggered(candle.close)) {
       this.$stopLoss.destroy();
-      return 'short';
+      return 'closeLong';
     }
 
     if (status === null) {
@@ -59,7 +60,7 @@ export class TurtleStrategy extends Strategy<TurtleStrategyConfig> {
     }
     if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
       this.$stopLoss.destroy();
-      return 'short';
+      return 'closeLong';
     }
 
     return null;

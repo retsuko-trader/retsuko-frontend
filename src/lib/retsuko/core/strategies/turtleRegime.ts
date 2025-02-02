@@ -1,5 +1,6 @@
 import { Candle } from '../../tables';
 import { SMA } from '../indicators';
+import { Signal } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface TurtleRegimeStrategyConfig extends StrategyConfig {
@@ -41,7 +42,7 @@ export class TurtleRegimeStrategy extends Strategy<TurtleRegimeStrategyConfig> {
     }
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+  public async update(candle: Candle): Promise<Signal | null> {
     const status = this.updateInner(candle);
 
     if (status === null) {
@@ -53,14 +54,14 @@ export class TurtleRegimeStrategy extends Strategy<TurtleRegimeStrategyConfig> {
     }
 
     if (candle.close < this.$sma.value) {
-      return 'short';
+      return 'closeLong';
     }
 
     if (status === TradeType.OPEN_FLONG || status === TradeType.OPEN_SLONG) {
       return 'long';
     }
     if (status === TradeType.CLOSE_FAST || status === TradeType.CLOSE_SLOW) {
-      return 'short';
+      return 'closeLong';
     }
 
     return null;

@@ -1,6 +1,7 @@
 import { Candle } from '../../tables';
 import { TrailingStopLoss } from '../helper';
 import { Tulip, TulipIndicator } from '../indicators/tulip';
+import { Signal } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
 
 export interface SuperTrendStrategyConfig extends StrategyConfig {
@@ -57,7 +58,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     }
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+  public async update(candle: Candle): Promise<Signal | null> {
     const ready = this.updateInner(candle);
     if (!ready) {
       return null;
@@ -65,7 +66,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
 
     if (this.$stopLoss.isTriggered(candle.close)) {
       this.$stopLoss.destroy();
-      return 'short';
+      return 'closeLong';
     }
 
     if (candle.close > this.$trend.superTrend) {
@@ -75,7 +76,7 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
 
     if (candle.close < this.$trend.superTrend) {
       this.$stopLoss.destroy();
-      return 'short';
+      return { action: 'short', confidence: 0 };
     }
 
     return null;

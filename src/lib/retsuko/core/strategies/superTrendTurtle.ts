@@ -1,4 +1,5 @@
 import { Candle } from '../../tables';
+import { Signal, SignalKind, SignalWithConfidence } from '../Signal';
 import { Strategy, StrategyConfig } from '../strategy';
 import { SuperTrendStrategy } from './superTrend';
 import { TurtleRegimeStrategy } from './turtleRegime';
@@ -19,8 +20,8 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
   $superTrend: SuperTrendStrategy;
   $turtle: TurtleRegimeStrategy;
 
-  $superTrendDirection: 'long' | 'short' | null = null;
-  $turtleDirection: 'long' | 'short' | null = null;
+  $superTrendDirection: SignalWithConfidence | null = null;
+  $turtleDirection: SignalWithConfidence | null = null;
 
   constructor(
     name: string,
@@ -48,18 +49,27 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
     await this.$turtle.preload(candles);
   }
 
-  public async update(candle: Candle): Promise<'long' | 'short' | null> {
+  public async update(candle: Candle): Promise<Signal | null> {
     const superTrend = await this.$superTrend.update(candle);
     const poincare = await this.$turtle.update(candle);
 
     if (superTrend) {
-      this.$superTrendDirection = superTrend;
+      this.$superTrendDirection = Signal.format(superTrend);
     }
     if (poincare) {
-      this.$turtleDirection = poincare;
+      this.$turtleDirection = Signal.format(poincare);
     }
 
-    if (this.$superTrendDirection && this.$turtleDirection && this.$superTrendDirection === this.$turtleDirection) {
+    if (!this.$superTrendDirection || !this.$turtleDirection) {
+      return null;
+    }
+
+    if (this.$superTrendDirection.action === 'long' && this.$turtleDirection.action === 'long') {
+      return this.$superTrendDirection;
+    }
+
+    const sells = ['closeLong', 'short'];
+    if (sells.includes(this.$superTrendDirection.action) && sells.includes(this.$turtleDirection.action)) {
       return this.$superTrendDirection;
     }
 
@@ -79,7 +89,7 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
     const { superTrend, turtle, superTrendDirection, turtleDirection } = JSON.parse(data);
     this.$superTrend.deserialize(superTrend);
     this.$turtle.deserialize(turtle);
-    this.$superTrendDirection = superTrendDirection;
-    this.$turtleDirection = turtleDirection;
+    this.$superTrendDirection = typeof superTrendDirection === 'string' ? Signal.format(superTrendDirection as SignalKind) : superTrendDirection;
+    this.$turtleDirection = typeof turtleDirection === 'string' ? Signal.format(turtleDirection as SignalKind) : turtleDirection;
   }
 }
