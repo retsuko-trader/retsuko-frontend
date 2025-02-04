@@ -7,6 +7,7 @@ import { NeoStrategy } from './neo';
 import { PoincareStrategy } from './poincare';
 import { RaynerTeosStrategy } from './raynerTeos';
 import { RbbAdxBbStrategy } from './rbbAdxBb';
+import { ScalpingStrategy } from './scalping';
 import { SimpleRsiStrategy } from './simpleRsi';
 import { StochRSIStrategy } from './stochRsi';
 import { SuperTrendStrategy } from './superTrend';
@@ -202,6 +203,16 @@ export const StrategyEntries: StrategyEntry[] = [
     config: {
       emaPeriod: 5,
       ema2Period: 5,
+    },
+  }),
+  createEntry({
+    name: 'scalping',
+    entry: ScalpingStrategy,
+    config: {
+      atrPeriod: 22,
+      atrMultiplier: 2,
+      zlemaPeriod: 10,
+      trailingStop: 15,
     },
   }),
 ];
