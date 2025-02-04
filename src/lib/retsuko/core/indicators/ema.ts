@@ -10,7 +10,7 @@ export class EMA implements Indicator {
     public weight: number,
   ) { }
 
-  public update(candle: Candle) {
+  public update(candle: Pick<Candle, 'close'>) {
     const price = candle.close;
 
     if (!this.ready) {

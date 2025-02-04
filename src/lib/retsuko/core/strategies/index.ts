@@ -1,5 +1,6 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
+import { EmaHeikinAshiStrategy } from './emaHeikinAshi';
 import { MichaelHarrisDaxStrategy } from './michaelHarrisDax';
 import { MinMaxStrategy } from './minmax';
 import { NeoStrategy } from './neo';
@@ -193,8 +194,16 @@ export const StrategyEntries: StrategyEntry[] = [
       smaShort: 20,
       smaLong: 200,
       rsiPeriod: 2,
-    }
-  })
+    },
+  }),
+  createEntry({
+    name: 'emaHeikinAshi',
+    entry: EmaHeikinAshiStrategy,
+    config: {
+      emaPeriod: 5,
+      ema2Period: 5,
+    },
+  }),
 ];
 
 export const StrategyEntriesLight = StrategyEntries.map(x => ({
