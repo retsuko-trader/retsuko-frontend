@@ -165,4 +165,13 @@ export namespace Tulip {
     fastKPeriod + slowKPeriod + dPeriod,
     fastKPeriod + slowKPeriod + dPeriod,
   );
+
+  export const ZLEMA = (name: string, period: number) => new TulipIndicator(
+    name,
+    tulind.indicators.zlema,
+    ['close'],
+    [period],
+    period,
+    period,
+  );
 }
