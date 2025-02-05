@@ -116,6 +116,8 @@ export const StrategyEntries: StrategyEntry[] = [
       atrPeriod: 7,
       bandFactor: 3,
       trailingStop: 3.5,
+      confidenceMultiplier: 20,
+      confidenceBias: 0.1,
     },
   }),
   createEntry({
@@ -170,6 +172,8 @@ export const StrategyEntries: StrategyEntry[] = [
       atrPeriod: 7,
       bandFactor: 3,
       trailingStop: 3.5,
+      confidenceMultiplier: 20,
+      confidenceBias: 0.1,
       enterFast: 20,
       exitFast: 10,
       enterSlow: 55,

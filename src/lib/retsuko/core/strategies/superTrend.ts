@@ -9,6 +9,8 @@ export interface SuperTrendStrategyConfig extends StrategyConfig {
   atrPeriod: number;
   bandFactor: number;
   trailingStop: number;
+  confidenceMultiplier: number;
+  confidenceBias: number;
 }
 
 interface SuperTrendState {
@@ -26,6 +28,8 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
   $lastCandleClose: number;
   $age: number = 0;
   $stopLoss: TrailingStopLoss;
+  $confidence: number = 0;
+  $prevBuyConfidence: number = 0;
 
   constructor(
     name: string,
@@ -67,16 +71,24 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
 
     if (this.$stopLoss.isTriggered(candle.close)) {
       this.$stopLoss.destroy();
+      this.$prevBuyConfidence = 0;
       return 'closeLong';
     }
 
     if (candle.close > this.$trend.superTrend) {
       this.$stopLoss.create(this.config.trailingStop, candle.close);
-      return 'long';
+      const confidence = Math.min(1, this.$confidence * this.config.confidenceMultiplier );
+      if (confidence - this.$prevBuyConfidence < this.config.confidenceBias) {
+        return null;
+      }
+
+      this.$prevBuyConfidence = confidence;
+      return { action: 'long', confidence };
     }
 
     if (candle.close < this.$trend.superTrend) {
       this.$stopLoss.destroy();
+      this.$prevBuyConfidence = 0;
       return { action: 'short', confidence: 0 };
     }
 
@@ -110,12 +122,16 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
 
     if (this.$lastTrend.superTrend === this.$lastTrend.upperBand && candle.close <= this.$trend.upperBand) {
       this.$trend.superTrend = this.$trend.upperBand;
+      this.$confidence = (this.$trend.upperBand - candle.close) / candle.close;
     } else if (this.$lastTrend.superTrend === this.$lastTrend.upperBand && candle.close >= this.$trend.upperBand) {
       this.$trend.superTrend = this.$trend.lowerBand;
+      this.$confidence = (candle.close - this.$trend.lowerBand) / candle.close;
     } else if (this.$lastTrend.superTrend === this.$lastTrend.lowerBand && candle.close >= this.$trend.lowerBand) {
       this.$trend.superTrend = this.$trend.lowerBand;
+      this.$confidence = (candle.close - this.$trend.lowerBand) / candle.close;
     } else if (this.$lastTrend.superTrend === this.$lastTrend.lowerBand && candle.close <= this.$trend.lowerBand) {
       this.$trend.superTrend = this.$trend.upperBand;
+      this.$confidence = (this.$trend.upperBand - candle.close) / candle.close;
     } else {
       this.$trend.superTrend = 0;
     }
@@ -128,6 +144,11 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
 
   public async debug(_candle: Candle): Promise<DebugIndicator[]> {
     return [
+      {
+        name: 'confidence',
+        index: -1,
+        value: this.$confidence,
+      },
       {
         name: 'upperBand',
         index: 0,
@@ -160,6 +181,8 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
       lastCandleClose: this.$lastCandleClose,
       age: this.$age,
       stopLoss: this.$stopLoss.serialize(),
+      confidence: this.$confidence,
+      prevBuyConfidence: this.$prevBuyConfidence,
     });
   }
 
@@ -167,10 +190,14 @@ export class SuperTrendStrategy extends Strategy<SuperTrendStrategyConfig> {
     const parsed = JSON.parse(data);
     this.name = parsed.name;
     this.config = parsed.config;
+    this.config.confidenceMultiplier = parsed.config.confidenceMultiplier ?? 10000;
+    this.config.confidenceBias = parsed.config.confidenceBias ?? 0.1;
     this.$trend = parsed.trend;
     this.$lastTrend = parsed.lastTrend;
     this.$lastCandleClose = parsed.lastCandleClose;
     this.$age = parsed.age;
     this.$stopLoss.deserialize(parsed.stopLoss);
+    this.$confidence = parsed.confidence ?? 0;
+    this.$prevBuyConfidence = parsed.prevBuyConfidence ?? 0;
   }
 }

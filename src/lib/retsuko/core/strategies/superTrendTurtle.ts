@@ -9,6 +9,8 @@ export interface SuperTrendTurtleStrategyConfig extends StrategyConfig {
   atrPeriod: number;
   bandFactor: number;
   trailingStop: number;
+  confidenceMultiplier: number;
+  confidenceBias: number;
 
   enterFast: number;
   exitFast: number;
@@ -34,6 +36,8 @@ export class SuperTrendTurtleStrategy extends Strategy<SuperTrendTurtleStrategyC
       atrPeriod: config.atrPeriod,
       bandFactor: config.bandFactor,
       trailingStop: config.trailingStop,
+      confidenceMultiplier: config.confidenceMultiplier,
+      confidenceBias: config.confidenceBias,
     });
     this.$turtle = new TurtleRegimeStrategy('turtle', {
       enterFast: config.enterFast,
