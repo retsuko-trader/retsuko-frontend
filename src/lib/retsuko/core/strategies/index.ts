@@ -1,5 +1,6 @@
 import { Strategy, StrategyConfig } from '../strategy';
 import { BestoneStrategy } from './bestone';
+import { CriticalStrategy } from './critical';
 import { EmaHeikinAshiStrategy } from './emaHeikinAshi';
 import { MichaelHarrisDaxStrategy } from './michaelHarrisDax';
 import { MinMaxStrategy } from './minmax';
@@ -213,6 +214,16 @@ export const StrategyEntries: StrategyEntry[] = [
       atrMultiplier: 2,
       zlemaPeriod: 10,
       trailingStop: 15,
+    },
+  }),
+  createEntry({
+    name: 'critical',
+    entry: CriticalStrategy,
+    config: {
+      atrPeriod: 20,
+      atrMultiplier: 2,
+      period: 7,
+      maPeriod: 200,
     },
   }),
 ];
