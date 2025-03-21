@@ -63,7 +63,7 @@ export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
                   formatDateShort(report.config.dataset.start),
                   formatDateShort(report.config.dataset.end),
                   report.config.strategy.name,
-                  <div key={`config-${i}`} className='max-w-[16rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>,
+                  <div key={`config-${i}`} className='max-w-[16rem] break-words'>{report.config.strategy.config}</div>,
                   report.config.broker.initialBalance,
                   report.config.broker.fee,
                 ]),
