@@ -7,10 +7,6 @@ export const getSubMenus: GetSubMenu = () => {
       path: 'dataset',
     },
     {
-      title: 'datasetGroup',
-      path: 'dataset_group',
-    },
-    {
       title: 'backtest',
       path: 'backtest',
     },

@@ -3,38 +3,40 @@
 import React from 'react';
 import classNames from 'classnames';
 import * as R from 'remeda';
-import type { SingleBacktestConfig, BacktestReport, StrategyIndicator } from '@/lib/retsuko/core/singleBacktester';
-import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { loadCandles, runBacktest } from './actions';
 import { SingleBacktestConfigEditor } from './SingleBacktestConfigEditor';
-import type { Candle } from '@/lib/retsuko/tables';
 import { Table } from '@/components/Table';
 import dynamic from 'next/dynamic';
+import type { StrategyEntry } from '@/lib/retsuko/interfaces/Strategy';
+import type { Symbol } from '@/lib/retsuko/interfaces/Symbol';
+import type { Dataset } from '@/lib/retsuko/interfaces/Dataset';
+import { BacktestReport } from '@/lib/retsuko/interfaces/Backtest';
+import { Candle } from '@/lib/retsuko/interfaces/Candle';
+import { BacktestConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
+import { runBacktestSingle } from '@/lib/retsuko/api/backtester';
+import { SignalKind } from '@/lib/retsuko/interfaces/Trade';
 
 const TradingChart = dynamic(() => import('@/components/TradingChart').then(x => x.TradingChart), { ssr: false });
 
 interface Props {
   datasets: Dataset[];
-  entries: Array<{
-    name: string;
-    config: Record<string, number>;
-  }>
+  symbols: Symbol[];
+  strategies: StrategyEntry[];
 }
 
-export function SingleBacktestRunner({ datasets, entries }: Props) {
+export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [reports, setReports] = React.useState<BacktestReport[]>([]);
-  const [indicators, setIndicators] = React.useState<StrategyIndicator[]>([]);
+  // const [indicators, setIndicators] = React.useState<StrategyIndicator[]>([]);
   const [candles, setCandles] = React.useState<Candle[]>([]);
   const [logarithmicBalance, setLogarithmicBalance] = React.useState(false);
 
-  const run = async (configs: SingleBacktestConfig[]) => {
+  const run = async (configs: BacktestConfig[]) => {
     setLoading(true);
-    const resp = (await Promise.all(configs.map(x => runBacktest(x)))).filter(x => x !== null);
+    const resp = (await Promise.all(configs.map(x => runBacktestSingle({ config: x, hideTrades: false })))).filter(x => x !== null);
     setReports(resp);
-    setCandles(await loadCandles(configs[0]));
-    setIndicators(resp.map(x => x.indicators));
+    // setCandles(await loadCandles(configs[0]));
+    // setIndicators(resp.map(x => x.indicators));
     setLoading(false);
   };
 
@@ -57,13 +59,13 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
               rows={[
                 ['dataset', 'start', 'end', 'strategy', 'config', 'balance', 'fee'],
                 ...reports.map((report, i) => [
-                  report.config.dataset.alias,
-                  formatDateShort(report.config.dataset.start!),
-                  formatDateShort(report.config.dataset.end!),
+                  report.config.dataset.symbolId,
+                  formatDateShort(report.config.dataset.start),
+                  formatDateShort(report.config.dataset.end),
                   report.config.strategy.name,
                   <div key={`config-${i}`} className='max-w-[16rem] break-words'>{JSON.stringify(report.config.strategy.config)}</div>,
-                  report.config.trader.initialBalance,
-                  report.config.trader.fee,
+                  report.config.broker.initialBalance,
+                  report.config.broker.fee,
                 ]),
               ]}
               transpose
@@ -80,10 +82,10 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
               rows={[
                 ['start balance', 'end balance', 'trade count', 'total profit%', 'CAGR %', 'sortino', 'sharpe', 'calmar', 'min/max balance', 'drawdown', 'drawdown high', 'drawdown low', 'drawdown start', 'drawdown end', 'market change', 'wins/loses (%)', 'avg trade p%', 'profit/market'],
                 ...reports.map(report => [
-                  formatBalance(report.startBalance),
-                  formatBalance(report.endBalance),
+                  formatBalance(report.metrics.startBalance),
+                  formatBalance(report.metrics.endBalance),
                   report.trades.length,
-                  formatPercent(report.profit),
+                  formatPercent(report.metrics.totalProfit),
                   formatPercent(report.metrics.cagr),
                   formatBalance(report.metrics.sortino),
                   formatBalance(report.metrics.sharpe),
@@ -97,7 +99,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   formatPercent(report.metrics.marketChange),
                   `${report.trades.filter(x => x.profit > 0).length}/${report.trades.filter(x => x.profit < 0).length} (${formatPercent(report.trades.filter(x => x.profit > 0).length / (report.trades.filter(x => x.profit > 0).length + report.trades.filter(x => x.profit < 0).length))})`,
                   formatPercent(R.mean(report.trades.map(x => x.profit)) ?? 0),
-                  formatPercent(report.profit / report.metrics.marketChange),
+                  formatPercent(report.metrics.totalProfit / report.metrics.marketChange),
                 ]),
               ]}
               transpose
@@ -133,7 +135,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   title={`backtest single simulation result ${i}`}
                   candles={candles}
                   tradesList={[report.trades]}
-                  indicators={indicators[i]}
+                  // indicators={indicators[i]}
                   showBalance
                   showTrades
                   showIndicators
@@ -158,10 +160,10 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                   </thead>
                   <tbody>
                     {report.trades.reverse().map(trade => (
-                      <tr key={trade.ts.toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer border-l-4', {
-                        'bg-h-red/10': trade.action === 'short',
-                        'bg-h-green/10': trade.action === 'long',
-                        'bg-h-white/10': trade.action.startsWith('close'),
+                      <tr key={new Date(trade.ts).toISOString()} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer border-l-4', {
+                        'bg-h-red/10': trade.signal === SignalKind.short,
+                        'bg-h-green/10': trade.signal === SignalKind.long,
+                        'bg-h-white/10': trade.signal === SignalKind.closeLong || trade.signal === SignalKind.closeShort,
                         'border-h-red/80': trade.profit < 0,
                         'border-h-green/80': trade.profit > 0,
                         'border-h-white/20': trade.profit === 0,
@@ -170,7 +172,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
                           {formatDateShort(trade.ts)}
                         </td>
                         <td className='w-20'>
-                          {trade.action}
+                          {SignalKind[trade.signal]}
                         </td>
                         <td className='w-10 text-right'>
                           {formatPercent(trade.confidence, 0)}
@@ -210,7 +212,7 @@ export function SingleBacktestRunner({ datasets, entries }: Props) {
         <div className='w-full h-full bg-h-tone/5 p-3 overflow-y-auto'>
           <SingleBacktestConfigEditor
             datasets={datasets}
-            entries={entries}
+            strategies={strategies}
             runBacktest={run}
           />
         </div>

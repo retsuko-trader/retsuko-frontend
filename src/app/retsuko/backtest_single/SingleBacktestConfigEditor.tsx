@@ -2,31 +2,29 @@
 
 import moment from 'moment';
 import React from 'react';
-import type { SingleBacktestConfig } from '@/lib/retsuko/core/singleBacktester';
-import { getDatasetAlias } from '@/lib/retsuko/core/dataset';
-import type { Dataset } from '@/lib/retsuko/repository/dataset';
 import classNames from 'classnames';
+import { StrategyEntry } from '@/lib/retsuko/interfaces/Strategy';
+import { BacktestConfig, DatasetConfig, StrategyConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
+import { Dataset } from '@/lib/retsuko/interfaces/Dataset';
 
 interface Props {
   datasets: Dataset[];
-  entries: Array<{
-    name: string;
-    config: Record<string, number>;
-  }>;
-  runBacktest: (configs: SingleBacktestConfig[]) => void;
+  strategies: StrategyEntry[];
+  runBacktest: (configs: BacktestConfig[]) => void;
 }
 
-type Config = Omit<SingleBacktestConfig, 'strategy'>;
-type Strategy = SingleBacktestConfig['strategy'];
+type Config = Omit<BacktestConfig, 'strategy'>;
 
-export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: Props) {
+export function SingleBacktestConfigEditor({ datasets, strategies: entries, runBacktest }: Props) {
   const [config, setConfig] = React.useState<Config>({
     dataset: {
-      alias: getDatasetAlias(datasets[0]),
+      market: datasets[0].market,
+      symbolId: datasets[0].symbolId,
+      interval: datasets[0].interval,
       start: datasets[0].start,
       end: datasets[0].end,
     },
-    trader: {
+    broker: {
       initialBalance: 1000,
       fee: 0.001,
       enableMargin: false,
@@ -34,7 +32,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     },
   });
 
-  const [strategies, setStrategies] = React.useState<Strategy[]>([
+  const [strategies, setStrategies] = React.useState<StrategyConfig[]>([
     {
       name: entries[0].name,
       config: entries[0].config,
@@ -49,25 +47,27 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
   };
 
   const selectDataset = (alias: string) => {
-    const dataset = datasets.find(x => getDatasetAlias(x) === alias);
+    const dataset = datasets.find(x => DatasetConfig.alias(x) === alias);
     if (!dataset) {
       return;
     }
 
-    if (config.dataset.alias === alias) {
+    if (DatasetConfig.alias(config.dataset) === alias) {
       return;
     }
 
     updateConfig({
       dataset: {
-        alias,
-        start: new Date(Math.max(config.dataset.start.getTime(), dataset.start.getTime())),
-        end: new Date(Math.min(config.dataset.end.getTime(), dataset.end.getTime())),
+        market: dataset.market,
+        symbolId: dataset.symbolId,
+        interval: dataset.interval,
+        start: new Date(Math.max(new Date(config.dataset.start).getTime(), new Date(dataset.start).getTime())).toISOString(),
+        end: new Date(Math.min(new Date(config.dataset.end).getTime(), new Date(dataset.end).getTime())).toISOString(),
       },
     });
   };
 
-  const updateDatasetDate = (options: { start?: Date; end?: Date }) => {
+  const updateDatasetDate = (options: { start?: string; end?: string }) => {
     updateConfig({
       dataset: {
         ...config.dataset,
@@ -113,15 +113,15 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
     });
   };
 
-  const updateStrategyConfig = (index: number, name: string, value: number) => {
+  const updateStrategyConfig = (index: number, name: string, value: number | boolean) => {
     setStrategies(xs => xs.map((x, i) => {
       if (i === index) {
         return {
           ...x,
-          config: {
-            ...x.config,
+          config: JSON.stringify({
+            ...JSON.parse(x.config),
             [name]: value,
-          }
+          }),
         };
       }
       return x;
@@ -137,9 +137,9 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
           <label className='w-20 inline-block'>
             datasets:
           </label>
-          <select value={config.dataset.alias} onChange={e => selectDataset(e.target.value)} className='inline-block w-52'>
+          <select value={DatasetConfig.alias(config.dataset)} onChange={e => selectDataset(e.target.value)} className='inline-block w-52'>
             {datasets.map(dataset => {
-              const key = getDatasetAlias(dataset);
+              const key = DatasetConfig.alias(dataset);
               return (
                 <option key={key} value={key}>{key}</option>
               )
@@ -154,7 +154,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               <input
                 type='date'
                 value={moment(config.dataset.start).format('YYYY-MM-DD')}
-                onChange={e => updateDatasetDate({ start: new Date(e.target.value) })}
+                onChange={e => updateDatasetDate({ start: new Date(e.target.value).toISOString() })}
                 className='inline-block w-36'
               />
             </div>
@@ -166,7 +166,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               <input
                 type='date'
                 value={moment(config.dataset.end).format('YYYY-MM-DD')}
-                onChange={e => updateDatasetDate({ end: new Date(e.target.value) })}
+                onChange={e => updateDatasetDate({ end: new Date(e.target.value).toISOString() })}
                 className='inline-block w-36'
               />
             </div>
@@ -195,7 +195,7 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
                   </div>
 
                   {
-                    Object.entries(strategy.config).map(([key, value]) => (
+                    Object.entries(JSON.parse(strategy.config)).map(([key, value]) => typeof value === 'number' ? (
                       <div key={key}>
                         <label className='w-48 inline-block pr-2'>
                           {key}:
@@ -204,6 +204,18 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
                           type='number'
                           value={value}
                           onChange={e => updateStrategyConfig(i, key, e.target.valueAsNumber)}
+                          className='inline-block w-32'
+                        />
+                      </div>
+                    ) : (
+                      <div key={key}>
+                        <label className='w-48 inline-block pr-2'>
+                          {key}:
+                        </label>
+                        <input
+                          type='checkbox'
+                          checked={value as boolean}
+                          onChange={e => updateStrategyConfig(i, key, e.target.checked)}
                           className='inline-block w-32'
                         />
                       </div>
@@ -232,8 +244,8 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               </label>
               <input
                 type='number'
-                value={config.trader.initialBalance}
-                onChange={e => updateConfig({ trader: { ...config.trader, initialBalance: e.target.valueAsNumber } })}
+                value={config.broker.initialBalance}
+                onChange={e => updateConfig({ broker: { ...config.broker, initialBalance: e.target.valueAsNumber } })}
                 className='inline-block w-32'
               />
             </div>
@@ -244,8 +256,8 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               </label>
               <input
                 type='number'
-                value={config.trader.fee}
-                onChange={e => updateConfig({ trader: { ...config.trader, fee: e.target.valueAsNumber } })}
+                value={config.broker.fee}
+                onChange={e => updateConfig({ broker: { ...config.broker, fee: e.target.valueAsNumber } })}
                 className='inline-block w-32'
               />
             </div>
@@ -256,8 +268,8 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               </label>
               <input
                 type='checkbox'
-                checked={config.trader.enableMargin}
-                onChange={e => updateConfig({ trader: { ...config.trader, enableMargin: e.target.checked } })}
+                checked={config.broker.enableMargin}
+                onChange={e => updateConfig({ broker: { ...config.broker, enableMargin: e.target.checked } })}
                 className='inline-block w-32'
               />
             </div>
@@ -268,8 +280,8 @@ export function SingleBacktestConfigEditor({ datasets, entries, runBacktest }: P
               </label>
               <input
                 type='checkbox'
-                checked={config.trader.validTradeOnly}
-                onChange={e => updateConfig({ trader: { ...config.trader, validTradeOnly: e.target.checked } })}
+                checked={config.broker.validTradeOnly}
+                onChange={e => updateConfig({ broker: { ...config.broker, validTradeOnly: e.target.checked } })}
                 className='inline-block w-32'
               />
             </div>

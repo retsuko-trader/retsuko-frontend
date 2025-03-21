@@ -3,11 +3,9 @@
 // @ts-expect-error CanvasJS is not typed
 import CanvasChartReact from '@canvasjs/react-stockcharts';
 import * as R from 'remeda';
-import type { Trade } from '@/lib/retsuko/core/Trade';
-import { Candle } from '@/lib/retsuko/tables';
-import { Signal } from '@/lib/retsuko/core/Signal';
-import { StrategyIndicator } from '@/lib/retsuko/core/singleBacktester';
 import { useDarkTheme } from './layout/ThemeSwitch';
+import { Candle } from '@/lib/retsuko/interfaces/Candle';
+import { SignalKind, Trade } from '@/lib/retsuko/interfaces/Trade';
 
 interface Props {
   title: string;
@@ -15,7 +13,7 @@ interface Props {
   candles?: Candle[];
 
   tradesList?: Trade[][];
-  indicators?: StrategyIndicator;
+  // indicators?: StrategyIndicator;
 
   showBalance?: boolean;
   logarithmicBalance?: boolean;
@@ -27,7 +25,7 @@ export function TradingChart({
   title,
   candles,
   tradesList,
-  indicators,
+  // indicators,
   showBalance,
   logarithmicBalance,
   showTrades,
@@ -35,15 +33,15 @@ export function TradingChart({
 }: Props) {
   const [isDark] = useDarkTheme();
 
-  const indicatorsByIndex = Object.entries(R.groupBy(Object.entries(indicators ?? {}), x => x[1][0]))
-    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+  // const indicatorsByIndex = Object.entries(R.groupBy(Object.entries(indicators ?? {}), x => x[1][0]))
+  //   .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
 
   let height = 200;
   if (candles && candles.length > 0) {
     height += 300;
   }
   if (showIndicators) {
-    height += indicatorsByIndex.length * 170;
+    // height += indicatorsByIndex.length * 170;
   }
 
   const axisX = {
@@ -128,31 +126,31 @@ export function TradingChart({
             dataPoints: trades.map(x => ({
               x: x.ts,
               y: x.price,
-              z: x.action,
-              markerColor: Signal.summary(x.action) === 'long' ? 'green' : 'red',
+              z: x.signal,
+              markerColor: x.signal === SignalKind.long ? 'green' : 'red',
             })),
           })),
         ],
       },
-      ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
-        height: 170,
-        axisX,
-        axisY: {
-          title: `indicators[${index}]`,
-        },
-        toolTip,
-        data: indicators.map(([name, data]) => ({
-          name,
-          type: 'line',
-          showInLegend: true,
-          xValueFormatString: 'YYYY-MM-DD HH:mm',
-          yValueFormatString: '0.00',
-          dataPoints: data[1].map(([x, y]) => ({
-            x: new Date(x),
-            y,
-          })),
-        })),
-      })) : []),
+      // ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
+      //   height: 170,
+      //   axisX,
+      //   axisY: {
+      //     title: `indicators[${index}]`,
+      //   },
+      //   toolTip,
+      //   data: indicators.map(([name, data]) => ({
+      //     name,
+      //     type: 'line',
+      //     showInLegend: true,
+      //     xValueFormatString: 'YYYY-MM-DD HH:mm',
+      //     yValueFormatString: '0.00',
+      //     dataPoints: data[1].map(([x, y]) => ({
+      //       x: new Date(x),
+      //       y,
+      //     })),
+      //   })),
+      // })) : []),
     ],
   };
 

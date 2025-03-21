@@ -1,12 +1,24 @@
 import { formatDateShort } from '@/lib/helper';
-import { searchDatasets } from '@/lib/retsuko/repository';
-import { importDataFromCandleDatabase } from './actions';
 import React from 'react';
 import { connection } from 'next/server';
+import { getDataset, getSymbols } from '@/lib/retsuko/api/candle';
+import { Market } from '@/lib/retsuko/interfaces/Dataset';
+import { Intervals } from '@/lib/helper/interval';
+
+async function get() {
+  'use server';
+
+  const datasets = await getDataset();
+  const symbols = await getSymbols();
+  return { datasets, symbols };
+}
 
 export default async function RetsukoDatasetPage() {
   await connection();
-  const datasets = await searchDatasets();
+  const { datasets, symbols } = await get();
+
+  const symbolsMap = new Map<number, string>();
+  symbols.forEach((symbol) => symbolsMap.set(symbol.id, symbol.name));
 
   return (
     <div className='w-full h-full relative flex flex-row'>
@@ -24,24 +36,25 @@ export default async function RetsukoDatasetPage() {
           </thead>
           <tbody>
             {datasets.map((dataset) => {
-              const key = `${dataset.market}_${dataset.symbol}_${dataset.interval}`;
+              const symbol = symbolsMap.get(dataset.symbolId);
+              const key = `${dataset.market}_${symbol}_${dataset.interval}`;
 
               return (
                 <tr key={key} className='text-h-text/60 group hover:text-h-text/80 cursor-pointer even:bg-h-tone/5'>
                   <td className='w-20 pl-1'>
-                    {dataset.market}
+                    {Market[dataset.market]}
                   </td>
                   <td className='w-20'>
-                    {dataset.symbol}
+                    {symbol}
                   </td>
                   <td className='w-10'>
-                    {dataset.interval}
+                    {Intervals[dataset.interval]}
                   </td>
                   <td className='w-36'>
-                    {formatDateShort(dataset.start)}
+                    {formatDateShort(new Date(dataset.start))}
                   </td>
                   <td className='w-36'>
-                    {formatDateShort(dataset.end)}
+                    {formatDateShort(new Date(dataset.end))}
                   </td>
                   <td className='w-20 text-right pr-1'>
                     {dataset.count}
@@ -59,17 +72,11 @@ export default async function RetsukoDatasetPage() {
             actions
           </div>
 
-          <div className='mt-4 flex flex-col gap-2'>
-            <StyledButton onClick={importDataFromCandleDatabase}>
-              import data from candle database
-            </StyledButton>
-          </div>
-
         </div>
       </div>
     </div>
   );
-} 
+}
 
 const StyledButton = ({ children, onClick }: React.ComponentProps<'button'>) => (
   <button
