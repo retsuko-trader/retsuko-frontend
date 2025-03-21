@@ -1,24 +1,18 @@
-import { BinanceInterval } from '../retsuko/binance';
-
-export const sortedIntervals = [
-  '1s',
-  '1m',
-  '3m',
-  '5m',
-  '15m',
-  '30m',
-  '1h',
-  '2h',
-  '4h',
-  '6h',
-  '8h',
-  '12h',
-  '1d',
-  '3d',
-  '1w',
-  '1M',
-] as const;
-
-export function sortInterval(a: BinanceInterval, b: BinanceInterval): number {
-  return sortedIntervals.indexOf(a) - sortedIntervals.indexOf(b);
-}
+export const Intervals: Record<number, string> = {
+  1: '1s',
+  60: '1m',
+  180: '3m',
+  300: '5m',
+  900: '15m',
+  1800: '30m',
+  3600: '1h',
+  7200: '2h',
+  14400: '4h',
+  21600: '6h',
+  28800: '8h',
+  43200: '12h',
+  86400: '1d',
+  259200: '3d',
+  604800: '1w',
+  2592000: '1M',
+};
