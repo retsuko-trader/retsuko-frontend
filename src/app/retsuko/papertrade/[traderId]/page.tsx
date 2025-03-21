@@ -1,5 +1,6 @@
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { getMarketPaperTraderById, getMarketPaperTradesByTraderId, removeMarketPaperTrader } from '@/lib/retsuko/core/marketPaperTrader';
+import { getPaperTrader, getPaperTraderTrades } from '@/lib/retsuko/api/paperTrader';
+import { SignalKind } from '@/lib/retsuko/interfaces/Trade';
 import classNames from 'classnames';
 import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
@@ -11,7 +12,7 @@ interface Props {
 const remove = async (id: string) => {
   'use server';
 
-  await removeMarketPaperTrader(id);
+  // await removeMarketPaperTrader(id);
   redirect('/retsuko/papertrade');
 };
 
@@ -19,8 +20,8 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
   const { traderId } = await params;
 
   await connection();
-  const trader = await getMarketPaperTraderById(traderId);
-  const trades = await getMarketPaperTradesByTraderId(traderId);
+  const trader = await getPaperTrader(traderId);
+  const trades = await getPaperTraderTrades(traderId);
 
   const removeThis = remove.bind(null, traderId);
 
@@ -39,7 +40,7 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
           <summary>dump</summary>
 
           <pre className='font-mono max-w-full break-words'>
-            {JSON.stringify(JSON.parse(trader.strategySerialized), null, 2)}
+            {/* {JSON.stringify(JSON.parse(trader.strategySerialized), null, 2)} */}
           </pre>
         </details>
 
@@ -60,14 +61,14 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
               {
                 trades.map((trade) => (
                   <tr key={trade.id} className={classNames('text-h-text/60 group hover:text-h-text/80 cursor-pointer', {
-                    'bg-h-red/10': trade.action === 'sell',
-                    'bg-h-green/10': trade.action === 'buy',
+                    'bg-h-red/10': trade.signal === SignalKind.long,
+                    'bg-h-green/10': trade.signal === SignalKind.short,
                   })}>
                     <td className='w-36'>
                       {formatDateShort(trade.ts)}
                     </td>
                     <td className='w-20'>
-                      {trade.action}
+                      {SignalKind[trade.signal]}
                     </td>
                     <td className='w-20 text-right'>
                       {formatBalance(trade.price)}

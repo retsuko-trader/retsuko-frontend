@@ -1,5 +1,6 @@
 import { TraderMetrics } from './Backtest';
 import { PapertraderConfig } from './PapertraderConfig';
+import { SignalKind } from './Trade';
 
 export interface PaperTrader {
   id: string;
@@ -10,4 +11,16 @@ export interface PaperTrader {
   endedAt: string | null;
   config: PapertraderConfig;
   metrics: TraderMetrics;
+}
+
+export interface PaperTraderTrade {
+  id: string;
+  traderId: string;
+  ts: string;
+  signal: SignalKind;
+  confidence: number;
+  asset: number;
+  currency: number;
+  price: number;
+  profit: number;
 }
