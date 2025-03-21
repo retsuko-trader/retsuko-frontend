@@ -1,11 +1,13 @@
-import { getMarketPaperTraders, getMarketPaperTradesByTraderId } from '@/lib/retsuko/core/marketPaperTrader'
 import { PapertradeConfigEditor } from './PapertradeConfigEditor';
-import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
 import React from 'react';
 import { connection } from 'next/server';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { getPaperTraders } from '@/lib/retsuko/api/paperTrader';
+import { Trade } from '@/lib/retsuko/interfaces/Trade';
+import { getSymbols } from '@/lib/retsuko/api/candle';
+import { getStrategies } from '@/lib/retsuko/api/strategy';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -14,11 +16,17 @@ export const cache = 'no-store';
 export default async function RetsukoPapertradePage() {
   await connection();
 
-  const marketTraders = await getMarketPaperTraders();
-  const traderZips = await Promise.all(marketTraders.map(async trader => {
+  const symbols = await getSymbols();
+  const symbolsMap = new Map<number, string>();
+  symbols.forEach((symbol) => symbolsMap.set(symbol.id, symbol.name));
+
+  const strategies = await getStrategies();
+
+  const paperTraders = await getPaperTraders();
+  const traderZips = await Promise.all(paperTraders.map(async trader => {
     return {
       trader,
-      trades: await getMarketPaperTradesByTraderId(trader.id),
+      trades: [] as Trade[], //await getMarketPaperTradesByTraderId(trader.id),
     }
   }));
 
@@ -27,8 +35,8 @@ export default async function RetsukoPapertradePage() {
       <div className='w-full h-full overflow-y-auto flex flex-col gap-y-4'>
         {
           traderZips.map(({ trader, trades }, i) => {
-            const inititalBalance = trader.trader.inititalBalance ?? 1000;
-            const profit = (trader.trader.portfolio.totalBalance - inititalBalance) / inititalBalance;
+            const inititalBalance = trader.config.broker.initialBalance ?? 1000;
+            const profit = (trader.metrics.endBalance - inititalBalance) / inititalBalance;
 
             const avgTradeProfits = trades.length > 0 ? trades.reduce((acc, trade) => acc + (trade.profit ?? 0), 0) / trades.length : 0;
 
@@ -52,7 +60,7 @@ export default async function RetsukoPapertradePage() {
                         market
                       </div>
                       <div className='text-h-text/80'>
-                        {trader.symbol}_{trader.interval}
+                        {symbolsMap.get(trader.config.dataset.symbolId)}_{trader.config.dataset.interval}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -87,7 +95,7 @@ export default async function RetsukoPapertradePage() {
                         strategy
                       </div>
                       <div className='text-h-text/80'>
-                        {trader.strategyName}
+                        {trader.config.strategy.name}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -95,7 +103,7 @@ export default async function RetsukoPapertradePage() {
                         initial / fee
                       </div>
                       <div className='text-h-text/80'>
-                        {formatBalance(inititalBalance)} / {formatPercent(trader.trader.fee)}
+                        {formatBalance(inititalBalance)} / {formatPercent(trader.config.broker.fee)}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -126,7 +134,7 @@ export default async function RetsukoPapertradePage() {
                         asset
                       </div>
                       <div className='text-h-text/80'>
-                        {formatBalance(trader.trader.portfolio.asset, 6)}
+                        {/* {formatBalance(trader..asset, 6)} */}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -134,7 +142,7 @@ export default async function RetsukoPapertradePage() {
                         currency
                       </div>
                       <div className='text-h-text/80'>
-                        {formatBalance(trader.trader.portfolio.currency)}
+                        {/* {formatBalance(trader.trader.portfolio.currency)} */}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -142,7 +150,7 @@ export default async function RetsukoPapertradePage() {
                         total balance
                       </div>
                       <div className='text-h-text/80'>
-                        {formatBalance(trader.trader.portfolio.totalBalance)}
+                        {/* {formatBalance(trader.trader.portfolio.totalBalance)} */}
                       </div>
                     </div>
                     <div className='w-40'>
@@ -167,7 +175,7 @@ export default async function RetsukoPapertradePage() {
 
       <div className='h-full top-0 bottom-0 right-0 w-[32rem] bg-h-background drop-shadow-lg'>
         <div className='w-full h-full bg-h-tone/5 p-3'>
-          <PapertradeConfigEditor strategies={StrategyEntriesLight} />
+          <PapertradeConfigEditor symbols={symbols} strategies={strategies} />
         </div>
       </div>
     </div>

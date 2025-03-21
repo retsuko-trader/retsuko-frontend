@@ -1,35 +1,37 @@
 'use client';
 
 import { EditableText } from '@/components/EditableText';
-import { BinanceInterval } from '@/lib/retsuko/binance';
-import { CreateMarketPaperTraderConfig } from '@/lib/retsuko/core/marketPaperTrader';
 import React from 'react';
-import { createTrader } from './action';
 import classNames from 'classnames';
-import { sortedIntervals } from '@/lib/helper';
 import { redirect } from 'next/navigation';
+import { StrategyEntry } from '@/lib/retsuko/interfaces/Strategy';
+import { PapertraderConfig } from '@/lib/retsuko/interfaces/PapertraderConfig';
+import { Market } from '@/lib/retsuko/interfaces/Dataset';
+import { Intervals } from '@/lib/helper/interval';
+import { Symbol } from '@/lib/retsuko/interfaces/Symbol';
 
 interface Props {
-  strategies: Array<{
-    name: string;
-    config: Record<string, number>;
-  }>;
+  symbols: Symbol[];
+  strategies: StrategyEntry[];
 }
 
-export function PapertradeConfigEditor({ strategies }: Props) {
-  const [config, setConfig] = React.useState<CreateMarketPaperTraderConfig>({
-    name: '',
-    description: '',
-    input: {
-      market: 'futures',
-      symbol: 'BTCUSDT',
-      interval: '1h',
+export function PapertradeConfigEditor({ symbols, strategies }: Props) {
+  const [config, setConfig] = React.useState<PapertraderConfig>({
+    info: {
+      name: '',
+      description: '',
+    },
+    dataset: {
+      market: Market.futures,
+      symbolId: 0,
+      interval: 60,
+      preloadCount: 0,
     },
     strategy: {
       name: strategies[0].name,
       config: strategies[0].config,
     },
-    trader: {
+    broker: {
       initialBalance: 1000,
       fee: 0.001,
       enableMargin: false,
@@ -37,7 +39,7 @@ export function PapertradeConfigEditor({ strategies }: Props) {
     },
   });
 
-  const updateConfig = (option: Partial<CreateMarketPaperTraderConfig>) => {
+  const updateConfig = (option: Partial<PapertraderConfig>) => {
     setConfig({
       ...config,
       ...option,
@@ -62,20 +64,20 @@ export function PapertradeConfigEditor({ strategies }: Props) {
     });
   };
 
-  const updateStrategyConfig = (name: string, value: number) => {
+  const updateStrategyConfig = (name: string, value: number | boolean) => {
     updateConfig({
       strategy: {
         name: config.strategy.name,
-        config: {
-          ...config.strategy.config,
+        config: JSON.stringify({
+          ...JSON.parse(config.strategy.config),
           [name]: value,
-        }
+        }),
       }
     });
   };
 
   const create = async () => {
-    await createTrader(config);
+    // await createTrader(config);
     redirect('/retsuko/papertrade');
   };
 
@@ -89,18 +91,18 @@ export function PapertradeConfigEditor({ strategies }: Props) {
           <div>
             <label className='mr-2'>name:</label>
             <EditableText
-              text={config.name}
+              text={config.info.name}
               placeHolder='Name'
-              setText={name => updateConfig({ name })}
+              setText={name => updateConfig({ info: { ...config.info, name } })}
               className='inline'
             />
           </div>
           <div>
             <label>description:</label>
             <EditableText
-              text={config.description}
+              text={config.info.description}
               placeHolder='Description'
-              setText={description => updateConfig({ description })}
+              setText={description => updateConfig({ info: { ...config.info, description } })}
               className='block pl-2 border-l-2 border-h-yellow/80 w-full break-words'
             />
           </div>
@@ -116,20 +118,20 @@ export function PapertradeConfigEditor({ strategies }: Props) {
               <label className='inline-block w-24'>Symbol</label>
               <input
                 type='text'
-                value={config.input.symbol}
-                onChange={e => updateConfig({ input: { ...config.input, symbol: e.target.value } })}
+                value={config.dataset.symbolId}
+                onChange={e => updateConfig({ dataset: { ...config.dataset, symbolId: symbols.find(x => x.name === e.target.value)!.id } })}
                 className='inline-block w-44'
               />
             </div>
             <div>
               <label className='inline-block w-24'>Interval</label>
               <select
-                value={config.input.interval}
-                onChange={e => updateConfig({ input: { ...config.input, interval: e.target.value as BinanceInterval } })}
+                value={config.dataset.interval}
+                onChange={e => updateConfig({ dataset: { ...config.dataset, interval: parseInt(e.target.value) } })}
               >
                 {
-                  sortedIntervals.map(x => (
-                    <option key={x} value={x}>{x}</option>
+                  Object.entries(Intervals).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
                   ))
                 }
               </select>
@@ -151,7 +153,7 @@ export function PapertradeConfigEditor({ strategies }: Props) {
 
           <div className='border-l-2 border-h-yellow/80 mt-1 pl-2'>
             {
-              Object.entries(config.strategy.config).map(([key, value]) => (
+              Object.entries(JSON.parse(config.strategy.config)).map(([key, value]) => typeof value === 'number' ? (
                 <div key={key}>
                   <label className='w-48 inline-block pr-2'>
                     {key}:
@@ -160,6 +162,18 @@ export function PapertradeConfigEditor({ strategies }: Props) {
                     type='number'
                     value={value}
                     onChange={e => updateStrategyConfig(key, e.target.valueAsNumber)}
+                    className='inline-block w-32'
+                  />
+                </div>
+              ) : (
+                <div key={key}>
+                  <label className='w-48 inline-block pr-2'>
+                    {key}:
+                  </label>
+                  <input
+                    type='checkbox'
+                    checked={value as boolean}
+                    onChange={e => updateStrategyConfig(key, e.target.checked)}
                     className='inline-block w-32'
                   />
                 </div>
@@ -180,8 +194,8 @@ export function PapertradeConfigEditor({ strategies }: Props) {
               </label>
               <input
                 type='number'
-                value={config.trader.initialBalance}
-                onChange={e => updateConfig({ trader: { ...config.trader, initialBalance: e.target.valueAsNumber } })}
+                value={config.broker.initialBalance}
+                onChange={e => updateConfig({ broker: { ...config.broker, initialBalance: e.target.valueAsNumber } })}
                 className='inline-block w-32'
               />
             </div>
@@ -191,8 +205,8 @@ export function PapertradeConfigEditor({ strategies }: Props) {
               </label>
               <input
                 type='number'
-                value={config.trader.fee}
-                onChange={e => updateConfig({ trader: { ...config.trader, fee: e.target.valueAsNumber } })}
+                value={config.broker.fee}
+                onChange={e => updateConfig({ broker: { ...config.broker, fee: e.target.valueAsNumber } })}
                 className='inline-block w-32'
               />
             </div>
@@ -202,24 +216,24 @@ export function PapertradeConfigEditor({ strategies }: Props) {
               </label>
               <input
                 type='checkbox'
-                checked={config.trader.enableMargin}
-                onChange={e => updateConfig({ trader: { ...config.trader, enableMargin: e.target.checked } })}
+                checked={config.broker.enableMargin}
+                onChange={e => updateConfig({ broker: { ...config.broker, enableMargin: e.target.checked } })}
                 className='inline-block w-32'
               />
             </div>
 
             <div>
               <label className={classNames('w-48 inline-block pr-2', {
-                'text-h-text/40': config.trader.enableMargin,
-                'text-h-text/80': !config.trader.enableMargin,
+                'text-h-text/40': config.broker.enableMargin,
+                'text-h-text/80': !config.broker.enableMargin,
               })}>
                 valid trade only:
               </label>
               <input
                 type='checkbox'
-                disabled={config.trader.enableMargin}
-                checked={config.trader.validTradeOnly}
-                onChange={e => updateConfig({ trader: { ...config.trader, validTradeOnly: e.target.checked } })}
+                disabled={config.broker.enableMargin}
+                checked={config.broker.validTradeOnly}
+                onChange={e => updateConfig({ broker: { ...config.broker, validTradeOnly: e.target.checked } })}
                 className='inline-block w-32'
               />
             </div>
