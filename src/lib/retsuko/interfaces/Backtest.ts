@@ -42,7 +42,12 @@ export interface BacktestRun {
   id: string;
   name: string;
   description: string;
-  created_at: string;
-  ended_at: string | null;
+  createdAt: string;
+  endedAt: string | null;
   config: BulkBacktestConfig;
+}
+
+export interface BacktestGroup {
+  run: BacktestRun;
+  singles: BacktestSingle[];
 }

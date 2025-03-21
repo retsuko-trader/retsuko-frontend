@@ -1,6 +1,6 @@
 'use server';
 
-import { BacktestReport, BacktestRun } from '../interfaces/Backtest';
+import { BacktestGroup, BacktestReport, BacktestRun } from '../interfaces/Backtest';
 import { BacktestConfig, BulkBacktestConfig } from '../interfaces/BacktestConfig';
 import { Trade } from '../interfaces/Trade';
 
@@ -28,7 +28,7 @@ export async function getBacktestBulkRuns(): Promise<BacktestRun[]> {
   return await resp.json();
 }
 
-export async function getBacktestBulkRun(id: string): Promise<BacktestRun> {
+export async function getBacktestBulkRun(id: string): Promise<BacktestGroup> {
   const resp = await fetch(`${BACKEND_URL}/backtest/bulk/run/${id}`);
   return await resp.json();
 }

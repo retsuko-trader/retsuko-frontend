@@ -3,9 +3,10 @@ import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import interpolate from 'color-interpolate';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { deleteBacktestRun, getBacktestRunGroup, getBacktestTradesBalancesSampled } from '@/lib/retsuko/repository';
 import { SimpleChart } from '@/components/SimpleChart';
 import { revalidatePath } from 'next/cache';
+import { getBacktestBulkRun } from '@/lib/retsuko/api/backtester';
+import { DatasetConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 
 interface Props {
   params: Promise<{ runId: string }>;
@@ -15,20 +16,20 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
   const { runId } = await params;
 
   await connection();
-  const backtestRunGroup = await getBacktestRunGroup(runId);
+  const backtestRun = await getBacktestBulkRun(runId);
 
-  if (!backtestRunGroup) {
+  if (!backtestRun) {
     notFound();
   }
 
-  const { run, singles } = backtestRunGroup;
-  const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
+  const { run, singles } = backtestRun;
+  // const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
 
-  const singlesByDataset = R.groupBy(singles, x => x.dataset.alias);
+  const singlesByDataset = R.groupBy(singles, x => DatasetConfig.alias(x.config.dataset));
 
-  const getStrategyIndex = (strategy: { name: string, config: Record<string, number> }) => {
-    return run.strategyVariants.findIndex(x => (
-      x.name === strategy.name && JSON.stringify(x.config) === JSON.stringify(strategy.config)
+  const getStrategyIndex = (strategy: { name: string, config: string }) => {
+    return run.config.strategies.findIndex(x => (
+      x.name === strategy.name && x.config === strategy.config
     ));
   };
 
@@ -36,9 +37,9 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
 
   const removeRun = async () => {
     'use server';
-    await deleteBacktestRun(run.id);
-    revalidatePath('/retsuko/backtest');
-    redirect('/retsuko/backtest');
+    // await deleteBacktestRun(run.id);
+    // revalidatePath('/retsuko/backtest');
+    // redirect('/retsuko/backtest');
   };
 
   return (
@@ -56,9 +57,9 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
 
             <Row label='datasets' value={<div className='border-l-2 border-h-yellow/80 pl-2 mb-2'>
               {
-                run.datasets.map((dataset, i) => (
+                run.config.datasets.map((dataset, i) => (
                   <div key={`dataset-${i}`}>
-                    {dataset.alias} ({formatDateShort(dataset.start)} - {formatDateShort(dataset.end)})
+                    {DatasetConfig.alias(dataset)} ({formatDateShort(dataset.start)} - {formatDateShort(dataset.end)})
                   </div>
                 ))
               }
@@ -66,14 +67,14 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
 
             <Row label='strategies' value={<div className='border-l-2 border-h-yellow/80 pl-2 mb-2'>
               {
-                run.strategyVariants.map((strategy, i) => (
+                run.config.strategies.map((strategy, i) => (
                   <div key={`strategy-${i}`}>
                     <div className='inline-block mr-2 align-top'>
                       {strategy.name}
                     </div>
                     <div className='inline-block'>
                       <div className='max-w-[48rem] break-words'>
-                        {JSON.stringify(strategy.config)}
+                        {strategy.config}
                       </div>
                     </div>
                   </div>
@@ -81,8 +82,8 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
               }
             </div>} />
 
-            <Row label='balance' value={run.tradeOptions.initialBalance} />
-            <Row label='fee' value={formatPercent(run.tradeOptions.fee)} />
+            <Row label='balance' value={run.config.broker.initialBalance} />
+            <Row label='fee' value={formatPercent(run.config.broker.fee)} />
           </div>
         </div>
 
@@ -119,15 +120,15 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         )
                       }
                       <td className='w-48 pl-1'>
-                        {single.strategy.name}[{getStrategyIndex(single.strategy)}]
+                        {single.config.strategy.name}[{getStrategyIndex(single.config.strategy)}]
                       </td>
                       <td className='w-12 text-right'>
-                        {formatBalance(single.result.balanceFinal)}
+                        {formatBalance(single.metrics.endBalance)}
                       </td>
                       <td className='w-20 text-right' style={{
-                        color: color((single.result.profit - 1) / 3),
+                        color: color((single.metrics.totalProfit - 1) / 3),
                       }}>
-                        {formatPercent(single.result.profit)}
+                        {formatPercent(single.metrics.totalProfit)}
                       </td>
                       <td className='w-20 text-right' style={{
                         color: color((single.metrics.cagr - 1)),
@@ -158,16 +159,16 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         {formatPercent(single.metrics.marketChange)}
                       </td>
                       <td className='w-16 text-right'>
-                        {single.result.tradesCount}
+                        {single.metrics.totalTrades}
                       </td>
                       <td className='w-24 text-center'>
-                        {single.result.tradesWin}/{single.result.tradesLoss}
+                        {/* single.metrics.tradesWin}/{single.metrics.tradesLoss */}
                       </td>
                       <td className='w-20 text-right pr-2'>
-                        {formatPercent(single.result.avgTradeProfit)}
+                        {/* formatPercent(single.metrics.avgTradeProfit) */}
                       </td>
                       <td className='w-36'>
-                        <SimpleChart data={trades[i]} reference={single.result.balanceInitial} />
+                        {/* <SimpleChart data={trades[i]} reference={single.result.balanceInitial} /> */}
                       </td>
                     </tr>
                   ))

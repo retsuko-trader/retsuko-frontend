@@ -1,11 +1,12 @@
-import { getBacktests, getDatasetGroups } from '@/lib/retsuko/repository'
 import Link from 'next/link';
 import { BacktestConfigEditor } from './BacktestConfigEditor';
-import { BacktestConfig, Backtester } from '@/lib/retsuko/core/backtester';
 import { redirect } from 'next/navigation';
-import { StrategyEntriesLight } from '@/lib/retsuko/core/strategies';
 import { formatDateShort, formatPercent } from '@/lib/helper';
 import { connection } from 'next/server';
+import { getBacktestBulkRuns, runBacktestBulk } from '@/lib/retsuko/api/backtester';
+import { getDataset, getSymbols } from '@/lib/retsuko/api/candle';
+import { getStrategies } from '@/lib/retsuko/api/strategy';
+import { BulkBacktestConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -14,19 +15,15 @@ export const cache = 'no-store';
 export default async function RetsukoBacktestPage() {
   await connection();
 
-  const backtestRuns = await getBacktests();
-  const datasetGroups = await getDatasetGroups();
-  const strategies = [...StrategyEntriesLight];
+  const backtestRuns = await getBacktestBulkRuns();
+  const datasets = await getDataset();
+  const symbols = await getSymbols();
+  const strategies = await getStrategies();
 
-  const run = async (config: BacktestConfig) => {
+  const run = async (config: BulkBacktestConfig) => {
     'use server';
 
-    const backtester = new Backtester(config);
-    await backtester.init();
-
-    backtester.run().then(() => {
-      console.log('backtest done');
-    });
+    await runBacktestBulk(config);
 
     redirect('/retsuko/backtest');
   };
@@ -70,15 +67,15 @@ export default async function RetsukoBacktestPage() {
                   </div>
 
                   <div className='w-24 text-right'>
-                    {x.datasets.length}
+                    {x.config.datasets.length}
                   </div>
 
                   <div className='w-24 text-right'>
-                    {x.strategyVariants.length}
+                    {x.config.strategies.length}
                   </div>
 
                   <div className='w-16 text-right'>
-                    {formatPercent(x.tradeOptions.fee)}
+                    {formatPercent(x.config.broker.fee)}
                   </div>
                 </div>
               </Link>
@@ -91,7 +88,8 @@ export default async function RetsukoBacktestPage() {
       <div className='h-full top-0 bottom-0 right-0 w-[32rem] bg-h-background drop-shadow-lg'>
         <div className='w-full h-full bg-h-tone/5 p-3 overflow-y-auto'>
           <BacktestConfigEditor
-            datasetGroups={datasetGroups}
+            datasets={datasets}
+            symbols={symbols}
             strategies={strategies}
             runBacktest={run}
           />
