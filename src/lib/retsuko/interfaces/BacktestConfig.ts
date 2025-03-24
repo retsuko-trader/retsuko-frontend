@@ -1,4 +1,6 @@
+import { Intervals } from '@/lib/helper/interval';
 import { Market } from './Dataset';
+import { Symbol } from './Symbol';
 
 export interface DatasetConfig {
   market: Market;
@@ -9,8 +11,11 @@ export interface DatasetConfig {
 }
 
 export namespace DatasetConfig {
-  export function alias(config: DatasetConfig): string {
-    return `${config.market}-${config.symbolId}-${config.interval}`;
+  export function alias(config: DatasetConfig, symbols: Symbol[]): string {
+    const market = Market[config.market];
+    const symbol = symbols.find(x => x.id === config.symbolId);
+    const interval = Intervals[config.interval];
+    return `${market}-${symbol?.name ?? config.symbolId}-${interval}`;
   }
 }
 

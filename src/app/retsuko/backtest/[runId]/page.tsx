@@ -7,6 +7,7 @@ import { SimpleChart } from '@/components/SimpleChart';
 import { revalidatePath } from 'next/cache';
 import { getBacktestBulkRun } from '@/lib/retsuko/api/backtester';
 import { DatasetConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
+import { getSymbols } from '@/lib/retsuko/api/candle';
 
 interface Props {
   params: Promise<{ runId: string }>;
@@ -17,6 +18,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
 
   await connection();
   const backtestRun = await getBacktestBulkRun(runId);
+  const symbols = await getSymbols();
 
   if (!backtestRun) {
     notFound();
@@ -25,7 +27,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
   const { run, singles } = backtestRun;
   // const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
 
-  const singlesByDataset = R.groupBy(singles, x => DatasetConfig.alias(x.config.dataset));
+  const singlesByDataset = R.groupBy(singles, x => DatasetConfig.alias(x.config.dataset, symbols));
 
   const getStrategyIndex = (strategy: { name: string, config: string }) => {
     return run.config.strategies.findIndex(x => (
@@ -59,7 +61,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
               {
                 run.config.datasets.map((dataset, i) => (
                   <div key={`dataset-${i}`}>
-                    {DatasetConfig.alias(dataset)} ({formatDateShort(dataset.start)} - {formatDateShort(dataset.end)})
+                    {DatasetConfig.alias(dataset, symbols)} ({formatDateShort(dataset.start)} - {formatDateShort(dataset.end)})
                   </div>
                 ))
               }

@@ -6,16 +6,18 @@ import classNames from 'classnames';
 import { StrategyEntry } from '@/lib/retsuko/interfaces/Strategy';
 import { BacktestConfig, DatasetConfig, StrategyConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 import { Dataset } from '@/lib/retsuko/interfaces/Dataset';
+import { Symbol } from '@/lib/retsuko/interfaces/Symbol';
 
 interface Props {
   datasets: Dataset[];
+  symbols: Symbol[];
   strategies: StrategyEntry[];
   runBacktest: (configs: BacktestConfig[]) => void;
 }
 
 type Config = Omit<BacktestConfig, 'strategy'>;
 
-export function SingleBacktestConfigEditor({ datasets, strategies: entries, runBacktest }: Props) {
+export function SingleBacktestConfigEditor({ datasets, symbols, strategies: entries, runBacktest }: Props) {
   const [config, setConfig] = React.useState<Config>({
     dataset: {
       market: datasets[0].market,
@@ -47,12 +49,12 @@ export function SingleBacktestConfigEditor({ datasets, strategies: entries, runB
   };
 
   const selectDataset = (alias: string) => {
-    const dataset = datasets.find(x => DatasetConfig.alias(x) === alias);
+    const dataset = datasets.find(x => DatasetConfig.alias(x, symbols) === alias);
     if (!dataset) {
       return;
     }
 
-    if (DatasetConfig.alias(config.dataset) === alias) {
+    if (DatasetConfig.alias(config.dataset, symbols) === alias) {
       return;
     }
 
@@ -137,9 +139,9 @@ export function SingleBacktestConfigEditor({ datasets, strategies: entries, runB
           <label className='w-20 inline-block'>
             datasets:
           </label>
-          <select value={DatasetConfig.alias(config.dataset)} onChange={e => selectDataset(e.target.value)} className='inline-block w-52'>
+          <select value={DatasetConfig.alias(config.dataset, symbols)} onChange={e => selectDataset(e.target.value)} className='inline-block w-52'>
             {datasets.map(dataset => {
-              const key = DatasetConfig.alias(dataset);
+              const key = DatasetConfig.alias(dataset, symbols);
               return (
                 <option key={key} value={key}>{key}</option>
               )

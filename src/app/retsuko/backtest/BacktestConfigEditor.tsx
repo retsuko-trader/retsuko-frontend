@@ -14,7 +14,7 @@ interface Props {
   runBacktest: (config: BulkBacktestConfig) => void;
 }
 
-export function BacktestConfigEditor({ datasets, strategies, runBacktest }: Props) {
+export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktest }: Props) {
   const [config, setConfig] = React.useState<BulkBacktestConfig>({
     name: '',
     description: '',
@@ -104,9 +104,9 @@ export function BacktestConfigEditor({ datasets, strategies, runBacktest }: Prop
           <label className='w-20 inline-block'>
             datasets:
           </label>
-          <select value={DatasetConfig.alias(config.datasets[0])} onChange={e => updateConfig({ datasets: [datasets.find(x => DatasetConfig.alias(x) === e.target.value)!] })} className='inline-block w-52'>
+          <select value={DatasetConfig.alias(config.datasets[0], symbols)} onChange={e => updateConfig({ datasets: [datasets.find(x => DatasetConfig.alias(x, symbols) === e.target.value)!] })} className='inline-block w-52'>
             {datasets.map(dataset => {
-              var alias = DatasetConfig.alias(dataset);
+              var alias = DatasetConfig.alias(dataset, symbols);
               return (
                 <option key={alias} value={alias}>{alias}</option>
               )

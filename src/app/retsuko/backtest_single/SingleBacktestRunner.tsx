@@ -212,6 +212,7 @@ export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
         <div className='w-full h-full bg-h-tone/5 p-3 overflow-y-auto'>
           <SingleBacktestConfigEditor
             datasets={datasets}
+            symbols={symbols}
             strategies={strategies}
             runBacktest={run}
           />
