@@ -1,3 +1,3 @@
-# yuno
+# retsuko-frontend
 
-Don't worry, *yuno* will protect you.
+WIP
