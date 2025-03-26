@@ -1,6 +1,6 @@
 import { Menu } from '@/lib/menu';
-import { getSubMenus as getIndexSubMenus } from './page';
-import { getSubMenus as getRetsukoSubMenus } from './retsuko/page';
+import { getSubMenus as getIndexSubMenus } from './subMenus';
+import { getSubMenus as getRetsukoSubMenus } from './retsuko/subMenus';
 
 export const pages: Menu[] = [
   {

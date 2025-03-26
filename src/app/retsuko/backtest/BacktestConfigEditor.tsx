@@ -106,7 +106,7 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
           </label>
           <select value={DatasetConfig.alias(config.datasets[0], symbols)} onChange={e => updateConfig({ datasets: [datasets.find(x => DatasetConfig.alias(x, symbols) === e.target.value)!] })} className='inline-block w-52'>
             {datasets.map(dataset => {
-              var alias = DatasetConfig.alias(dataset, symbols);
+              const alias = DatasetConfig.alias(dataset, symbols);
               return (
                 <option key={alias} value={alias}>{alias}</option>
               )

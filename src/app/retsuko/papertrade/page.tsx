@@ -11,7 +11,6 @@ import { getStrategies } from '@/lib/retsuko/api/strategy';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
-export const cache = 'no-store';
 
 export default async function RetsukoPapertradePage() {
   await connection();

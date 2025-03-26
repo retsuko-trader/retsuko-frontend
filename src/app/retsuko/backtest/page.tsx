@@ -10,7 +10,6 @@ import { BulkBacktestConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
-export const cache = 'no-store';
 
 export default async function RetsukoBacktestPage() {
   await connection();

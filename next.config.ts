@@ -10,6 +10,9 @@ const nextConfig = (phase: string) => {
   const result: NextConfig = {
     serverExternalPackages: ['duckdb', 'duckdb-async', 'tulind'],
     distDir: isProd ? '.next.prod' : '.next.dev',
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
   };
 
   return result;

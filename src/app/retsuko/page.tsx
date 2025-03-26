@@ -1,5 +1,3 @@
-export { getSubMenus } from './subMenus';
-
 export default function RetsukoHome() {
   return (
     <div>
