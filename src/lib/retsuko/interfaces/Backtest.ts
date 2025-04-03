@@ -4,6 +4,9 @@ import { Trade } from './Trade';
 export interface TraderMetrics {
   startBalance: number;
   endBalance: number;
+  asset: number;
+  currency: number;
+  totalBalance: number;
   totalTrades: number;
   avgTrades: number;
   totalProfit: number;
