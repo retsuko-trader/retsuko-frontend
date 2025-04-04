@@ -15,6 +15,7 @@ import { Candle } from '@/lib/retsuko/interfaces/Candle';
 import { BacktestConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 import { runBacktestSingle } from '@/lib/retsuko/api/backtester';
 import { SignalKind } from '@/lib/retsuko/interfaces/Trade';
+import { getCandles } from '@/lib/retsuko/api/candle';
 
 const TradingChart = dynamic(() => import('@/components/TradingChart').then(x => x.TradingChart), { ssr: false });
 
@@ -27,7 +28,6 @@ interface Props {
 export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [reports, setReports] = React.useState<BacktestReport[]>([]);
-  // const [indicators, setIndicators] = React.useState<StrategyIndicator[]>([]);
   const [candles, setCandles] = React.useState<Candle[]>([]);
   const [logarithmicBalance, setLogarithmicBalance] = React.useState(false);
 
@@ -35,8 +35,7 @@ export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
     setLoading(true);
     const resp = (await Promise.all(configs.map(x => runBacktestSingle({ config: x, hideTrades: false })))).filter(x => x !== null);
     setReports(resp);
-    // setCandles(await loadCandles(configs[0]));
-    // setIndicators(resp.map(x => x.indicators));
+    setCandles(await getCandles(configs[0].dataset.symbolId, configs[0].dataset.interval, new Date(configs[0].dataset.start), new Date(configs[0].dataset.end), 1));
     setLoading(false);
   };
 
@@ -135,7 +134,7 @@ export function SingleBacktestRunner({ datasets, symbols, strategies }: Props) {
                   title={`backtest single simulation result ${i}`}
                   candles={candles}
                   tradesList={[report.trades]}
-                  // indicators={indicators[i]}
+                  indicators={report.debugIndicators}
                   showBalance
                   showTrades
                   showIndicators

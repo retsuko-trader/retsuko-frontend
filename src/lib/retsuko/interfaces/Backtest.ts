@@ -26,10 +26,22 @@ export interface TraderMetrics {
   marketChange: number;
 }
 
+export interface DebugIndicatorEntry {
+  ts: number;
+  value: number;
+}
+
+export interface DebugIndicator {
+  name: string;
+  index: number;
+  values: DebugIndicatorEntry[];
+}
+
 export interface BacktestReport {
   config: BacktestConfig;
   trades: Trade[];
   metrics: TraderMetrics;
+  debugIndicators: DebugIndicator[];
 }
 
 export interface BacktestSingle {

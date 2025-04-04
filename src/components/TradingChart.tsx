@@ -6,6 +6,7 @@ import * as R from 'remeda';
 import { useDarkTheme } from './layout/ThemeSwitch';
 import { Candle } from '@/lib/retsuko/interfaces/Candle';
 import { SignalKind, Trade } from '@/lib/retsuko/interfaces/Trade';
+import { DebugIndicator } from '@/lib/retsuko/interfaces/Backtest';
 
 interface Props {
   title: string;
@@ -13,7 +14,7 @@ interface Props {
   candles?: Candle[];
 
   tradesList?: Trade[][];
-  // indicators?: StrategyIndicator;
+  indicators?: DebugIndicator[];
 
   showBalance?: boolean;
   logarithmicBalance?: boolean;
@@ -25,7 +26,7 @@ export function TradingChart({
   title,
   candles,
   tradesList,
-  // indicators,
+  indicators,
   showBalance,
   logarithmicBalance,
   showTrades,
@@ -33,15 +34,15 @@ export function TradingChart({
 }: Props) {
   const [isDark] = useDarkTheme();
 
-  // const indicatorsByIndex = Object.entries(R.groupBy(Object.entries(indicators ?? {}), x => x[1][0]))
-  //   .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+  const indicatorsByIndex = Object.entries(R.groupBy(indicators ?? [], x => x.index))
+    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
 
   let height = 200;
   if (candles && candles.length > 0) {
     height += 300;
   }
   if (showIndicators) {
-    // height += indicatorsByIndex.length * 170;
+    height += indicatorsByIndex.length * 170;
   }
 
   const axisX = {
@@ -100,7 +101,7 @@ export function TradingChart({
             showInLegend: true,
             xValueFormatString: 'YYYY-MM-DD HH:mm',
             dataPoints: candles.map(x => ({
-              x: x.ts,
+              x: new Date(x.ts),
               y: [x.open, x.high, x.low, x.close],
             })),
           },
@@ -112,7 +113,7 @@ export function TradingChart({
             yValueFormatString: '0.00',
             axisYType: 'secondary',
             dataPoints: trades.map(x => ({
-              x: x.ts,
+              x: new Date(x.ts),
               y: x.asset * x.price + x.currency,
             })),
           })),
@@ -124,7 +125,7 @@ export function TradingChart({
             markerType: 'triangle',
             markerSize: 10,
             dataPoints: trades.map(x => ({
-              x: x.ts,
+              x: new Date(x.ts),
               y: x.price,
               z: x.signal,
               markerColor: x.signal === SignalKind.long ? 'green' : 'red',
@@ -132,25 +133,25 @@ export function TradingChart({
           })),
         ],
       },
-      // ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
-      //   height: 170,
-      //   axisX,
-      //   axisY: {
-      //     title: `indicators[${index}]`,
-      //   },
-      //   toolTip,
-      //   data: indicators.map(([name, data]) => ({
-      //     name,
-      //     type: 'line',
-      //     showInLegend: true,
-      //     xValueFormatString: 'YYYY-MM-DD HH:mm',
-      //     yValueFormatString: '0.00',
-      //     dataPoints: data[1].map(([x, y]) => ({
-      //       x: new Date(x),
-      //       y,
-      //     })),
-      //   })),
-      // })) : []),
+      ...(showIndicators ? indicatorsByIndex.map(([index, indicators]) => ({
+        height: 170,
+        axisX,
+        axisY: {
+          title: `indicators[${index}]`,
+        },
+        toolTip,
+        data: indicators.map((data) => ({
+          name: data.name,
+          type: 'line',
+          showInLegend: true,
+          xValueFormatString: 'YYYY-MM-DD HH:mm',
+          yValueFormatString: '0.00',
+          dataPoints: data.values.map(({ ts, value }) => ({
+            x: new Date(ts),
+            y: value,
+          })),
+        })),
+      })) : []),
     ],
   };
 
