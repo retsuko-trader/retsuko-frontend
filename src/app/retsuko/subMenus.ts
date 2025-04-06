@@ -18,5 +18,9 @@ export const getSubMenus: GetSubMenu = () => {
       title: 'papertrade',
       path: 'papertrade',
     },
+    {
+      title: 'livetrade',
+      path: 'livetrade',
+    },
   ];
 };
