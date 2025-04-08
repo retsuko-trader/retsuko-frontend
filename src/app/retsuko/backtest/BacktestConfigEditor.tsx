@@ -6,6 +6,7 @@ import { StrategyEntry } from '@/lib/retsuko/interfaces/Strategy';
 import { Dataset } from '@/lib/retsuko/interfaces/Dataset';
 import { BulkBacktestConfig, DatasetConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 import { Symbol } from '@/lib/retsuko/interfaces/Symbol';
+import { Intervals } from '@/lib/helper/interval';
 
 interface Props {
   datasets: Dataset[];
@@ -14,12 +15,18 @@ interface Props {
   runBacktest: (config: BulkBacktestConfig) => void;
 }
 
+interface DatasetOption {
+  symbolGte: number | null;
+  symbolLte: number | null;
+  intervalGte: number | null;
+  intervalLte: number | null;
+}
+
 export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktest }: Props) {
   const [config, setConfig] = React.useState<BulkBacktestConfig>({
     name: '',
     description: '',
     datasets: [
-      datasets[0],
     ],
     strategies: [],
     broker: {
@@ -29,6 +36,50 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
       validTradeOnly: true,
     },
   });
+
+  const [datasetOptions, setDatasetOptions] = React.useState<DatasetOption>({
+    symbolGte: null,
+    symbolLte: null,
+    intervalGte: null,
+    intervalLte: null,
+  });
+
+  const updateDatasetOptions = (option: Partial<DatasetOption>) => {
+    setDatasetOptions(x => {
+      const newOption = {
+        ...x,
+        ...option,
+      };
+
+      const filtered = datasets.filter(dataset => {
+        if (newOption.symbolGte && dataset.symbolId < newOption.symbolGte) {
+          return false;
+        }
+        if (newOption.symbolLte && dataset.symbolId > newOption.symbolLte) {
+          return false;
+        }
+        if (newOption.intervalGte && dataset.interval < newOption.intervalGte) {
+          return false;
+        }
+        if (newOption.intervalLte && dataset.interval > newOption.intervalLte) {
+          return false;
+        }
+        return true;
+      });
+      setConfig(y => ({
+        ...y,
+        datasets: filtered.map(dataset => ({
+          market: dataset.market,
+          symbolId: dataset.symbolId,
+          interval: dataset.interval,
+          start: dataset.start,
+          end: dataset.end,
+        })),
+      }));
+
+      return newOption;
+    })
+  }
 
   const updateConfig = (option: Partial<BulkBacktestConfig>) => {
     setConfig({
@@ -104,14 +155,86 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
           <label className='w-20 inline-block'>
             datasets:
           </label>
-          <select value={DatasetConfig.alias(config.datasets[0], symbols)} onChange={e => updateConfig({ datasets: [datasets.find(x => DatasetConfig.alias(x, symbols) === e.target.value)!] })} className='inline-block w-52'>
-            {datasets.map(dataset => {
-              const alias = DatasetConfig.alias(dataset, symbols);
-              return (
-                <option key={alias} value={alias}>{alias}</option>
-              )
-            })}
-          </select>
+
+          <div className='flex flex-col border-l-2 border-h-yellow/80 mt-1 pl-2'>
+            <div>
+              <label className='mr-2'>
+                <input type='checkbox' checked={!!datasetOptions.symbolGte} onChange={e => updateDatasetOptions({ symbolGte: e.target.checked ? 0 : null })} className='inline-block mr-2' />
+                symbolId <span className='text-h-blue'>{'>'}</span>
+              </label>
+
+              <input
+                type='number'
+                value={datasetOptions.symbolGte ?? ''}
+                onChange={e => updateDatasetOptions({ symbolGte: e.target.valueAsNumber })}
+                className='inline-block w-32'
+              />
+            </div>
+
+            <div>
+              <label className='mr-2'>
+                <input type='checkbox' checked={!!datasetOptions.symbolLte} onChange={e => updateDatasetOptions({ symbolLte: e.target.checked ? 0 : null })} className='inline-block mr-2' />
+                symbolId <span className='text-h-blue'>{'<'}</span>
+              </label>
+
+              <input
+                type='number'
+                value={datasetOptions.symbolLte ?? ''}
+                onChange={e => updateDatasetOptions({ symbolLte: e.target.valueAsNumber })}
+                className='inline-block w-32'
+              />
+            </div>
+
+            <div>
+              <label className='mr-2'>
+                <input type='checkbox' checked={!!datasetOptions.intervalGte} className='inline-block mr-2' />
+                interval <span className='text-h-blue'>{'>='}</span>
+              </label>
+
+              <select value={datasetOptions.intervalGte ?? ''} onChange={e => updateDatasetOptions({ intervalGte: e.target.value === '' ? null : parseInt(e.target.value) })} className='inline-block w-32'>
+                <option value=''>-</option>
+                {
+                  Object.entries(Intervals).map(([key, value]) => {
+                    return (
+                      <option key={key} value={key}>{value}</option>
+                    )
+                  })
+                }
+              </select>
+            </div>
+
+            <div>
+              <label className='mr-2'>
+                <input type='checkbox' checked={!!datasetOptions.intervalLte} className='inline-block mr-2' />
+                interval <span className='text-h-blue'>{'<='}</span>
+              </label>
+
+              <select value={datasetOptions.intervalLte ?? ''} onChange={e => updateDatasetOptions({ intervalLte: e.target.value === '' ? null : parseInt(e.target.value) })} className='inline-block w-32'>
+                <option value=''>-</option>
+                {
+                  Object.entries(Intervals).map(([key, value]) => {
+                    return (
+                      <option key={key} value={key}>{value}</option>
+                    )
+                  })
+                }
+              </select>
+            </div>
+          </div>
+
+          <details>
+            <summary>[...]</summary>
+
+            <pre>
+              {config.datasets.map((dataset, i) => {
+                return (
+                  <div key={`dataset-${i}`}>
+                    {DatasetConfig.alias(dataset, symbols)}
+                  </div>
+                );
+              })}
+            </pre>
+          </details>
         </div>
 
         <div>
@@ -169,7 +292,7 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
             }
 
             <button onClick={addStrategy} className='w-full px-4 py-0.5 bg-h-yellow/60 hover:bg-h-yellow/40'>
-              add dataset
+              add strategy
             </button>
           </div>
         </div>
