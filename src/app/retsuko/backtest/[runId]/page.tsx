@@ -3,11 +3,10 @@ import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import interpolate from 'color-interpolate';
 import { formatBalance, formatDateShort, formatPercent } from '@/lib/helper';
-import { SimpleChart } from '@/components/SimpleChart';
-import { revalidatePath } from 'next/cache';
-import { getBacktestBulkRun } from '@/lib/retsuko/api/backtester';
+import { getBacktestBulkRun, getBacktestSingleTrades } from '@/lib/retsuko/api/backtester';
 import { DatasetConfig } from '@/lib/retsuko/interfaces/BacktestConfig';
 import { getSymbols } from '@/lib/retsuko/api/candle';
+import { SimpleChart } from '@/components/SimpleChart';
 
 interface Props {
   params: Promise<{ runId: string }>;
@@ -25,9 +24,10 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
   }
 
   const { run, singles } = backtestRun;
-  // const trades = await Promise.all(singles.map(x => getBacktestTradesBalancesSampled(x.id)));
 
-  const singlesByDataset = R.groupBy(singles, x => DatasetConfig.alias(x.config.dataset, symbols));
+  const singlesByDataset = R.groupBy(
+    R.sortBy(singles, x => x.config.dataset.symbolId, x => x.config.dataset.interval),
+    x => DatasetConfig.alias(x.config.dataset, symbols));
 
   const getStrategyIndex = (strategy: { name: string, config: string }) => {
     return run.config.strategies.findIndex(x => (
@@ -116,7 +116,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                     <tr key={single.id} className='even:bg-h-tone/5 hover:text-h-text/80 cursor-pointer'>
                       {
                         j === 0 && (
-                          <td className='w-44 pl-1' rowSpan={singles.length}>
+                          <td className='w-52 overflow-clip pl-1' rowSpan={singles.length}>
                             {alias}
                           </td>
                         )
@@ -133,7 +133,7 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         {formatPercent(single.metrics.totalProfit)}
                       </td>
                       <td className='w-20 text-right' style={{
-                        color: color((single.metrics.cagr - 1)),
+                        color: color((single.metrics.cagr)),
                       }}>
                         {formatPercent(single.metrics.cagr)}
                       </td>
@@ -164,13 +164,13 @@ export default async function RestsukoBacktestRunPage({ params }: Props) {
                         {single.metrics.totalTrades}
                       </td>
                       <td className='w-24 text-center'>
-                        {/* single.metrics.tradesWin}/{single.metrics.tradesLoss */}
+                        {single.trades.filter(x => x.profit > 0).length}/{single.trades.filter(x => x.profit < 0).length}
                       </td>
                       <td className='w-20 text-right pr-2'>
-                        {/* formatPercent(single.metrics.avgTradeProfit) */}
+                        {formatPercent(R.sumBy(single.trades, x => x.profit) / single.trades.length)}
                       </td>
                       <td className='w-36'>
-                        {/* <SimpleChart data={trades[i]} reference={single.result.balanceInitial} /> */}
+                        <SimpleChart data={single.trades.map(x => x.currency + x.asset * x.price)} reference={run.config.broker.initialBalance} />
                       </td>
                     </tr>
                   ))

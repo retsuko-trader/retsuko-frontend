@@ -51,6 +51,7 @@ export interface BacktestSingle {
   dataset_end: string;
   config: BacktestConfig;
   metrics: TraderMetrics;
+  trades: Trade[];
 }
 
 export interface BacktestRun {
