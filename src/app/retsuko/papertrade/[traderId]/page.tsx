@@ -40,6 +40,7 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
           <summary>dump</summary>
 
           <pre className='font-mono max-w-full break-words'>
+            {JSON.stringify(JSON.parse(trader.dump), null, 2)}
             {/* {JSON.stringify(JSON.parse(trader.strategySerialized), null, 2)} */}
           </pre>
         </details>

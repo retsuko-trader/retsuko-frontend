@@ -11,6 +11,7 @@ export interface PaperTrader {
   endedAt: string | null;
   config: PapertraderConfig;
   metrics: TraderMetrics;
+  dump: string;
 }
 
 export interface PaperTraderTrade {

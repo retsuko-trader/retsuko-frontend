@@ -187,7 +187,7 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
 
             <div>
               <label className='mr-2'>
-                <input type='checkbox' checked={!!datasetOptions.intervalGte} className='inline-block mr-2' />
+                <input type='checkbox' readOnly checked={!!datasetOptions.intervalGte} className='inline-block mr-2' />
                 interval <span className='text-h-blue'>{'>='}</span>
               </label>
 
@@ -205,7 +205,7 @@ export function BacktestConfigEditor({ datasets, symbols, strategies, runBacktes
 
             <div>
               <label className='mr-2'>
-                <input type='checkbox' checked={!!datasetOptions.intervalLte} className='inline-block mr-2' />
+                <input type='checkbox' readOnly checked={!!datasetOptions.intervalLte} className='inline-block mr-2' />
                 interval <span className='text-h-blue'>{'<='}</span>
               </label>
 
