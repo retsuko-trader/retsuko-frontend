@@ -11,6 +11,7 @@ export interface LiveTraderState {
   endedAt: string | null;
   config: LiveTraderConfig;
   metrics: TraderMetrics;
+  dump: string;
 }
 
 export interface LiveTraderTrade {

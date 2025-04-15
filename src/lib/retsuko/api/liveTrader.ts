@@ -10,7 +10,7 @@ export async function getLiveTraders(): Promise<LiveTraderState[]> {
 }
 
 export async function getLiveTrader(id: string): Promise<LiveTraderState | null> {
-  const response = await fetch(`${BACKEND_URL}/livetrader`);
+  const response = await fetch(`${BACKEND_URL}/livetrader/${id}`);
   const data = await response.json();
 
   if (response.status !== 200) {

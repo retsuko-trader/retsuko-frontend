@@ -21,6 +21,9 @@ export default async function RetsukoLiveTraderTraderPage({ params }: Props) {
     notFound();
   }
 
+  const dump = JSON.parse(trader.dump);
+  const dumpParsed = Object.fromEntries(Object.entries(dump).map(([key, value]) => [key, typeof value === 'string' ? JSON.parse(value) : value]));
+
   return (
     <div className='w-full h-full relative flex flex-row'>
       <div className='w-full h-full overflow-y-auto'>
@@ -32,7 +35,7 @@ export default async function RetsukoLiveTraderTraderPage({ params }: Props) {
           <summary>dump</summary>
 
           <pre className='font-mono max-w-full break-words'>
-            {/* {JSON.stringify(JSON.parse(trader.strategySerialized), null, 2)} */}
+            {JSON.stringify(dumpParsed, null, 2)}
           </pre>
         </details>
 
