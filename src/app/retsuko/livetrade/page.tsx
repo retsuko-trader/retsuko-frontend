@@ -2,6 +2,7 @@ import { formatDateShort } from '@/lib/helper';
 import { getSymbols } from '@/lib/retsuko/api/candle';
 import { getLiveTraders, getLiveTraderTrades } from '@/lib/retsuko/api/liveTrader';
 import { getStrategies } from '@/lib/retsuko/api/strategy';
+import classNames from 'classnames';
 import Link from 'next/link';
 import { connection } from 'next/server';
 
@@ -22,7 +23,10 @@ export default async function RetsukoLiveTradePage() {
           liveTraders.map((trader, i) => {
 
             return (
-              <Link key={i} href={`/retsuko/livetrade/${trader.id}`} className='w-[48rem] bg-h-tone/5 p-3 border-l-2 hover:bg-h-tone/10 cursor-pointer'>
+              <Link key={i} href={`/retsuko/livetrade/${trader.id}`} className={classNames('w-[48rem] bg-h-tone/5 p-3 border-l-2 hover:bg-h-tone/10 cursor-pointer', {
+                'border-h-green/80': trader.endedAt === null,
+                'border-h-tone/30': trader.endedAt !== null,
+              })}>
                 <div className='text-h-text font-bold'>
                   {trader.name}
                 </div>
