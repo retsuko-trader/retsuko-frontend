@@ -81,8 +81,8 @@ export default async function RetsukoLiveTraderTraderPage({ params }: Props) {
                       <div className='hidden group-hover:block absolute left-2 top-0 border-l-2 border-h-yellow/80 '>
                         <div className='flex flex-col pl-2'>
                           {
-                            orders.filter(x => x.tradeId === trade.id).map(x => (
-                              <div key={`order-${x.tradeId}-${x.orderId}`} className='flex flex-row gap-x-2'>
+                            orders.filter(x => x.tradeId === trade.id).map((x, i) => (
+                              <div key={`order-${x.tradeId}-${x.orderId}-${i}`} className='flex flex-row gap-x-2'>
                                 <div className='w-72'>
                                   {formatDateShort(new Date(x.updateTime))} ~ {x.closedAt ? formatDateShort(new Date(x.closedAt)) : '--'}
                                 </div>
