@@ -53,6 +53,7 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
               <tr>
                 <th>ts</th>
                 <th>action</th>
+                <th>confidence</th>
                 <th>price</th>
                 <th>asset</th>
                 <th>currency</th>
@@ -72,6 +73,9 @@ export default async function RetsukoPapertradeTraderPage({ params }: Props) {
                     </td>
                     <td className='w-20'>
                       {SignalKind[trade.signal]}
+                    </td>
+                    <td className='w-20'>
+                      {formatPercent(trade.confidence)}
                     </td>
                     <td className='w-20 text-right'>
                       {formatBalance(trade.price)}
